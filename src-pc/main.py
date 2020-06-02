@@ -36,12 +36,12 @@ def eventloop():
                 gamepad_states[event.code] = event.state
 
 
-# bluetooth
-try:
-    ser = serial.Serial("COM3", 38400, timeout=0, parity=serial.PARITY_EVEN, rtscts=1)
-except serial.SerialException:
-    print("error: no bluetooth port found")
-    # exit()
+# # bluetooth
+# try:
+#     ser = serial.Serial("COM3", 38400, timeout=0, parity=serial.PARITY_EVEN, rtscts=1)
+# except serial.SerialException:
+#     print("error: no bluetooth port found")
+#     # exit()
 
 # gamepad
 pads = inputs.devices.gamepads
@@ -55,6 +55,7 @@ threading.Thread(target=eventloop).start()
 leftaccum = 0
 rightaccum = 0
 while True:
+    print("a")
     sleep(0.05)
 
     gas = interp(gamepad_states["ABS_RZ"], [0, 255], [0, 90]) - interp(
@@ -69,28 +70,7 @@ while True:
     leftaccum = int(0.7 * leftaccum + 0.3 * (gas + wheel))
     rightaccum = int(0.7 * rightaccum + 0.3 * (gas - wheel))
 
-    print(f"LEFT:{leftaccum}\tRIGHT:{rightaccum}")
-    ser.write(f"DRIVE:{leftaccum},{rightaccum}#".encode("ASCII"))
+    print(gamepad_states)
+    #print(f"LEFT:{leftaccum}\tRIGHT:{rightaccum}")
+    #ser.write(f"DRIVE:{leftaccum},{rightaccum}#".encode("ASCII"))
 
-
-# ser.write(b"DRIVE:90,90#")
-# sleep(1)
-# ser.write(b"DRIVE:-50,50#")
-# sleep(2)
-
-# ser.write(b"DRIVE:90,90#")
-# sleep(1)
-# ser.write(b"DRIVE:-50,50#")
-# sleep(2)
-
-# ser.write(b"DRIVE:90,90#")
-# sleep(1)
-# ser.write(b"DRIVE:-50,50#")
-# sleep(2)
-
-# ser.write(b"DRIVE:90,90#")
-# sleep(1)
-# ser.write(b"DRIVE:-50,50#")
-# sleep(2)
-
-# ser.write(b"KILL#")
