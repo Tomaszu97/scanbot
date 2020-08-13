@@ -1,0 +1,153 @@
+self.parent.get_screen("main_screen").ids[
+                    "main_status_bar"
+                ].user = self.ids["login_input"].value.strip()
+                self.parent.get_screen("main_screen").ids[
+                    "main_status_bar"
+                ].permission = response["permission"]
+
+
+self.display_popup(
+                    _title="Błąd",
+                    _text="Brak połączenia z serwerem. Sprawdź ustawienia sieci i uruchom aplikację ponownie.",
+                )
+
+
+#PROCESSING
+add_library('serial')
+
+current_angle = 0
+previous_angle = 0
+radar_data = {}
+myPort = None
+
+def input(message=''):
+    from javax.swing import JOptionPane
+    return JOptionPane.showInputDialog(frame, message)
+
+def setup():
+    global myPort
+    #setup the serial port
+    print Serial.list()
+    portIndex = int(input("which serial to connect to? [type index number not its name] "))
+    LF = 10
+    print "Connecting to ", Serial.list()[portIndex]
+    
+    portName = Serial.list()[portIndex]
+    myPort = Serial(this, portName, 115200)
+    myPort.bufferUntil(LF)
+    size(1200, 800)
+    smooth(8)
+
+     
+def draw():
+    background('#000000')
+    draw_radar()
+    textSize(15)        
+    fill('#00FF00')
+    text("CONTROLS:\nUP/DOWN to move\nLEFT/RIGHT to turn\nQ/A to attach/detach tower\nW/S to attach/detach motors\nE to scan environment", 900, 100);
+    
+    
+     
+def serialEvent(evt):
+    global radar_data
+    global current_angle
+    global previous_angle
+    
+    data = evt.readString()
+    data = data.replace('\r', '')
+    data = data.replace('\n', '')
+    data = data.replace('#', '')
+    pair = data.split(':')
+    try:
+        radar_data[int(pair[0])] = float(pair[1])
+        previous_angle = current_angle
+        current_angle = int(pair[0])
+    except Exception as e:
+        print e
+    
+def draw_radar():
+    global radar_data
+    global current_angle
+    global previous_angle
+       
+    
+    #values infill
+    stroke('#FF0000')
+    fill('#990000')
+    circle(400,400,750)
+    
+    #values
+    beginShape()
+    for angle in range(360):
+        try:
+            value = radar_data[angle]
+            if value == -1:
+                value = 100
+            
+            x = 400+(1*3.75*value)*cos(radians(angle))
+            y = 400-(1*3.75*value)*sin(radians(angle))
+            stroke('#0000FF')
+            strokeJoin(ROUND)
+            strokeWeight(2)
+            fill('#000000')
+            vertex(x,y)
+            
+        except:
+            pass
+    endShape(CLOSE)
+    
+    #angle scale
+    stroke('#bfffd0')
+    strokeWeight(1)
+    for i in range(0,360,10):
+        line( 400+400*cos(radians(i)), 400-400*sin(radians(i)), 400+375*cos(radians(i)), 400-375*sin(radians(i)))
+    
+    #distance scale
+    for i in range(75, 750, 75):
+        noFill()
+        stroke('#00FF00')
+        strokeWeight(1)
+        if i/75*10 == 50:
+            stroke('#730073')
+            strokeWeight(4)
+        circle(400,400,i)
+        textSize(15)        
+        fill('#00FF00')
+        text(str(i/75*10), 400, 400-i/2-4);
+    
+    # #scanner line
+    # stroke('#FFFF00')
+    # strokeWeight(1)
+    # x = 375*cos(radians(current_angle))
+    # y = 375*sin(radians(current_angle))
+    # line(400,400, 400+x, 400-y)
+    # line(400,400, 400-x, 400+y)
+    
+    #circle
+    noFill()
+    stroke('#FF00FF')
+    strokeWeight(5)
+    circle(400,400,750)
+    
+def keyPressed():
+    if key == 'q':
+        myPort.write('TOWER_ATTACH#')
+    elif key == 'a':
+        myPort.write('TOWER_DETACH#')
+    elif key == 'w':
+        myPort.write('MOTORS_ATTACH#')
+    elif key == 's':
+        myPort.write('MOTORS_DETACH#')
+    elif key == 'e':
+        myPort.write('LOOK_AROUND#')
+    elif keyCode == 38:
+        myPort.write('DRIVE:30#')
+    elif keyCode == 40:
+        myPort.write('DRIVE:-30#')
+    elif keyCode == 37:
+        myPort.write('TURN:-20#')
+    elif keyCode == 39:
+        myPort.write('TURN:20#')
+    
+    
+   

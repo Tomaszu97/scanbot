@@ -1,96 +1,73 @@
-from numpy import interp
-from time import sleep
+import sys
+from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox
+from layout.layout import Ui_MainWindow
+from pyside_material import apply_stylesheet
+import serial.tools.list_ports
 import serial
-import inputs
-import threading
 
 
-gamepad_states = {
-    "BTN_SELECT": 0,
-    "BTN_START": 0,
-    "BTN_NORTH": 0,
-    "BTN_SOUTH": 0,
-    "BTN_EAST": 0,
-    "BTN_WEST": 0,
-    "BTN_TL": 0,
-    "BTN_TR": 0,
-    "BTN_THUMBL": 0,
-    "BTN_THUMBR": 0,
-    "ABS_Z": 0,
-    "ABS_RZ": 0,
-    "ABS_X": 0,
-    "ABS_Y": 0,
-    "ABS_RX": 0,
-    "ABS_RY": 0,
-    "ABS_HAT0X": 0,
-    "ABS_HAT0Y": 0,
-}
+class MainWindow(QMainWindow, Ui_MainWindow):
+    def __init__(self):
+        QMainWindow.__init__(self)
+        # apply_stylesheet(app, theme="dark_blue.xml")
+        self.setupUi(self)
+        self.connect_signals()
+        # self.setWindowTitle("ScanBot Control Application")
+        # self.setFixedWidth(1500)
+        # self.setFixedHeight(800)
+        self.setFixedSize(self.size())
+
+    def make_message(self, title, text, informativetext=None):
+        msg = QMessageBox()
+        msg.setIcon(QMessageBox.Warning)
+        msg.setWindowTitle(title)
+        msg.setText(text)
+        if informativetext is not None:
+            msg.setInformativeText(informativetext)
+        msg.setStandardButtons(QMessageBox.Ok)
+        msg.exec()
+
+    def connect_signals(self):
+        self.serial_refresh_btn.clicked.connect(self.serial_refresh)
+        self.serial_connect_btn.clicked.connect(self.serial_connect)
+        self.forward_btn.clicked.connect(self.go_forward)
+
+    def serial_refresh(self):
+        self.serial_combo.clear()
+        for comport in serial.tools.list_ports.comports():
+            device = comport.device
+            self.serial_combo.addItem(str(device))
+
+    def serial_connect(self):
+        if self.connection_status_label.text == "✔":
+            self.ser.close()
+
+        print(self.serial_combo.currentText())
+
+        self.connection_status_label.setText("⌚")
+        try:
+            self.ser = serial.Serial(
+                port=f"{self.serial_combo.currentText()}",
+                baudrate=38400,
+                timeout=2,
+                parity=serial.PARITY_EVEN,
+                rtscts=1,
+            )
+            self.connection_status_label.setText("✔")
+        except serial.SerialException as e:
+            self.connection_status_label.setText("❌")
+            self.make_message("Error", "Serial connection failed.", str(e))
+
+    def go_forward(self):
+        self.ser.write(b"GET_DISTANCE#")
+        x = self.ser.read_until().decode()
+        x = x.replace("\r\n", "")
+        print(x)
 
 
-def eventloop():
-    global gamepad_states
-    while True:
-        events = inputs.get_gamepad()
-        for event in events:
-            if event.code in gamepad_states:
-                gamepad_states[event.code] = event.state
+if __name__ == "__main__":
 
-
-# bluetooth
-try:
-    ser = serial.Serial("COM3", 38400, timeout=0, parity=serial.PARITY_EVEN, rtscts=1)
-except serial.SerialException:
-    print("error: no bluetooth port found")
-    # exit()
-
-# gamepad
-pads = inputs.devices.gamepads
-if len(pads) == 0:
-    print("error: gamepad not found")
-    exit()
-threading.Thread(target=eventloop).start()
-
-
-# main program
-leftaccum = 0
-rightaccum = 0
-while True:
-    sleep(0.05)
-
-    gas = interp(gamepad_states["ABS_RZ"], [0, 255], [0, 90]) - interp(
-        gamepad_states["ABS_Z"], [0, 255], [0, 90]
-    )
-
-    wheel = gamepad_states["ABS_X"]
-    if wheel < 5000 and wheel > -5000:
-        wheel = 0
-    wheel = interp(wheel, [-32768, 32767], [-30, 30])
-
-    leftaccum = int(0.7 * leftaccum + 0.3 * (gas + wheel))
-    rightaccum = int(0.7 * rightaccum + 0.3 * (gas - wheel))
-
-    print(f"LEFT:{leftaccum}\tRIGHT:{rightaccum}")
-    ser.write(f"DRIVE:{leftaccum},{rightaccum}#".encode("ASCII"))
-
-
-# ser.write(b"DRIVE:90,90#")
-# sleep(1)
-# ser.write(b"DRIVE:-50,50#")
-# sleep(2)
-
-# ser.write(b"DRIVE:90,90#")
-# sleep(1)
-# ser.write(b"DRIVE:-50,50#")
-# sleep(2)
-
-# ser.write(b"DRIVE:90,90#")
-# sleep(1)
-# ser.write(b"DRIVE:-50,50#")
-# sleep(2)
-
-# ser.write(b"DRIVE:90,90#")
-# sleep(1)
-# ser.write(b"DRIVE:-50,50#")
-# sleep(2)
-
-# ser.write(b"KILL#")
+    app = QApplication(sys.argv)
+    MainWindow = MainWindow()
+    MainWindow.show()
+    sys.exit(app.exec_())

@@ -1,0 +1,40 @@
+#:kivy 1.11.1
+
+<InitialScreen>:
+	name: 'initial_screen'
+
+	FilledBoxLayout:
+		orientation: 'horizontal'
+
+		Button:
+			text: 'reload serial ports'
+			on_release: root.refresh_button_handler()
+
+		Label:
+			text: ''
+
+		BoxLayout:
+			orientation: 'vertical'
+
+			Label:
+				size_hint_y: 0.2
+				font_size: 30
+				text: "choose serial port"
+
+
+			ScrollView:
+				do_scroll_x: False
+				do_scroll_y: True
+				scroll_wheel_distance: 40
+
+				BoxLayout:
+					id: serial_list
+					size_hint_y: None
+					height: self.minimum_height
+					orientation: 'vertical'
+					spacing: 10
+					padding: 10
+
+
+		Label:
+			text: ''

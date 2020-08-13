@@ -2,16 +2,18 @@
 TODO
 - change Strings to char arrays to save memory
 - add argument parsing function
-- migrate to new stm32duino core 
+[OK] migrate to new stm32duino core
 */
 
+//ST STM32 stack (STM32duino) 6.1.1
 #include <Arduino.h>
 #include <Servo.h>
 #include <U8x8lib.h>
 #include <SPI.h>
-#include "Wire/Wire.h"
-#include "DFRobot_QMC5883/DFRobot_QMC5883.h"
-#include <SimpleKalmanFilter.h>
+#include "Wire2/Wire.h"
+#include "LIS3MDL/LIS3MDL.h"
+#include "SharpIR/SharpIR.h"
+//#include <SimpleKalmanFilter.h>
 
 #define TOWERSERVO_PIN PB6
 #define LEFTSERVO_PIN PB7
@@ -22,13 +24,18 @@ TODO
 #define OLED_CS PA0
 #define OLED_DC PB14
 #define OLED_RST PB15
+#define SHARP_SENSOR_PIN PA5
 
 Servo leftservo;
 Servo rightservo;
 Servo towerservo;
 U8X8_SSD1306_128X64_NONAME_4W_SW_SPI u8x8(OLED_CLK, OLED_DATA, OLED_CS, OLED_DC, OLED_RST);
-DFRobot_QMC5883 compass;
-SimpleKalmanFilter compass_kalman(1, 1, 0.01);
+HardwareSerial Serial2(PA3, PA2);
+LIS3MDL mag;
+int mx_r, my_r, mz_r;
+float yaw;                             //0-360
+SharpIR IRsensor(1, SHARP_SENSOR_PIN); //GP2Y0A21YK0F
+//SimpleKalmanFilter compass_kalman(1, 1, 0.01);
 
 void towerAttach()
 {
@@ -135,64 +142,39 @@ void beep(int time_ms, int count)
     }
 }
 
+void print(char *str)
+{
+    u8x8.clear();
+    u8x8.print(str);
+    //u8x8.draw2x2String(0, 3, str);
+}
+
 void setup()
 {
+    Wire.begin();
     Serial.begin(115200);
     Serial2.begin(38400);
     u8x8.begin();
     u8x8.setFont(u8x8_font_pxplusibmcga_f);
+    mag.init();
+    mag.enableDefault();
     pinMode(BUZZER_PIN, OUTPUT);
     digitalWrite(BUZZER_PIN, LOW);
 
-    while (!compass.begin())
-    {
-        Serial.println("ERROR: CAN'T FIND QMC5883#");
-        delay(200);
-    }
-
-    Serial.println("INFO: INITIALIZING QMC5883");
-    compass.setRange(QMC5883_RANGE_2GA);
-    compass.setMeasurementMode(QMC5883_CONTINOUS);
-    compass.setDataRate(QMC5883_DATARATE_50HZ);
-    compass.setSamples(QMC5883_SAMPLES_8);
-
-    Serial.println("INFO: READY#");
+    beep(5, 3);
+    Serial.println("Serial ready");
+    Serial2.println("Serial2 ready");
+    print("ready");
 }
 
 void loop()
 {
-    //////////////////// compass
-    //raw data
-    Vector norm = compass.readNormalize();
-    float heading = atan2(norm.YAxis, norm.XAxis);
-    float declinationAngle = (4.0 + (26.0 / 60.0)) / 57.296; // For Bytom / Poland declination angle is 4'26E (positive)
-    heading += declinationAngle;
-    if (heading < 0) // Correct for heading < 0deg and heading > 360deg
-    {
-        heading += 2 * PI;
-    }
-    else if (heading > 2 * PI)
-    {
-        heading -= 2 * PI;
-    }
-    float headingDegrees = heading * 57.296; //180/pi=57.296
-
-    //filtering
-    float estimate = compass_kalman.updateEstimate(headingDegrees);
-
-    //print
-    Serial.print(headingDegrees);
-    Serial.print(",");
-    Serial.println(estimate);
-
-    ////////////////////
-
     if (Serial2.available())
     {
         String command = Serial2.readStringUntil('#');
         command.trim();
 
-        //Serial.println(command);
+        Serial.println(command);
 
         //DRIVE:<left_motor_speed>,<right_motor_speed> range -90 to 90 each (ex DRIVE:56, 67)
         if (command.indexOf("DRIVE") != -1)
@@ -218,9 +200,7 @@ void loop()
         {
             char printdata[128];
             command.substring(command.indexOf(':') + 1).toCharArray(printdata, 128);
-            u8x8.clear();
-            //u8x8.print(printdata);
-            u8x8.draw2x2String(0, 3, printdata);
+            print(printdata);
         }
         else if (command.indexOf("BEEP") != -1)
         {
@@ -230,6 +210,40 @@ void loop()
             int count = command.substring(command.indexOf(',') + 1).toInt();
 
             beep(time_ms, count);
+        }
+        else if (command.indexOf("GET_AZIMUTH") != -1)
+        {
+            mag.read();
+            mx_r = mag.m.x + 1620;
+            my_r = mag.m.y + 1307;
+            mz_r = mag.m.z - 3082; //hard iron offset correction
+            yaw = (atan2(my_r, mx_r) * RAD_TO_DEG) + 180.0;
+
+            if (yaw >= 0 && yaw < 40)
+            {
+                int intab[2] = {0, 40};
+                int outtab[2] = {320, 360};
+                yaw = multiMap(yaw, intab, outtab, 2);
+            }
+            else
+            {
+                int intab[5] = {40, 117, 172, 257, 360};
+                int outtab[5] = {0, 90, 180, 270, 320};
+                yaw = multiMap(yaw, intab, outtab, 5);
+            }
+            yaw += 150;
+            yaw = int(yaw) % 360; //0 facing North
+
+            char outstr[8];
+            dtostrf(yaw, 8, 2, outstr);
+            Serial2.print(String(yaw));
+            Serial2.println("");
+            print(outstr);
+        }
+        else if (command.indexOf("GET_DISTANCE") != -1)
+        {
+            int distance = IRsensor.getDistance() / 0.8;
+            Serial2.println(distance, DEC);
         }
     }
 }
