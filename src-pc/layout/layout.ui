@@ -6,8 +6,8 @@
    <rect>
     <x>0</x>
     <y>0</y>
-    <width>1500</width>
-    <height>800</height>
+    <width>1150</width>
+    <height>650</height>
    </rect>
   </property>
   <property name="windowTitle">
@@ -17,10 +17,10 @@
    <widget class="QPushButton" name="serial_refresh_btn">
     <property name="geometry">
      <rect>
-      <x>160</x>
+      <x>150</x>
       <y>40</y>
-      <width>131</width>
-      <height>41</height>
+      <width>101</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -33,7 +33,7 @@
       <x>10</x>
       <y>41</y>
       <width>131</width>
-      <height>41</height>
+      <height>21</height>
      </rect>
     </property>
    </widget>
@@ -53,10 +53,10 @@
    <widget class="QPushButton" name="serial_connect_btn">
     <property name="geometry">
      <rect>
-      <x>310</x>
+      <x>260</x>
       <y>40</y>
-      <width>131</width>
-      <height>41</height>
+      <width>101</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -67,17 +67,20 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>520</y>
-      <width>481</width>
-      <height>91</height>
+      <y>570</y>
+      <width>441</width>
+      <height>71</height>
      </rect>
+    </property>
+    <property name="verticalScrollBarPolicy">
+     <enum>Qt::ScrollBarAlwaysOn</enum>
     </property>
    </widget>
    <widget class="QLabel" name="label_2">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>430</y>
+      <y>510</y>
       <width>101</width>
       <height>20</height>
      </rect>
@@ -90,7 +93,7 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>500</y>
+      <y>550</y>
       <width>101</width>
       <height>20</height>
      </rect>
@@ -102,8 +105,8 @@
    <widget class="QPushButton" name="forward_btn">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>160</y>
+      <x>60</x>
+      <y>110</y>
       <width>41</width>
       <height>41</height>
      </rect>
@@ -115,8 +118,8 @@
    <widget class="QPushButton" name="backward_btn">
     <property name="geometry">
      <rect>
-      <x>80</x>
-      <y>210</y>
+      <x>60</x>
+      <y>160</y>
       <width>41</width>
       <height>41</height>
      </rect>
@@ -128,8 +131,8 @@
    <widget class="QPushButton" name="turn_left_btn">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>210</y>
+      <x>10</x>
+      <y>160</y>
       <width>41</width>
       <height>41</height>
      </rect>
@@ -141,8 +144,8 @@
    <widget class="QPushButton" name="turn_right_btn">
     <property name="geometry">
      <rect>
-      <x>130</x>
-      <y>210</y>
+      <x>110</x>
+      <y>160</y>
       <width>41</width>
       <height>41</height>
      </rect>
@@ -154,10 +157,10 @@
    <widget class="QPushButton" name="get_azimuth_btn">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>170</y>
-      <width>111</width>
-      <height>41</height>
+      <x>440</x>
+      <y>130</y>
+      <width>101</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -167,23 +170,26 @@
    <widget class="QPushButton" name="beep_btn">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>220</y>
-      <width>111</width>
-      <height>41</height>
+      <x>320</x>
+      <y>100</y>
+      <width>101</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>BEEP</string>
     </property>
+    <property name="shortcut">
+     <string>Space</string>
+    </property>
    </widget>
    <widget class="QPushButton" name="get_distance_btn">
     <property name="geometry">
      <rect>
-      <x>210</x>
-      <y>120</y>
-      <width>111</width>
-      <height>41</height>
+      <x>320</x>
+      <y>130</y>
+      <width>101</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
@@ -193,10 +199,10 @@
    <widget class="QPushButton" name="kill_btn">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>170</y>
-      <width>111</width>
-      <height>41</height>
+      <x>440</x>
+      <y>160</y>
+      <width>101</width>
+      <height>20</height>
      </rect>
     </property>
     <property name="text">
@@ -206,36 +212,39 @@
    <widget class="QPushButton" name="print_siema_btn">
     <property name="geometry">
      <rect>
-      <x>330</x>
-      <y>120</y>
-      <width>111</width>
-      <height>41</height>
+      <x>440</x>
+      <y>100</y>
+      <width>101</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>PRINT SIEMA</string>
     </property>
    </widget>
-   <widget class="QPushButton" name="send_button">
+   <widget class="QPushButton" name="send_btn">
     <property name="geometry">
      <rect>
-      <x>510</x>
-      <y>450</y>
-      <width>111</width>
-      <height>41</height>
+      <x>470</x>
+      <y>530</y>
+      <width>71</width>
+      <height>21</height>
      </rect>
     </property>
     <property name="text">
      <string>SEND</string>
+    </property>
+    <property name="shortcut">
+     <string>Return</string>
     </property>
    </widget>
    <widget class="QLineEdit" name="command_input">
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>450</y>
-      <width>481</width>
-      <height>41</height>
+      <y>530</y>
+      <width>441</width>
+      <height>21</height>
      </rect>
     </property>
    </widget>
@@ -243,8 +252,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>90</y>
-      <width>621</width>
+      <y>70</y>
+      <width>541</width>
       <height>21</height>
      </rect>
     </property>
@@ -256,26 +265,13 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>100</y>
-      <width>101</width>
+      <y>80</y>
+      <width>121</width>
       <height>20</height>
      </rect>
     </property>
     <property name="text">
-     <string>MANUAL CONTROL</string>
-    </property>
-   </widget>
-   <widget class="Line" name="line_2">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>290</y>
-      <width>621</width>
-      <height>21</height>
-     </rect>
-    </property>
-    <property name="orientation">
-     <enum>Qt::Horizontal</enum>
+     <string>RAW CONTROL</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_5">
@@ -283,7 +279,7 @@
      <rect>
       <x>10</x>
       <y>0</y>
-      <width>101</width>
+      <width>161</width>
       <height>20</height>
      </rect>
     </property>
@@ -294,26 +290,26 @@
    <widget class="QTabWidget" name="tab_container">
     <property name="geometry">
      <rect>
-      <x>639</x>
+      <x>559</x>
       <y>10</y>
-      <width>851</width>
-      <height>781</height>
+      <width>580</width>
+      <height>630</height>
      </rect>
     </property>
     <property name="currentIndex">
-     <number>2</number>
+     <number>0</number>
     </property>
     <widget class="QWidget" name="tab_2d">
      <attribute name="title">
       <string>2D view</string>
      </attribute>
-     <widget class="QWidget" name="gridLayoutWidget">
+     <widget class="QWidget" name="gridLayoutWidget_3">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>841</width>
-        <height>751</height>
+        <x>10</x>
+        <y>10</y>
+        <width>561</width>
+        <height>581</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="grid_2d_layout"/>
@@ -326,10 +322,10 @@
      <widget class="QWidget" name="gridLayoutWidget_2">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>841</width>
-        <height>751</height>
+        <x>10</x>
+        <y>10</y>
+        <width>561</width>
+        <height>581</height>
        </rect>
       </property>
       <layout class="QGridLayout" name="grid_3d_layout"/>
@@ -342,11 +338,14 @@
      <widget class="QTextBrowser" name="command_output_long">
       <property name="geometry">
        <rect>
-        <x>0</x>
-        <y>0</y>
-        <width>841</width>
-        <height>751</height>
+        <x>10</x>
+        <y>10</y>
+        <width>561</width>
+        <height>581</height>
        </rect>
+      </property>
+      <property name="verticalScrollBarPolicy">
+       <enum>Qt::ScrollBarAlwaysOn</enum>
       </property>
      </widget>
     </widget>
@@ -355,8 +354,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>410</y>
-      <width>101</width>
+      <y>490</y>
+      <width>161</width>
       <height>20</height>
      </rect>
     </property>
@@ -367,11 +366,20 @@
    <widget class="QSlider" name="tower_slider">
     <property name="geometry">
      <rect>
-      <x>30</x>
-      <y>260</y>
+      <x>10</x>
+      <y>210</y>
       <width>141</width>
-      <height>22</height>
+      <height>21</height>
      </rect>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>180</number>
+    </property>
+    <property name="value">
+     <number>90</number>
     </property>
     <property name="orientation">
      <enum>Qt::Horizontal</enum>
@@ -381,8 +389,8 @@
     <property name="geometry">
      <rect>
       <x>10</x>
-      <y>390</y>
-      <width>621</width>
+      <y>480</y>
+      <width>541</width>
       <height>21</height>
      </rect>
     </property>
@@ -390,72 +398,13 @@
      <enum>Qt::Horizontal</enum>
     </property>
    </widget>
-   <widget class="QLabel" name="label_7">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>300</y>
-      <width>151</width>
-      <height>20</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>AUTONOMOUS DRIVE</string>
-    </property>
-   </widget>
-   <widget class="QPushButton" name="go_btn">
-    <property name="geometry">
-     <rect>
-      <x>210</x>
-      <y>330</y>
-      <width>151</width>
-      <height>51</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>GO</string>
-    </property>
-   </widget>
-   <widget class="QComboBox" name="algorithm_combo">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>340</y>
-      <width>161</width>
-      <height>41</height>
-     </rect>
-    </property>
-    <item>
-     <property name="text">
-      <string>follow_the_wall</string>
-     </property>
-    </item>
-    <item>
-     <property name="text">
-      <string>ping_pong</string>
-     </property>
-    </item>
-   </widget>
-   <widget class="QLabel" name="label_8">
-    <property name="geometry">
-     <rect>
-      <x>10</x>
-      <y>320</y>
-      <width>47</width>
-      <height>13</height>
-     </rect>
-    </property>
-    <property name="text">
-     <string>algorithm</string>
-    </property>
-   </widget>
    <widget class="QLabel" name="connection_status_label">
     <property name="geometry">
      <rect>
-      <x>460</x>
-      <y>30</y>
-      <width>81</width>
-      <height>61</height>
+      <x>380</x>
+      <y>20</y>
+      <width>51</width>
+      <height>51</height>
      </rect>
     </property>
     <property name="font">
@@ -477,6 +426,314 @@
      <number>0</number>
     </property>
    </widget>
+   <widget class="QPushButton" name="scan_btn">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>160</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>SCAN</string>
+    </property>
+    <property name="shortcut">
+     <string>Space</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="turn_left_step_btn">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>320</y>
+      <width>41</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&lt;</string>
+    </property>
+    <property name="shortcut">
+     <string>A</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="backward_step_btn">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>320</y>
+      <width>41</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>\/</string>
+    </property>
+    <property name="shortcut">
+     <string>S</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="forward_step_btn">
+    <property name="geometry">
+     <rect>
+      <x>60</x>
+      <y>270</y>
+      <width>41</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>^</string>
+    </property>
+    <property name="shortcut">
+     <string>W</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="turn_right_step_btn">
+    <property name="geometry">
+     <rect>
+      <x>110</x>
+      <y>320</y>
+      <width>41</width>
+      <height>41</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>&gt;</string>
+    </property>
+    <property name="shortcut">
+     <string>D</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_10">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>240</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ODOMETRIC CONTROL</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="drive_step_slider">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>430</y>
+      <width>141</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>1</number>
+    </property>
+    <property name="maximum">
+     <number>30</number>
+    </property>
+    <property name="value">
+     <number>10</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QSlider" name="rotate_step_slider">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>400</y>
+      <width>141</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>10</number>
+    </property>
+    <property name="maximum">
+     <number>90</number>
+    </property>
+    <property name="singleStep">
+     <number>1</number>
+    </property>
+    <property name="value">
+     <number>30</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_11">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>210</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>tower position</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_12">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>430</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>drive step</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_13">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>400</y>
+      <width>101</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>rotate step</string>
+    </property>
+   </widget>
+   <widget class="QSlider" name="rotate_to_slider">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>370</y>
+      <width>141</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="minimum">
+     <number>0</number>
+    </property>
+    <property name="maximum">
+     <number>360</number>
+    </property>
+    <property name="singleStep">
+     <number>1</number>
+    </property>
+    <property name="value">
+     <number>180</number>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="rotate_to_btn">
+    <property name="geometry">
+     <rect>
+      <x>200</x>
+      <y>370</y>
+      <width>101</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>ROTATE TO</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_14">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>400</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>30</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_15">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>430</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>10</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_16">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>370</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>180</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_17">
+    <property name="geometry">
+     <rect>
+      <x>160</x>
+      <y>210</y>
+      <width>31</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>90</string>
+    </property>
+   </widget>
+   <widget class="Line" name="line_2">
+    <property name="geometry">
+     <rect>
+      <x>10</x>
+      <y>230</y>
+      <width>301</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="Line" name="line_4">
+    <property name="geometry">
+     <rect>
+      <x>300</x>
+      <y>80</y>
+      <width>20</width>
+      <height>411</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Vertical</enum>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_7">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>80</y>
+      <width>121</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>FUNCTIONS</string>
+    </property>
+   </widget>
   </widget>
  </widget>
  <tabstops>
@@ -492,15 +749,78 @@
   <tabstop>beep_btn</tabstop>
   <tabstop>print_siema_btn</tabstop>
   <tabstop>kill_btn</tabstop>
-  <tabstop>algorithm_combo</tabstop>
-  <tabstop>go_btn</tabstop>
   <tabstop>command_input</tabstop>
-  <tabstop>send_button</tabstop>
+  <tabstop>send_btn</tabstop>
   <tabstop>command_output_short</tabstop>
   <tabstop>tab_container</tabstop>
   <tabstop>command_output_long</tabstop>
   <tabstop>tower_slider</tabstop>
  </tabstops>
  <resources/>
- <connections/>
+ <connections>
+  <connection>
+   <sender>rotate_step_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>label_14</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>294</x>
+     <y>271</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>347</x>
+     <y>275</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>drive_step_slider</sender>
+   <signal>sliderMoved(int)</signal>
+   <receiver>label_15</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>288</x>
+     <y>298</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>340</x>
+     <y>306</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>rotate_to_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>label_16</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>282</x>
+     <y>243</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>332</x>
+     <y>237</y>
+    </hint>
+   </hints>
+  </connection>
+  <connection>
+   <sender>tower_slider</sender>
+   <signal>valueChanged(int)</signal>
+   <receiver>label_17</receiver>
+   <slot>setNum(int)</slot>
+   <hints>
+    <hint type="sourcelabel">
+     <x>79</x>
+     <y>240</y>
+    </hint>
+    <hint type="destinationlabel">
+     <x>21</x>
+     <y>273</y>
+    </hint>
+   </hints>
+  </connection>
+ </connections>
 </ui>

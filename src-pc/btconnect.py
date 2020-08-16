@@ -1,3 +1,4 @@
+#!/bin/python3
 import pexpect
 from getpass import getpass
 from time import sleep
