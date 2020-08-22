@@ -32,8 +32,6 @@ Servo towerservo;
 U8X8_SSD1306_128X64_NONAME_4W_SW_SPI u8x8(OLED_CLK, OLED_DATA, OLED_CS, OLED_DC, OLED_RST);
 HardwareSerial Serial2(PA3, PA2);
 LIS3MDL mag;
-int mx_r, my_r, mz_r;
-float yaw;                             //0-360
 SharpIR IRsensor(1, SHARP_SENSOR_PIN); //GP2Y0A21YK0F
 //SimpleKalmanFilter compass_kalman(1, 1, 0.01);
 
@@ -83,8 +81,8 @@ int multiMap(int val, int *_in, int *_out, uint8_t size)
 
 void rotateTower(int degrees)
 {
-    int in[] = {-90, 0, 90};
-    int out[] = {180, 84, 0};
+    int in[] = {0, 90, 180};
+    int out[] = {0, 84, 180};
     degrees = multiMap(degrees, in, out, 3);
 
     towerAttach();
@@ -149,6 +147,65 @@ void print(char *str)
     //u8x8.draw2x2String(0, 3, str);
 }
 
+int getAzimuth()
+{
+    int mx_r, my_r, mz_r;
+    float yaw;
+
+    mag.read();
+    mx_r = mag.m.x + 1620;
+    my_r = mag.m.y + 1307;
+    mz_r = mag.m.z - 3082; //hard iron offset correction
+    yaw = (atan2(my_r, mx_r) * RAD_TO_DEG) + 180.0;
+
+    if (yaw >= 0 && yaw < 40)
+    {
+        int intab[2] = {0, 40};
+        int outtab[2] = {320, 360};
+        yaw = multiMap(yaw, intab, outtab, 2);
+    }
+    else
+    {
+        int intab[5] = {40, 117, 172, 257, 360};
+        int outtab[5] = {0, 90, 180, 270, 320};
+        yaw = multiMap(yaw, intab, outtab, 5);
+    }
+    yaw += 150;
+    return int(yaw) % 360;
+}
+
+int calcAngleDistance(int current, int target)
+{
+    int d = abs(target - current) % 360;
+    int r = d > 180 ? 360 - d : d;
+    int sign = (target - current >= 0 && target - current <= 180) || (target - current <= -180 && target - current >= -360) ? 1 : -1;
+    r *= sign;
+
+    return r;
+}
+
+void rotateTo(int azimuth)
+{
+    if (calcAngleDistance(getAzimuth(), azimuth) > 0)
+        driveMotors(90, -90);
+    else
+        driveMotors(-90, 90);
+
+    while (true)
+    {
+        if (abs(calcAngleDistance(getAzimuth(), azimuth)) <= 5)
+            break;
+        delay(10);
+    }
+    driveMotors(0, 0);
+    delay(100);
+}
+
+int getDistance()
+{
+    return (IRsensor.getDistance() / 0.8);
+}
+
 void setup()
 {
     Wire.begin();
@@ -174,8 +231,6 @@ void loop()
         String command = Serial2.readStringUntil('#');
         command.trim();
 
-        Serial.println(command);
-
         //DRIVE:<left_motor_speed>,<right_motor_speed> range -90 to 90 each (ex DRIVE:56, 67)
         if (command.indexOf("DRIVE") != -1)
         {
@@ -185,22 +240,26 @@ void loop()
             int rightval = command.substring(command.indexOf(',') + 1).toInt();
 
             driveMotors(leftval, rightval);
+            Serial2.println("OK");
         }
         else if (command.indexOf("ROTATE_TOWER") != -1)
         {
             int val = command.substring(command.indexOf(':') + 1).toInt();
             rotateTower(val);
+            Serial2.println("OK");
         }
         else if (command.indexOf("KILL") != -1)
         {
             motorsDetach();
             towerDetach();
+            Serial2.println("OK");
         }
         else if (command.indexOf("PRINT") != -1)
         {
             char printdata[128];
             command.substring(command.indexOf(':') + 1).toCharArray(printdata, 128);
             print(printdata);
+            Serial2.println("OK");
         }
         else if (command.indexOf("BEEP") != -1)
         {
@@ -210,29 +269,11 @@ void loop()
             int count = command.substring(command.indexOf(',') + 1).toInt();
 
             beep(time_ms, count);
+            Serial2.println("OK");
         }
         else if (command.indexOf("GET_AZIMUTH") != -1)
         {
-            mag.read();
-            mx_r = mag.m.x + 1620;
-            my_r = mag.m.y + 1307;
-            mz_r = mag.m.z - 3082; //hard iron offset correction
-            yaw = (atan2(my_r, mx_r) * RAD_TO_DEG) + 180.0;
-
-            if (yaw >= 0 && yaw < 40)
-            {
-                int intab[2] = {0, 40};
-                int outtab[2] = {320, 360};
-                yaw = multiMap(yaw, intab, outtab, 2);
-            }
-            else
-            {
-                int intab[5] = {40, 117, 172, 257, 360};
-                int outtab[5] = {0, 90, 180, 270, 320};
-                yaw = multiMap(yaw, intab, outtab, 5);
-            }
-            yaw += 150;
-            yaw = int(yaw) % 360; //0 facing North
+            float yaw = getAzimuth();
 
             char outstr[8];
             dtostrf(yaw, 8, 2, outstr);
@@ -242,8 +283,49 @@ void loop()
         }
         else if (command.indexOf("GET_DISTANCE") != -1)
         {
-            int distance = IRsensor.getDistance() / 0.8;
-            Serial2.println(distance, DEC);
+            Serial2.println(getDistance(), DEC);
+        }
+        else if (command.indexOf("GET_TIME") != -1)
+        {
+            Serial2.println(millis(), DEC);
+        }
+        else if (command.indexOf("MOVE") != -1)
+        {
+            int val = command.substring(command.indexOf(':') + 1).toInt();
+
+            int dtime = abs(val) * 100;
+            if (val > 0)
+                driveMotors(90, 90);
+            else
+                driveMotors(-90, -90);
+            delay(dtime);
+            driveMotors(0, 0);
+            Serial2.println("OK");
+        }
+        else if (command.indexOf("ROTATE_TO") != -1)
+        {
+            int val = command.substring(command.indexOf(':') + 1).toInt();
+            rotateTo(val);
+            Serial2.println(getAzimuth(), DEC);
+        }
+        else if (command.indexOf("ROTATE") != -1)
+        {
+            int val = command.substring(command.indexOf(':') + 1).toInt();
+            rotateTo((getAzimuth() + val) % 360);
+            Serial2.println(getAzimuth(), DEC);
+        }
+        else if (command.indexOf("SCAN") != -1)
+        {
+            rotateTower(0);
+            delay(200);
+            for (int i = 0; i <= 180; i += 10)
+            {
+                rotateTower(i);
+                delay(80);
+                Serial2.print(getDistance(), DEC);
+                Serial2.print(",");
+            }
+            Serial2.println("");
         }
     }
 }
