@@ -10,6 +10,11 @@ import pyqtgraph as pg
 import math
 import time
 
+##
+## manually turn off gui bluetooth manager
+## sudo rfkill unblock all
+## 
+##
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
         QMainWindow.__init__(self)
@@ -20,8 +25,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.setupUi(self)
         self.plot_2d = pg.PlotWidget()
-        self.plot_2d.setXRange(-100,100)
-        self.plot_2d.setYRange(-100,100)
+        self.plot_2d.setXRange(-300,300)
+        self.plot_2d.setYRange(-300,300)
         self.plot_2d.showGrid(x = True, y = True, alpha = 0.3)
         # self.plot_2d.addItem(pg.ScatterPlotItem([50], [50], pen='#FF00FF', symbol='+'))
         #plot_3d = opengl stuff 
@@ -132,8 +137,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         self.plot_2d.clear()
         for idx, dist in enumerate(data):
-            if dist < 40 and dist > 10:
-                ang = 10*idx
+            if dist >= 15:
+                ang = 1*idx
                 self.place_pole(dist, ang, 0, 0)
                 
 
