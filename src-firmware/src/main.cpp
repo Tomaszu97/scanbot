@@ -12,7 +12,6 @@ TODO
 #include <SPI.h>
 #include "Wire2/Wire.h"
 #include "LIS3MDL/LIS3MDL.h"
-#include "SharpIR/SharpIR.h"
 //#include <SimpleKalmanFilter.h>
 
 #define TOWERSERVO_PIN PB6
@@ -32,7 +31,6 @@ Servo towerservo;
 U8X8_SSD1306_128X64_NONAME_4W_SW_SPI u8x8(OLED_CLK, OLED_DATA, OLED_CS, OLED_DC, OLED_RST);
 HardwareSerial Serial2(PA3, PA2);
 LIS3MDL mag;
-SharpIR IRsensor(1, SHARP_SENSOR_PIN); //GP2Y0A21YK0F
 //SimpleKalmanFilter compass_kalman(1, 1, 0.01);
 
 void towerAttach()
@@ -203,7 +201,17 @@ void rotateTo(int azimuth)
 
 int getDistance()
 {
-    return (IRsensor.getDistance() / 0.8);
+    int16_t distance = -1;
+
+    Wire.beginTransmission(0x10);
+    Wire.write(0x00);
+    Wire.endTransmission();
+    Wire.requestFrom(0x10, (uint8_t)2);
+    distance = Wire.read();
+    distance |= Wire.read() << 8;
+    Wire.endTransmission();
+
+    return distance;
 }
 
 void setup()
@@ -318,10 +326,10 @@ void loop()
         {
             rotateTower(0);
             delay(200);
-            for (int i = 0; i <= 180; i += 10)
+            for (int i = 0; i <= 180; i += 1)
             {
                 rotateTower(i);
-                delay(80);
+                delay(5);
                 Serial2.print(getDistance(), DEC);
                 Serial2.print(",");
             }
