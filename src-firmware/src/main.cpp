@@ -35,7 +35,7 @@ LIS3MDL mag;
 
 void towerAttach()
 {
-    towerservo.attach(TOWERSERVO_PIN, 544, 2400); //2 deg to 197 deg?
+    towerservo.attach(TOWERSERVO_PIN, 500, 2400); //2 deg to 197 deg?
 }
 
 void towerDetach()
@@ -80,7 +80,7 @@ int multiMap(int val, int *_in, int *_out, uint8_t size)
 void rotateTower(int degrees)
 {
     int in[] = {0, 90, 180};
-    int out[] = {0, 84, 180};
+    int out[] = {3, 75, 165};
     degrees = multiMap(degrees, in, out, 3);
 
     towerAttach();
@@ -325,7 +325,7 @@ void loop()
         else if (command.indexOf("SCAN") != -1)
         {
             rotateTower(0);
-            delay(200);
+            delay(300);
             for (int i = 0; i <= 180; i += 1)
             {
                 rotateTower(i);
