@@ -104,7 +104,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.backward_step_btn.clicked.connect(lambda : self.robot.move(-self.drive_step_slider.value()))
         self.turn_left_step_btn.clicked.connect(lambda : self.robot.rotate(-self.rotate_step_slider.value()))
         self.turn_right_step_btn.clicked.connect(lambda : self.robot.rotate(self.rotate_step_slider.value()))
-        self.rotate_to_btn.clicked.connect(lambda : self.robot.rotate_to(self.rotate_step_slider.value()))
+        self.rotate_to_btn.clicked.connect(lambda : self.robot.rotate_to(self.rotate_to_slider.value()))
         self.clear_buffer_btn.clicked.connect(self.flush_serial_buffer)
         self.measure_btn.clicked.connect(self.calibration_timer.start)
         self.mag_cal_reset_btn.clicked.connect(self.reset_mag_cal)
