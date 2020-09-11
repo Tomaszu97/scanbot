@@ -1,8 +1,8 @@
 /*
 TODO
-- change Strings to char arrays to save memory
-- add argument parsing function
-[OK] migrate to new stm32duino core
+get rid of u8x8 or optimize it
+move LIS3MDL out of library
+get accel data
 */
 
 //ST STM32 stack (STM32duino) 6.1.1
@@ -32,6 +32,10 @@ TODO
 #define DRIVE_SERVO_US_MAX 2400
 #define DRIVE_SERVO_DEADZONE 1
 #define DRIVE_SERVO_MIDDLE 105
+int16_t hardiron_x;       //EEPROM ADDRESS 0
+int16_t hardiron_y;       //EEPROM ADDRESS 2
+int16_t hardiron_z;       //EEPROM ADDRESS 4
+int16_t azimuth_remap[4]; // EEPROM ADDRESSES 6 8 10 12
 
 Servo leftservo;
 Servo rightservo;
@@ -61,10 +65,6 @@ String commands[command_count] = {
     "SET_MAG_CAL",
     "GET_MAG_CAL",
     "RESET"};
-
-int16_t hardiron_x; //EEPROM ADDRESS 0
-int16_t hardiron_y; //EEPROM ADDRESS 2
-int16_t hardiron_z; //EEPROM ADDRESS 4
 
 void reset()
 {
@@ -207,14 +207,14 @@ int getAzimuth()
 
     if (yaw >= 0 && yaw < 40)
     {
-        int intab[2] = {0, 40};
-        int outtab[2] = {320, 360};
+        int intab[2] = {0, azimuth_remap[0]};
+        int outtab[2] = {360 - azimuth_remap[0], 360};
         yaw = multiMap(yaw, intab, outtab, 2);
     }
     else
     {
-        int intab[5] = {40, 117, 172, 257, 360};
-        int outtab[5] = {0, 90, 180, 270, 320};
+        int intab[5] = {azimuth_remap[0], azimuth_remap[1], azimuth_remap[2], azimuth_remap[3], azimuth_remap[4]};
+        int outtab[5] = {0, 90, 180, 270, 360 - azimuth_remap[0]};
         yaw = multiMap(yaw, intab, outtab, 5);
     }
     yaw += 150;
@@ -253,27 +253,6 @@ int getDistance()
     return distance;
 }
 
-void setup()
-{
-    Wire.begin();
-    Serial.begin(115200);
-    Serial2.begin(38400);
-    u8x8.begin();
-    u8x8.setFont(u8x8_font_pxplusibmcga_f);
-    mag.init();
-    mag.enableDefault();
-    pinMode(BUZZER_PIN, OUTPUT);
-    digitalWrite(BUZZER_PIN, LOW);
-    EEPROM.get(0, hardiron_x);
-    EEPROM.get(2, hardiron_y);
-    EEPROM.get(4, hardiron_z);
-
-    beep(30, 3);
-    Serial.println("Serial ready");
-    Serial2.println("Serial2 ready");
-    print("ready");
-}
-
 String getArgument(String command, uint8_t argnum = 0)
 {
     char delimiter = ':';
@@ -310,6 +289,45 @@ uint8_t parseCommand(String command)
             return i;
     }
     return -1;
+}
+
+void printMagCal()
+{
+    for (uint8_t i = 0; i <= 12; i += 2)
+    {
+        int16_t temp;
+        EEPROM.get(i, temp);
+        Serial2.print(temp, DEC);
+
+        if (i != 12)
+            Serial2.print(",");
+    }
+    Serial2.println("");
+}
+
+void setup()
+{
+    Wire.begin();
+    Serial.begin(115200);
+    Serial2.begin(38400);
+    u8x8.begin();
+    u8x8.setFont(u8x8_font_pxplusibmcga_f);
+    mag.init();
+    mag.enableDefault();
+    pinMode(BUZZER_PIN, OUTPUT);
+    digitalWrite(BUZZER_PIN, LOW);
+    EEPROM.get(0, hardiron_x);
+    EEPROM.get(2, hardiron_y);
+    EEPROM.get(4, hardiron_z);
+    EEPROM.get(6, azimuth_remap[0]);
+    EEPROM.get(8, azimuth_remap[1]);
+    EEPROM.get(10, azimuth_remap[2]);
+    EEPROM.get(12, azimuth_remap[3]);
+
+    beep(30, 3);
+    Serial.println("Serial ready");
+    Serial2.println("Serial2 ready");
+    print("ready");
 }
 
 void loop()
@@ -366,7 +384,7 @@ void loop()
 
         //GET_AZIMUTH
         case 6:
-            Serial2.println(getArgument(command, 2).toInt(), DEC);
+            Serial2.println(getAzimuth(), DEC);
             break;
 
         // GET_DISTANCE
@@ -426,26 +444,26 @@ void loop()
             hardiron_x = getArgument(command, 1).toInt();
             hardiron_y = getArgument(command, 2).toInt();
             hardiron_z = getArgument(command, 3).toInt();
+            azimuth_remap[0] = getArgument(command, 4).toInt();
+            azimuth_remap[1] = getArgument(command, 5).toInt();
+            azimuth_remap[2] = getArgument(command, 6).toInt();
+            azimuth_remap[3] = getArgument(command, 7).toInt();
+
             EEPROM.put(0, hardiron_x);
             EEPROM.put(2, hardiron_y);
             EEPROM.put(4, hardiron_z);
+            EEPROM.put(6, azimuth_remap[0]);
+            EEPROM.put(8, azimuth_remap[1]);
+            EEPROM.put(10, azimuth_remap[2]);
+            EEPROM.put(12, azimuth_remap[3]);
 
-            Serial2.print(hardiron_x);
-            Serial2.print(",");
-            Serial2.print(hardiron_y);
-            Serial2.print(",");
-            Serial2.print(hardiron_z);
-            Serial2.println("");
+            printMagCal();
+
             break;
 
         //GET_MAG_CAL
         case 14:
-            Serial2.print(hardiron_x);
-            Serial2.print(",");
-            Serial2.print(hardiron_y);
-            Serial2.print(",");
-            Serial2.print(hardiron_z);
-            Serial2.println("");
+            printMagCal();
             break;
 
         case 15:
