@@ -36,6 +36,7 @@ int16_t hardiron_x;       //EEPROM ADDRESS 0
 int16_t hardiron_y;       //EEPROM ADDRESS 2
 int16_t hardiron_z;       //EEPROM ADDRESS 4
 int16_t azimuth_remap[4]; // EEPROM ADDRESSES 6 8 10 12
+int16_t mag_multiplier;   // EEPROM ADDRESS 14 //either 1 or -1
 
 Servo leftservo;
 Servo rightservo;
@@ -195,30 +196,25 @@ int calcAngleDistance(int current, int target)
     return r;
 }
 
+int signed_mod(int value, int n)
+{
+    return value < 0 ? ((value + 1) % n) + n - 1 : value % n;
+}
+
 int getAzimuth()
 {
     mag.read();
+
     //hard iron offset correction
-    int mx_r = int(mag.m.x) + hardiron_x;
-    int my_r = int(mag.m.y) + hardiron_y;
-    int mz_r = int(mag.m.z) + hardiron_z;
-
-    int yaw = int(float((atan2(my_r, mx_r) * RAD_TO_DEG) + 180.0));
-
-    if (yaw >= 0 && yaw < 40)
-    {
-        int intab[2] = {0, azimuth_remap[0]};
-        int outtab[2] = {360 - azimuth_remap[0], 360};
-        yaw = multiMap(yaw, intab, outtab, 2);
-    }
-    else
-    {
-        int intab[5] = {azimuth_remap[0], azimuth_remap[1], azimuth_remap[2], azimuth_remap[3], azimuth_remap[4]};
-        int outtab[5] = {0, 90, 180, 270, 360 - azimuth_remap[0]};
-        yaw = multiMap(yaw, intab, outtab, 5);
-    }
-    yaw += 150;
-    return yaw % 360;
+    int16_t mx_r = int16_t(mag.m.x) + hardiron_x;
+    int16_t my_r = int16_t(mag.m.y) + hardiron_y;
+    int16_t mz_r = int16_t(mag.m.z) + hardiron_z;
+    int yaw = signed_mod((atan2(my_r, mx_r) * RAD_TO_DEG), 360);
+    int inrange[] = {0, 90, 180, 270, 360};
+    int outrange[] = {azimuth_remap[0], azimuth_remap[1], azimuth_remap[2], azimuth_remap[3], azimuth_remap[0] + 360};
+    yaw = multiMap(yaw, inrange, outrange, 5) * mag_multiplier;
+    yaw = signed_mod(yaw, 360); // important
+    return yaw;
 }
 
 void rotateTo(int azimuth)
@@ -293,13 +289,13 @@ uint8_t parseCommand(String command)
 
 void printMagCal()
 {
-    for (uint8_t i = 0; i <= 12; i += 2)
+    for (uint8_t i = 0; i <= 14; i += 2)
     {
         int16_t temp;
         EEPROM.get(i, temp);
         Serial2.print(temp, DEC);
 
-        if (i != 12)
+        if (i != 14)
             Serial2.print(",");
     }
     Serial2.println("");
@@ -323,10 +319,10 @@ void setup()
     EEPROM.get(8, azimuth_remap[1]);
     EEPROM.get(10, azimuth_remap[2]);
     EEPROM.get(12, azimuth_remap[3]);
+    EEPROM.get(14, mag_multiplier);
 
     beep(30, 3);
-    Serial.println("Serial ready");
-    Serial2.println("Serial2 ready");
+    Serial.println("Debug Serial ready");
     print("ready");
 }
 
@@ -448,6 +444,7 @@ void loop()
             azimuth_remap[1] = getArgument(command, 5).toInt();
             azimuth_remap[2] = getArgument(command, 6).toInt();
             azimuth_remap[3] = getArgument(command, 7).toInt();
+            mag_multiplier = getArgument(command, 8).toInt();
 
             EEPROM.put(0, hardiron_x);
             EEPROM.put(2, hardiron_y);
@@ -456,6 +453,7 @@ void loop()
             EEPROM.put(8, azimuth_remap[1]);
             EEPROM.put(10, azimuth_remap[2]);
             EEPROM.put(12, azimuth_remap[3]);
+            EEPROM.put(14, mag_multiplier);
 
             printMagCal();
 
