@@ -226,7 +226,7 @@ void rotateTo(int azimuth)
 
     while (true)
     {
-        if (abs(calcAngleDistance(getAzimuth(), azimuth)) <= 5)
+        if (abs(calcAngleDistance(getAzimuth(), azimuth)) <= 10)
             break;
         delay(10);
     }
