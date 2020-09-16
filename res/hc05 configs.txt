@@ -1,0 +1,34 @@
+ScanBot:
+addr	98d3:31:209437
+version 2.0-20100601
+uart	38400,0,0
+role	0 (slave)
+
+bt_master:
+addr	98d3:71:fdd428
+version	2.0-20100601
+uart	38400,0,0
+role	1 (master)
+cmode	0 (connect to one fixed address)
+bind	98D3,31,209437 (ScanBots addr but in caps and separated by ,)
+
+
+CONNECTION INSTRUCTION:
+
+ON SLAVE (SCANBOT)
+boot to at mode
+AT+ADDR?
+copy addr (98d3:31:209437), rename to caps and separate with "," instead of ":" (98D3,31,209437)
+
+ON MASTER (bt_master)
+boot to at mode
+keep pin high all the time
+AT+ORGL
+AT+UART? - make sure it is the same
+AT+ROLE=1 - master
+AT+CMODE=1
+AT+INIT
+AT+PAIR=98D3,31,209437,5 - 5 is timeout in seconds
+AT+BIND=98D3,31,209437
+AT+LINK=98D3,31,209437 - if they blink pseudo-synchronously, you can disconnect. its done :)
+
