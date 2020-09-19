@@ -1,12 +1,13 @@
 import datetime
-
+from math import radians, degrees, sin, cos
 
 class Robot():
     def __init__(self, send_recv_function):
         self.send = send_recv_function
-        self.position = (0,0)
-        self.azimuth = 0
-    
+        self.position = [0,0]
+        self.azimuth = 0       
+
+
     def rotate_tower(self, angle):
         return self.send(f"ROTATE_TOWER:{angle}#")
 
@@ -17,12 +18,16 @@ class Robot():
         return self.drive(0,0)
 
     def rotate(self, angle):
-        return int(self.send(f"ROTATE:{angle}#"))
+        self.azimuth = int(self.send(f"ROTATE:{angle}#"))
+        return self.azimuth
 
     def rotate_to(self, azimuth):
-        return int(self.send(f"ROTATE_TO:{azimuth}#"))
+        self.azimuth = int(self.send(f"ROTATE_TO:{azimuth}#"))
+        return self.azimuth
 
     def move(self, distance):
+        self.position[0] += cos(radians(self.azimuth)) * distance
+        self.position[1] += sin(radians(self.azimuth)) * distance
         return self.send(f"MOVE:{distance}#")
 
     def get_distance(self):
@@ -53,7 +58,7 @@ class Robot():
     def get_mag_cal(self):
         data =  self.send("GET_MAG_CAL#")
         data = data.strip()
-        x, y, z, a1, a2, a3, a4 = data.split(",")
+        x, y, z, a1, a2, a3, a4, mul = data.split(",")
         x = int(x)
         y = int(y)
         z = int(z)
@@ -61,8 +66,9 @@ class Robot():
         a2 = int(a2)
         a3 = int(a3)
         a4 = int(a4)
-        return (x, y, z, a1, a2, a3, a4)
+        mul = int(mul)
+        return (x, y, z, a1, a2, a3, a4, mul)
 
-    def set_mag_cal(self, x, y, z, a1, a2, a3, a4):
-        return self.send(f"SET_MAG_CAL:{x},{y},{z},{a1},{a2},{a3},{a4}#")
+    def set_mag_cal(self, x=0, y=0, z=0, a1=0, a2=90, a3=180, a4=270, mul=-1):
+        return self.send(f"SET_MAG_CAL:{x},{y},{z},{a1},{a2},{a3},{a4},{mul}#")
     

@@ -9,7 +9,7 @@ import datetime
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import numpy as np
-import math
+from math import radians, degrees, sin, cos
 import time
 from robot import *
 from timer_emiter import *
@@ -127,8 +127,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 port=f"{self.serial_combo.currentText()}",
                 baudrate=38400,
                 timeout=2,
-                parity=serial.PARITY_EVEN,
-                rtscts=1,
+                parity=serial.PARITY_NONE,
+                rtscts=0,
             )
             
             self.connection_status_label.setText("✔")
@@ -153,8 +153,31 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         sb=self.command_output_short.verticalScrollBar()
         sb.setValue(sb.maximum())
 
+    def read_until(self, terminator='\n'):
+        data = ""
+        while True:
+            char = self.sock.recv(1).decode("ASCII")
+            data += char
+            if char == terminator:
+                break
+        return data
+
+    def send(self, data):
+        self.sock.send(data)
+
+    # def clear_buffer(self):
+    #     prev_timeout = self.sock.timeout
+    #     self.sock.settimeout(0)
+    #     try:
+    #         self.sock.recv(4096)
+    #     except:
+    #         pass
+    #     self.sock.settimeout(prev_timeout)
+
     def send_command(self, command):
-        self.ser.write(command.encode('utf-8'))
+        #self.clear_buffer()
+
+        self.send(command.encode('ASCII'))
         toprint = f'[{datetime.datetime.now().strftime("%H:%M:%S")}] SENT> {command}\r\n'
         self.command_output_long.setText(self.command_output_long.toPlainText() + toprint)
         self.command_output_short.setText(self.command_output_short.toPlainText() + toprint)
@@ -169,10 +192,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x = x.replace("\r\n", "")
         return x
 
-    def place_pole(self, distance, angle ,x_pos=0, y_pos=0, color='#FF00FF'):
-        angle = math.radians(angle)
-        x = distance * math.cos(angle) + x_pos
-        y = distance * math.sin(angle) + y_pos
+    def place_pole(self, distance, _angle, color='#FF00FF'):
+        angle = (   (((-self.robot.azimuth)%360)-90)%360 + (_angle - 90)   )%360
+        print(angle)
+        
+        angle = radians(angle)
+        x = distance * cos(angle) + self.robot.position[0]
+        y = distance * sin(angle) + self.robot.position[1]
+
+
         self.plot_2d.addItem(pg.ScatterPlotItem([x], [y], pen=color, symbol='+'))
 
     def scan(self):
@@ -180,11 +208,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         for i in range(len(data)):
             data[i] = int(data[i])
 
-        self.plot_2d.clear()
+        #self.plot_2d.clear()
         for idx, dist in enumerate(data):
             if dist >= 15:
                 ang = 1*idx
-                self.place_pole(dist, ang, 0, 0)
+                self.place_pole(dist, ang)
                 
     def measure_handler(self):
         x,y,z = [],[],[]
