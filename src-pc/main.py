@@ -156,27 +156,16 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def read_until(self, terminator='\n'):
         data = ""
         while True:
-            char = self.sock.recv(1).decode("ASCII")
+            char = self.ser.recv(1).decode("ASCII")
             data += char
             if char == terminator:
                 break
         return data
 
     def send(self, data):
-        self.sock.send(data)
-
-    # def clear_buffer(self):
-    #     prev_timeout = self.sock.timeout
-    #     self.sock.settimeout(0)
-    #     try:
-    #         self.sock.recv(4096)
-    #     except:
-    #         pass
-    #     self.sock.settimeout(prev_timeout)
+        self.ser.write(data)
 
     def send_command(self, command):
-        #self.clear_buffer()
-
         self.send(command.encode('ASCII'))
         toprint = f'[{datetime.datetime.now().strftime("%H:%M:%S")}] SENT> {command}\r\n'
         self.command_output_long.setText(self.command_output_long.toPlainText() + toprint)

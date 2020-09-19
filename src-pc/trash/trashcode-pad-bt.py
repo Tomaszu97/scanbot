@@ -36,62 +36,64 @@ def eventloop():
                 gamepad_states[event.code] = event.state
 
 
-# bluetooth
+# # bluetooth
 try:
-    ser = serial.Serial("COM7", 38400, timeout=2, parity=serial.PARITY_EVEN, rtscts=1)
+    ser = serial.Serial("/dev/ttyUSB0", 38400, timeout=2, parity=serial.PARITY_NONE, rtscts=0)
 except serial.SerialException:
     print("error: no bluetooth port found")
     exit()
 
-while True:
-    ser.write(b"GET_DISTANCE#")
-    x = ser.read_until().decode()
-    x = x.replace("\r\n", "")
-    x = int(x)
-    if x > 40:
-        x = -1
+# while True:
+#     ser.write(b"GET_DISTANCE#")
+#     x = ser.read_until().decode()
+#     x = x.replace("\r\n", "")
+#     x = int(x)
+#     if x > 40:
+#         x = -1
 
-    if x == -1:
-        print("##")
-    else:
-        print(x)
+#     if x == -1:
+#         print("##")
+#     else:
+#         print(x)
 
-    sleep(0.02)
+#     sleep(0.02)
 
-ser.write(b"KILL#")
+# ser.write(b"KILL#")
 
 # # gamepad
-# pads = inputs.devices.gamepads
-# if len(pads) == 0:
-#     print("error: gamepad not found")
-#     exit()
-# threading.Thread(target=eventloop).start()
+pads = inputs.devices.gamepads
+if len(pads) == 0:
+    print("error: gamepad not found")
+    exit()
+threading.Thread(target=eventloop).start()
 
 
-# # main program
-# leftaccum = 0
-# rightaccum = 0
-# while True:
-#     sleep(0.05)
+# main program
+leftaccum = 0
+rightaccum = 0
+while True:
+    sleep(0.05)
 
-#     gas = interp(gamepad_states["ABS_RZ"], [0, 255], [0, 90]) - interp(
-#         gamepad_states["ABS_Z"], [0, 255], [0, 90]
-#     )
+    gas = interp(gamepad_states["ABS_RZ"], [0, 255], [0, 90]) - interp(
+        gamepad_states["ABS_Z"], [0, 255], [0, 90]
+    )
 
-#     wheel = gamepad_states["ABS_X"]
-#     if wheel < 5000 and wheel > -5000:
-#         wheel = 0
-#     wheel = interp(wheel, [-32768, 32767], [-30, 30])
+    deadzone = 5
+    if gas <= deadzone and gas >= -deadzone:
+        gas = 0
 
-#     leftaccum = int(0.7 * leftaccum + 0.3 * (gas + wheel))
-#     rightaccum = int(0.7 * rightaccum + 0.3 * (gas - wheel))
+    wheel = gamepad_states["ABS_X"]
+    print(wheel)
+    if wheel <= 133 and wheel >= 126:
+        wheel = 129
+    wheel = interp(wheel, [0,129,255], [-60,0, 60])
+    
 
-#     print(f"LEFT:{leftaccum}\tRIGHT:{rightaccum}")
-#     ser.write(f"DRIVE:{leftaccum},{rightaccum}#".encode("ASCII"))
+    leftaccum = int(gas+wheel)
+    rightaccum = int(gas-wheel)
 
-# for _ in range(12):
-#     ser.write(b"DRIVE:90,90#")
-#     sleep(4)
-#     ser.write(b"DRIVE:-90,90#")
-#     sleep(2)
+
+    print(f"LEFT:{leftaccum}\tRIGHT:{rightaccum}")
+    ser.write(f"DRIVE:{leftaccum+1},{rightaccum-1}#".encode("ASCII"))
+
 
