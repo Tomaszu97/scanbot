@@ -5,8 +5,7 @@ class Robot():
     def __init__(self, send_recv_function):
         self.send = send_recv_function
         self.position = [0,0]
-        self.azimuth = 0       
-
+        self.azimuth = 0
 
     def rotate_tower(self, angle):
         return self.send(f"ROTATE_TOWER:{angle}#")
@@ -56,7 +55,7 @@ class Robot():
         return (x, y, z)
 
     def get_mag_cal(self):
-        data =  self.send("GET_MAG_CAL#")
+        data = self.send("GET_MAG_CAL#")
         data = data.strip()
         x, y, z, a1, a2, a3, a4, mul = data.split(",")
         x = int(x)
@@ -71,4 +70,10 @@ class Robot():
 
     def set_mag_cal(self, x=0, y=0, z=0, a1=0, a2=90, a3=180, a4=270, mul=-1):
         return self.send(f"SET_MAG_CAL:{x},{y},{z},{a1},{a2},{a3},{a4},{mul}#")
-    
+
+    def scan(self):
+        data = self.send("SCAN#").split(",")[:-1]
+        for i in range(len(data)):
+            data[i] = int(data[i])
+        return data
+        
