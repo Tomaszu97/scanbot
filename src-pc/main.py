@@ -1,4 +1,4 @@
-#!/bin/python3
+#!/usr/bin/python3
 import sys
 from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox
 from layout.layout import Ui_MainWindow
@@ -15,10 +15,7 @@ from robot import *
 from timer_emiter import *
 from statistics import median
 from strings import *
-##
-## manually turn off gui bluetooth manager
-## sudo rfkill unblock all
-## 
+import randomcolor 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
     def __init__(self):
@@ -34,8 +31,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.plot_2d = pg.PlotWidget()
         self.plot_2d.setXRange(-300,300)
         self.plot_2d.setYRange(-300,300)
-        self.plot_2d.showGrid(x = True, y = True, alpha = 0.3) ####################################
-        # self.plot_2d.addItem(pg.ScatterPlotItem([50], [50], pen='#FF00FF', symbol='+'))
+        self.plot_2d.showGrid(x = True, y = True, alpha = 0.3)      
         self.grid_2d_layout.addWidget(self.plot_2d)
 
         # 3D graph
@@ -62,7 +58,14 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Controls' handlers
         self.connect_signals()
-        
+
+        # Other
+        self.randcol = lambda : randomcolor.RandomColor().generate(luminosity='bright', count=1)
+        self.poles = np.zeros((0,2))
+        self.poles_colors = []
+        self.mag_cal_points = np.zeros((0,3))
+        self.mag_cal_points_colors = []
+
     def closeEvent(self, event):
         try:
             self.ser.close()
@@ -181,27 +184,36 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x = x.replace("\r\n", "")
         return x
 
-    def place_pole(self, distance, _angle, color='#FF00FF'):
-        angle = (   (((-self.robot.azimuth)%360)-90)%360 + (_angle - 90)   )%360
-        print(angle)
-        
+    def place_pole(self, distance, _angle, color="#FF00FF"):
+        angle = _angle - self.robot.azimuth 
         angle = radians(angle)
         x = distance * cos(angle) + self.robot.position[0]
         y = distance * sin(angle) + self.robot.position[1]
+        self.poles = np.append(self.poles, np.array([[x,y]]), axis=0)
+        self.poles_colors.append(color)
+       
+    def redraw_poles(self):
+        self.plot_2d.clear()
+        poles = pg.ScatterPlotItem(self.poles[:,0], self.poles[:,1], pen="#FF00FF", symbol='+') # TODO handle separate colors for each point
+        self.plot_2d.addItem(poles)
 
-
-        self.plot_2d.addItem(pg.ScatterPlotItem([x], [y], pen=color, symbol='+'))
+        # TODO rethink this
+        linedata = np.zeros((0,2))
+        for pole in self.poles:
+            linedata = np.append(linedata, np.array([[0,0]]), axis=0)
+            linedata = np.append(linedata, np.array([[pole[0],pole[1]]]), axis=0)
+            #self.plot_2d.plot((0,pole[0]), (0, pole[1]), symbol=None) 
+        lines = pg.PlotCurveItem(x=linedata[:,0], y=linedata[:,1], connect="pairs")
+        self.plot_2d.addItem(lines)
+        ###
 
     def scan(self):
-        data = self.send_command(f"SCAN#").split(",")[:-1]
-        for i in range(len(data)):
-            data[i] = int(data[i])
-
-        #self.plot_2d.clear()
+        data = self.robot.scan()
         for idx, dist in enumerate(data):
             if dist >= 15:
                 ang = 1*idx
                 self.place_pole(dist, ang)
+        self.redraw_poles()
                 
     def measure_handler(self):
         x,y,z = [],[],[]
@@ -231,16 +243,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.offset_y_label.setText( str( int((int(self.min_y_label.text()) + int(self.max_y_label.text()))/2)) )
         self.offset_z_label.setText( str( int((int(self.min_z_label.text()) + int(self.max_z_label.text()))/2)) )
 
-        item = gl.GLScatterPlotItem( pos=np.array((x,y,z)), color=np.array((1,1,0,0.7)), size=5 )
-        self.plot_3d_mag.addItem(item)
+        self.mag_cal_points = np.append(self.mag_cal_points, np.array([[x,y,z]]), axis=0)
+        self.reset_mag_plot()
+        item = gl.GLScatterPlotItem( pos=self.mag_cal_points, color=(1,1,0,0.7), size=5 )
+        self.plot_3d_mag.addItem(item) 
 
     def reset_mag_plot(self):
-        toremove = []
-        for i in self.plot_3d_mag.items:
-            toremove.append(i)
-        for i in toremove:
-            self.plot_3d_mag.removeItem(i)
-        
+        self.plot_3d_mag.clear()
         self.plot_3d_mag.setCameraPosition(pos=pg.Vector(0,0,0), distance=40000, azimuth=45, elevation=30)
         gr1 = gl.GLGridItem(color=(255,0,0,76.5))
         gr1.setSize(10000, 10000, 10000)
@@ -267,8 +276,21 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.min_z_label.setText(str(0))
         self.max_z_label.setText(str(0))
         self.offset_z_label.setText(str(0))
-        self.reset_mag_plot()
+        self.reset_mag_plot() 
+        self.mag_cal_points_colors = []
+        self.mag_cal_points = np.zeros((0,3)) 
 
+        # TODO: Delete this, its only temporary
+        self.mag_autocal()
+
+    def mag_autocal(self):
+        for i in range(10):
+            self.robot.drive(90,-90)
+            sleep(0.5)
+            self.robot.stop()
+            sleep(0.2)
+            self.measure_handler()
+            
 if __name__ == "__main__":
 
     app = QApplication(sys.argv)
