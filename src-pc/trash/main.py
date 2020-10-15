@@ -54,3 +54,11 @@ serial_combo.addItem("COM Z")
 w.resize(1280, 720)
 w.show()
 app.exec_()
+
+
+# md = gl.MeshData.sphere(rows=4, cols=9)
+# m = gl.GLMeshItem(
+#     meshdata=md, smooth=False, drawFaces=False, drawEdges=True, edgeColor=(1, 0, 1, 1)
+# )
+# self.plot_3d.addItem(m)
+
