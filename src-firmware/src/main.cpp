@@ -213,7 +213,7 @@ int getAzimuth()
     //soft iron correction - squish ellipse to make it a circle
     x2 *= sigma;
 
-    int yaw = signed_mod((atan2(x2, y2) * RAD_TO_DEG), 360);
+    int yaw = signed_mod(-(atan2(x2, y2) * RAD_TO_DEG), 360); //inverted so value rises when turning right
     return yaw;
 }
 
