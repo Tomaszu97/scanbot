@@ -213,16 +213,16 @@ int getAzimuth()
     //soft iron correction - squish ellipse to make it a circle
     x2 *= sigma;
 
-    int yaw = signed_mod(-(atan2(x2, y2) * RAD_TO_DEG), 360); //inverted so value rises when turning right
+    int yaw = signed_mod((atan2(x2, y2) * RAD_TO_DEG), 360);
     return yaw;
 }
 
 void rotateTo(int azimuth)
 {
     if (calcAngleDistance(getAzimuth(), azimuth) > 0)
-        driveMotors(90, -90);
-    else
         driveMotors(-90, 90);
+    else
+        driveMotors(90, -90);
 
     while (true)
     {
@@ -446,7 +446,7 @@ void loop()
         // ROTATE
         case 11:
         {
-            rotateTo((getAzimuth() + getArgument(command, 1).toInt()) % 360);
+            rotateTo((getAzimuth() - getArgument(command, 1).toInt()) % 360);
             Serial2.println(getAzimuth(), DEC);
         }
         break;

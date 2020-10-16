@@ -8,7 +8,7 @@ import datetime
 import pyqtgraph as pg
 import pyqtgraph.opengl as gl
 import numpy as np
-from math import radians, degrees, sin, cos, sqrt, asin
+from math import radians, degrees, sin, cos, sqrt, atan2, pi
 import time
 from robot import *
 from timer_emiter import *
@@ -89,8 +89,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.turn_left_btn.released.connect(lambda: self.robot.drive(0, 0))
         self.turn_right_btn.pressed.connect(lambda: self.robot.drive(90, -90))
         self.turn_right_btn.released.connect(lambda: self.robot.drive(0, 0))
-        self.tower_slider.valueChanged.connect(lambda val: self.robot.rotate_tower(val))
-        self.get_distance_btn.clicked.connect(lambda: self.robot.get_distance())
+        self.tower_slider.valueChanged.connect(
+            lambda val: self.robot.rotate_tower(val))
+        self.get_distance_btn.clicked.connect(
+            lambda: self.robot.get_distance())
         self.get_azimuth_btn.clicked.connect(lambda: self.robot.get_azimuth())
         self.beep_btn.clicked.connect(lambda: self.robot.beep(30, 3))
         self.print_duck_btn.clicked.connect(lambda: self.robot.print(duckstr))
@@ -119,7 +121,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.clear_buffer_btn.clicked.connect(self.flush_serial_buffer)
         self.measure_btn.clicked.connect(self.calibration_timer.start)
         self.clear_mag_cal_data_btn.clicked.connect(self.clear_mag_cal_data)
-        self.autocalibration_btn.clicked.connect(self.autocal_mag_cal)
+        self.autocalibrate_btn.clicked.connect(self.autocal_mag_cal)
+        self.correct_hard_btn.clicked.connect(self.correct_hard_mag_cal)
+        self.correct_soft_btn.clicked.connect(self.correct_soft_mag_cal)
+        self.sendcalibration_btn.clicked.connect(self.sendcal_mag_cal)
         self.clear_pole_data_btn.clicked.connect(self.clear_pole_data)
         self.calibration_timer.tick_signal.connect(self.measure_mag_cal)
         self.calibration_timer.tick_signal.connect(
@@ -212,8 +217,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
     def reset_pole_plot(self):
         self.pole_plot.clear()
-        self.pole_plot.setXRange(-300, 300)
-        self.pole_plot.setYRange(-300, 300)
+        self.pole_plot.setXRange(-400, 400)
+        self.pole_plot.setYRange(-400, 400)
         self.pole_plot.showGrid(x=True, y=True, alpha=0.3)
 
     def reset_mag_cal_plot(self):
@@ -233,11 +238,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.pole_plot_points_colors.append(color)
 
     def place_point_mag_cal_plot(self, x, y, color="#FF00FF"):
-        self.mag_cal_points = np.append(self.mag_cal_points, np.array([[x, y]]), axis=0)
+        self.mag_cal_points = np.append(
+            self.mag_cal_points, np.array([[x, y]]), axis=0)
         self.mag_cal_points_colors.append(color)
 
     def redraw_pole_plot(self):
-        self.pole_plot.clear()
+        self.reset_pole_plot()
         poles = pg.ScatterPlotItem(
             self.pole_plot_points[:, 0],
             self.pole_plot_points[:, 1],
@@ -250,9 +256,11 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         linedata = np.zeros((0, 2))
         for pole in self.pole_plot_points:
             linedata = np.append(linedata, np.array([[0, 0]]), axis=0)
-            linedata = np.append(linedata, np.array([[pole[0], pole[1]]]), axis=0)
+            linedata = np.append(linedata, np.array(
+                [[pole[0], pole[1]]]), axis=0)
             # self.plot_2d.plot((0,pole[0]), (0, pole[1]), symbol=None)
-        lines = pg.PlotCurveItem(x=linedata[:, 0], y=linedata[:, 1], connect="pairs")
+        lines = pg.PlotCurveItem(
+            x=linedata[:, 0], y=linedata[:, 1], connect="pairs")
         self.pole_plot.addItem(lines)
         ###
 
@@ -308,27 +316,6 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         x = median(x)
         y = median(y)
 
-        # Update min/max values
-        r = sqrt(x ** 2 + y ** 2)
-        if self.rmin_label.text() == "-" or r < float(self.rmin_label.text()):
-            self.rmin_label.setText(str(round(r, 1)))
-        if self.rmax_label.text() == "-" or r > float(self.rmax_label.text()):
-            self.rmax_label.setText(str(round(r, 1)))
-            # Calculate and update Soft Iron R matrix
-            theta = asin(y / r)
-            costheta = cos(theta)
-            sintheta = sin(theta)
-            self.theta_label.setText(str(round(theta, 3)))
-            self.costheta_label.setText(str(round(costheta, 3)))
-            self.costheta2_label.setText(str(round(costheta, 3)))
-            self.sintheta_label.setText(str(round(sintheta, 3)))
-            self.minussintheta_label.setText(str(round(-sintheta, 3)))
-
-        rmin = float(self.rmin_label.text())
-        rmax = float(self.rmax_label.text())
-        if rmax != 0:
-            self.sigma_label.setText(str(round((rmin / rmax), 3)))
-
         if self.min_x_label.text() == "-" or x < int(self.min_x_label.text()):
             self.min_x_label.setText(str(x))
 
@@ -341,31 +328,12 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if self.max_y_label.text() == "-" or y > int(self.max_y_label.text()):
             self.max_y_label.setText(str(y))
 
-        # Calculate and update Hard Iron offsets
-        if self.min_x_label.text() != "-" and self.max_x_label.text() != "-":
-            self.offset_x_label.setText(
-                str(
-                    int(
-                        (int(self.min_x_label.text()) + int(self.max_x_label.text()))
-                        / 2
-                    )
-                )
-            )
-
-        if self.min_y_label.text() != "-" and self.max_y_label.text() != "-":
-            self.offset_y_label.setText(
-                str(
-                    int(
-                        (int(self.min_y_label.text()) + int(self.max_y_label.text()))
-                        / 2
-                    )
-                )
-            )
-
         self.place_point_mag_cal_plot(x, y)
         self.redraw_mag_cal_plot()
 
     def autocal_mag_cal(self):
+        self.clear_mag_cal_data()
+        self.reset_mag_cal_plot()
         steps = 20
         self.measure_mag_cal()
         for i in range(steps):
@@ -375,6 +343,76 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             sleep(0.1)
             self.measure_mag_cal()
             self.calibration_progbar.setValue(i * 100 / (steps - 1))
+
+    def correct_hard_mag_cal(self):
+        # Calculate Hard Iron error
+        for i in range(len(self.mag_cal_points)):
+            x = self.mag_cal_points[i, 0]
+            y = self.mag_cal_points[i, 1]
+            if self.min_x_label.text() != "-" and self.max_x_label.text() != "-":
+                self.offset_x_label.setText(
+                    str(int((int(self.min_x_label.text()) + int(self.max_x_label.text())) / 2)))
+
+            if self.min_y_label.text() != "-" and self.max_y_label.text() != "-":
+                self.offset_y_label.setText(
+                    str(int((int(self.min_y_label.text()) + int(self.max_y_label.text())) / 2)))
+
+ # Apply Hard Iron correction
+        for i in range(len(self.mag_cal_points)):
+            self.mag_cal_points[i, 0] = self.mag_cal_points[i,
+                                                            0] - int(self.offset_x_label.text())
+            self.mag_cal_points[i, 1] = self.mag_cal_points[i,
+                                                            1] - int(self.offset_y_label.text())
+
+        # Redraw plot
+        self.redraw_mag_cal_plot()
+
+    def correct_soft_mag_cal(self):
+        # Calculate Soft Iron error
+        for i in range(len(self.mag_cal_points)):
+            x = self.mag_cal_points[i, 0]
+            y = self.mag_cal_points[i, 1]
+            r = sqrt(x ** 2 + y ** 2)
+            if self.rmin_label.text() == "-" or r < float(self.rmin_label.text()):
+                self.rmin_label.setText(str(round(r, 1)))
+            if self.rmax_label.text() == "-" or r > float(self.rmax_label.text()):
+                self.rmax_label.setText(str(round(r, 1)))
+                # Calculate and update Soft Iron R matrix
+                if y >= 0:
+                    theta = atan2(y, x)
+                else:
+                    theta = 2*pi+atan2(y, x)
+                costheta = cos(theta)
+                sintheta = sin(theta)
+                self.theta_label.setText(str(round(theta, 3)))
+                self.costheta_label.setText(str(round(costheta, 3)))
+                self.costheta2_label.setText(str(round(costheta, 3)))
+                self.sintheta_label.setText(str(round(sintheta, 3)))
+                self.minussintheta_label.setText(str(round(-sintheta, 3)))
+            rmin = float(self.rmin_label.text())
+            rmax = float(self.rmax_label.text())
+            if rmax != 0:
+                self.sigma_label.setText(str(round((rmin / rmax), 3)))
+
+        # Apply Soft Iron correction
+        R = np.matrix(
+            [[float(self.costheta_label.text()), float(self.sintheta_label.text())],
+             [float(self.minussintheta_label.text()), float(self.costheta2_label.text())]])
+        for i in range(len(self.mag_cal_points)):
+            # rotate
+            v = np.matrix([[self.mag_cal_points[i, 0]],
+                           [self.mag_cal_points[i, 1]]])
+            v2 = R*v
+            v2[0] = v2[0]*float(self.sigma_label.text())  # scale
+            self.mag_cal_points[i, 0] = int(v2[0])
+            self.mag_cal_points[i, 1] = int(v2[1])
+
+        # Redraw plot
+        self.redraw_mag_cal_plot()
+
+    def sendcal_mag_cal(self):
+        self.robot.set_mag_cal(x=-int(self.offset_x_label.text()), y=-int(self.offset_y_label.text(
+        )), theta=float(self.theta_label.text()), sigma=float(self.sigma_label.text()))
 
 
 if __name__ == "__main__":

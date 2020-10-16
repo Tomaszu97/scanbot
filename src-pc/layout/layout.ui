@@ -114,6 +114,9 @@
     <property name="text">
      <string>^</string>
     </property>
+    <property name="flat">
+     <bool>false</bool>
+    </property>
    </widget>
    <widget class="QPushButton" name="backward_btn">
     <property name="geometry">
@@ -383,8 +386,8 @@
      <widget class="QPushButton" name="clear_mag_cal_data_btn">
       <property name="geometry">
        <rect>
-        <x>20</x>
-        <y>570</y>
+        <x>170</x>
+        <y>490</y>
         <width>141</width>
         <height>31</height>
        </rect>
@@ -618,9 +621,9 @@
      <widget class="QProgressBar" name="calibration_progbar">
       <property name="geometry">
        <rect>
-        <x>170</x>
+        <x>320</x>
         <y>490</y>
-        <width>391</width>
+        <width>241</width>
         <height>31</height>
        </rect>
       </property>
@@ -628,17 +631,17 @@
        <number>0</number>
       </property>
      </widget>
-     <widget class="QPushButton" name="autocalibration_btn">
+     <widget class="QPushButton" name="autocalibrate_btn">
       <property name="geometry">
        <rect>
-        <x>20</x>
+        <x>30</x>
         <y>530</y>
-        <width>141</width>
+        <width>121</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>AUTOCALIBRATION</string>
+       <string>AUTOCALIBRATE</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_22">
@@ -1026,17 +1029,17 @@
        <enum>Qt::Vertical</enum>
       </property>
      </widget>
-     <widget class="QPushButton" name="autocalibration_btn_2">
+     <widget class="QPushButton" name="sendcalibration_btn">
       <property name="geometry">
        <rect>
-        <x>170</x>
+        <x>420</x>
         <y>530</y>
-        <width>141</width>
+        <width>121</width>
         <height>31</height>
        </rect>
       </property>
       <property name="text">
-       <string>SEND CALIBRATION DATA</string>
+       <string>SEND CAL. DATA</string>
       </property>
      </widget>
      <widget class="QLabel" name="label_33">
@@ -1075,6 +1078,32 @@
       </property>
       <property name="alignment">
        <set>Qt::AlignCenter</set>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="correct_hard_btn">
+      <property name="geometry">
+       <rect>
+        <x>160</x>
+        <y>530</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>CORRECT HARD IRON</string>
+      </property>
+     </widget>
+     <widget class="QPushButton" name="correct_soft_btn">
+      <property name="geometry">
+       <rect>
+        <x>290</x>
+        <y>530</y>
+        <width>121</width>
+        <height>31</height>
+       </rect>
+      </property>
+      <property name="text">
+       <string>CORRECT SOFT IRON</string>
       </property>
      </widget>
     </widget>
@@ -1183,9 +1212,6 @@
     <property name="text">
      <string>&lt;</string>
     </property>
-    <property name="shortcut">
-     <string>A</string>
-    </property>
    </widget>
    <widget class="QPushButton" name="backward_step_btn">
     <property name="geometry">
@@ -1198,9 +1224,6 @@
     </property>
     <property name="text">
      <string>\/</string>
-    </property>
-    <property name="shortcut">
-     <string>S</string>
     </property>
    </widget>
    <widget class="QPushButton" name="forward_step_btn">
@@ -1215,9 +1238,6 @@
     <property name="text">
      <string>^</string>
     </property>
-    <property name="shortcut">
-     <string>W</string>
-    </property>
    </widget>
    <widget class="QPushButton" name="turn_right_step_btn">
     <property name="geometry">
@@ -1230,9 +1250,6 @@
     </property>
     <property name="text">
      <string>&gt;</string>
-    </property>
-    <property name="shortcut">
-     <string>D</string>
     </property>
    </widget>
    <widget class="QLabel" name="label_10">
