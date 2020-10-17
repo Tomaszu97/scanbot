@@ -34,9 +34,9 @@ get accel data
 #define DRIVE_SERVO_MIDDLE 105
 int16_t hardiron_x;       //EEPROM ADDRESS 0
 int16_t hardiron_y;       //EEPROM ADDRESS 2
-int16_t hardiron_z;       //EEPROM ADDRESS 4
-int16_t azimuth_remap[4]; // EEPROM ADDRESSES 6 8 10 12
-int16_t mag_multiplier;   // EEPROM ADDRESS 14 //either 1 or -1
+float theta;              //EEPROM ADDRESS 4
+float sigma;              //EEPROM ADDRESS 8
+float sintheta, costheta; //not stored in eeprom
 
 Servo leftservo;
 Servo rightservo;
@@ -204,25 +204,25 @@ int signed_mod(int value, int n)
 int getAzimuth()
 {
     mag.read();
-
     //hard iron offset correction
-    int16_t mx_r = int16_t(mag.m.x) + hardiron_x;
-    int16_t my_r = int16_t(mag.m.y) + hardiron_y;
-    int16_t mz_r = int16_t(mag.m.z) + hardiron_z;
-    int yaw = signed_mod((atan2(my_r, mx_r) * RAD_TO_DEG), 360);
-    int inrange[] = {0, 90, 180, 270, 360};
-    int outrange[] = {azimuth_remap[0], azimuth_remap[1], azimuth_remap[2], azimuth_remap[3], azimuth_remap[0] + 360};
-    yaw = multiMap(yaw, inrange, outrange, 5) * mag_multiplier;
-    yaw = signed_mod(yaw, 360); // important
+    float x = float(int16_t(mag.m.x) + hardiron_x);
+    float y = float(int16_t(mag.m.y) + hardiron_y);
+    //soft iron correction - rotate ellipse
+    float x2 = (x * costheta) + (y * sintheta);
+    float y2 = (x * -sintheta) + (y * costheta);
+    //soft iron correction - squish ellipse to make it a circle
+    x2 *= sigma;
+
+    int yaw = signed_mod((atan2(x2, y2) * RAD_TO_DEG), 360);
     return yaw;
 }
 
 void rotateTo(int azimuth)
 {
     if (calcAngleDistance(getAzimuth(), azimuth) > 0)
-        driveMotors(90, -90);
-    else
         driveMotors(-90, 90);
+    else
+        driveMotors(90, -90);
 
     while (true)
     {
@@ -237,7 +237,6 @@ void rotateTo(int azimuth)
 int getDistance()
 {
     int16_t distance = -1;
-
     Wire.beginTransmission(0x10);
     Wire.write(0x00);
     Wire.endTransmission();
@@ -289,15 +288,19 @@ uint8_t parseCommand(String command)
 
 void printMagCal()
 {
-    for (uint8_t i = 0; i <= 14; i += 2)
-    {
-        int16_t temp;
-        EEPROM.get(i, temp);
-        Serial2.print(temp, DEC);
-
-        if (i != 14)
-            Serial2.print(",");
-    }
+    int16_t tempint;
+    float tempfloat;
+    EEPROM.get(0, tempint);
+    Serial2.print(tempint, DEC);
+    Serial2.print(",");
+    EEPROM.get(2, tempint);
+    Serial2.print(tempint, DEC);
+    Serial2.print(",");
+    EEPROM.get(4, tempfloat);
+    Serial2.print(tempfloat, DEC);
+    Serial2.print(",");
+    EEPROM.get(8, tempfloat);
+    Serial2.print(tempfloat, DEC);
     Serial2.println("");
 }
 
@@ -314,12 +317,10 @@ void setup()
     digitalWrite(BUZZER_PIN, LOW);
     EEPROM.get(0, hardiron_x);
     EEPROM.get(2, hardiron_y);
-    EEPROM.get(4, hardiron_z);
-    EEPROM.get(6, azimuth_remap[0]);
-    EEPROM.get(8, azimuth_remap[1]);
-    EEPROM.get(10, azimuth_remap[2]);
-    EEPROM.get(12, azimuth_remap[3]);
-    EEPROM.get(14, mag_multiplier);
+    EEPROM.get(4, theta);
+    EEPROM.get(8, sigma);
+    sintheta = sin(theta);
+    costheta = cos(theta);
 
     beep(30, 3);
     Serial.println("Debug Serial ready");
@@ -337,61 +338,87 @@ void loop()
         {
         // DRIVE
         case 0:
+        {
             driveMotors(getArgument(command, 1).toInt(), getArgument(command, 2).toInt());
             Serial2.println("OK");
-            break;
+        }
+        break;
 
         // ROTATE_TOWER
         case 1:
+        {
             rotateTower(getArgument(command, 1).toInt());
             Serial2.println("OK");
-            break;
+        }
+        break;
 
         // KILL
         case 2:
+        {
             motorsDetach();
             towerDetach();
             Serial2.println("OK");
-            break;
+        }
+        break;
 
         // PRINT
         case 3:
+        {
             command.substring(command.indexOf(':') + 1).toCharArray(printbuffer, printbuffer_size);
             print(printbuffer);
             Serial2.println("OK");
-            break;
+        }
+        break;
 
         // BEEP
         case 4:
+        {
             beep(getArgument(command, 1).toInt(), getArgument(command, 2).toInt());
             Serial2.println("OK");
-            break;
+        }
+        break;
 
         // GET_MAG
         case 5:
+        {
             mag.read();
-            Serial2.print(int(mag.m.x) + hardiron_x, DEC);
+            ////COPY-PASTE from getAzimuth()
+            //hard iron offset correction
+            float x = float(int16_t(mag.m.x) + hardiron_x);
+            float y = float(int16_t(mag.m.y) + hardiron_y);
+            //soft iron correction - rotate ellipse
+            float x2 = (x * costheta) + (y * sintheta);
+            float y2 = (x * -sintheta) + (y * costheta);
+            //soft iron correction - squish ellipse to make it a circle
+            x2 *= sigma;
+            ////
+            Serial2.print(int(x2), DEC);
             Serial2.print(",");
-            Serial2.print(int(mag.m.y) + hardiron_y, DEC);
-            Serial2.print(",");
-            Serial2.print(int(mag.m.z) + hardiron_z, DEC);
+            Serial2.print(int(y2), DEC);
             Serial2.println("");
-            break;
+        }
+        break;
 
         //GET_AZIMUTH
         case 6:
+        {
             Serial2.println(getAzimuth(), DEC);
-            break;
+        }
+        break;
 
         // GET_DISTANCE
         case 7:
+        {
             Serial2.println(getDistance(), DEC);
-            break;
+        }
+        break;
 
         // GET_TIME
         case 8:
+        {
             Serial2.println(millis(), DEC);
-            break;
+        }
+        break;
 
         //MOVE
         case 9:
@@ -410,18 +437,23 @@ void loop()
 
         // ROTATE_TO
         case 10:
+        {
             rotateTo(getArgument(command, 1).toInt());
             Serial2.println(getAzimuth(), DEC);
-            break;
+        }
+        break;
 
         // ROTATE
         case 11:
-            rotateTo((getAzimuth() + getArgument(command, 1).toInt()) % 360);
+        {
+            rotateTo((getAzimuth() - getArgument(command, 1).toInt()) % 360);
             Serial2.println(getAzimuth(), DEC);
-            break;
+        }
+        break;
 
         //SCAN
         case 12:
+        {
             rotateTower(0);
             delay(300);
             for (uint8_t i = 0; i <= 180; i += 1)
@@ -433,44 +465,47 @@ void loop()
                     Serial2.print(",");
             }
             Serial2.println("");
-            break;
+        }
+        break;
 
         //SET_MAG_CAL
         case 13:
+        {
             hardiron_x = getArgument(command, 1).toInt();
             hardiron_y = getArgument(command, 2).toInt();
-            hardiron_z = getArgument(command, 3).toInt();
-            azimuth_remap[0] = getArgument(command, 4).toInt();
-            azimuth_remap[1] = getArgument(command, 5).toInt();
-            azimuth_remap[2] = getArgument(command, 6).toInt();
-            azimuth_remap[3] = getArgument(command, 7).toInt();
-            mag_multiplier = getArgument(command, 8).toInt();
+            theta = getArgument(command, 3).toFloat();
+            sigma = getArgument(command, 4).toFloat();
+            sintheta = sin(theta);
+            costheta = cos(theta);
 
             EEPROM.put(0, hardiron_x);
             EEPROM.put(2, hardiron_y);
-            EEPROM.put(4, hardiron_z);
-            EEPROM.put(6, azimuth_remap[0]);
-            EEPROM.put(8, azimuth_remap[1]);
-            EEPROM.put(10, azimuth_remap[2]);
-            EEPROM.put(12, azimuth_remap[3]);
-            EEPROM.put(14, mag_multiplier);
+            EEPROM.put(4, theta);
+            EEPROM.put(8, sigma);
 
             printMagCal();
-
-            break;
+        }
+        break;
 
         //GET_MAG_CAL
         case 14:
+        {
             printMagCal();
-            break;
+        }
+        break;
 
+        //RESET
         case 15:
+        {
             reset();
-            break;
+        }
+        break;
 
         default:
+        {
             Serial2.println("COMMAND ERROR");
-            break;
+        }
+        break;
         }
     }
 }
