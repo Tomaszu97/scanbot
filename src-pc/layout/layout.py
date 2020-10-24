@@ -131,7 +131,7 @@ class Ui_MainWindow(object):
         self.mag_cal_plot_layout.setContentsMargins(0, 0, 0, 0)
         self.clear_mag_cal_data_btn = QPushButton(self.mag_cal_plot_tab)
         self.clear_mag_cal_data_btn.setObjectName(u"clear_mag_cal_data_btn")
-        self.clear_mag_cal_data_btn.setGeometry(QRect(170, 490, 141, 31))
+        self.clear_mag_cal_data_btn.setGeometry(QRect(20, 490, 81, 111))
         self.label_8 = QLabel(self.mag_cal_plot_tab)
         self.label_8.setObjectName(u"label_8")
         self.label_8.setGeometry(QRect(10, 420, 54, 17))
@@ -189,14 +189,14 @@ class Ui_MainWindow(object):
         self.offset_y_label.setAlignment(Qt.AlignCenter)
         self.measure_btn = QPushButton(self.mag_cal_plot_tab)
         self.measure_btn.setObjectName(u"measure_btn")
-        self.measure_btn.setGeometry(QRect(20, 490, 141, 31))
+        self.measure_btn.setGeometry(QRect(200, 550, 81, 51))
         self.calibration_progbar = QProgressBar(self.mag_cal_plot_tab)
         self.calibration_progbar.setObjectName(u"calibration_progbar")
-        self.calibration_progbar.setGeometry(QRect(320, 490, 241, 31))
+        self.calibration_progbar.setGeometry(QRect(290, 560, 271, 31))
         self.calibration_progbar.setValue(0)
-        self.autocalibrate_btn = QPushButton(self.mag_cal_plot_tab)
-        self.autocalibrate_btn.setObjectName(u"autocalibrate_btn")
-        self.autocalibrate_btn.setGeometry(QRect(30, 530, 121, 31))
+        self.auto_measure_btn = QPushButton(self.mag_cal_plot_tab)
+        self.auto_measure_btn.setObjectName(u"auto_measure_btn")
+        self.auto_measure_btn.setGeometry(QRect(200, 490, 81, 51))
         self.label_22 = QLabel(self.mag_cal_plot_tab)
         self.label_22.setObjectName(u"label_22")
         self.label_22.setGeometry(QRect(10, 370, 174, 21))
@@ -304,9 +304,9 @@ class Ui_MainWindow(object):
         self.line_6.setGeometry(QRect(180, 370, 20, 111))
         self.line_6.setFrameShape(QFrame.VLine)
         self.line_6.setFrameShadow(QFrame.Sunken)
-        self.sendcalibration_btn = QPushButton(self.mag_cal_plot_tab)
-        self.sendcalibration_btn.setObjectName(u"sendcalibration_btn")
-        self.sendcalibration_btn.setGeometry(QRect(420, 530, 121, 31))
+        self.send_cal_data_btn = QPushButton(self.mag_cal_plot_tab)
+        self.send_cal_data_btn.setObjectName(u"send_cal_data_btn")
+        self.send_cal_data_btn.setGeometry(QRect(470, 490, 81, 61))
         self.label_33 = QLabel(self.mag_cal_plot_tab)
         self.label_33.setObjectName(u"label_33")
         self.label_33.setGeometry(QRect(510, 420, 41, 17))
@@ -319,10 +319,13 @@ class Ui_MainWindow(object):
         self.sigma_label.setAlignment(Qt.AlignCenter)
         self.correct_hard_btn = QPushButton(self.mag_cal_plot_tab)
         self.correct_hard_btn.setObjectName(u"correct_hard_btn")
-        self.correct_hard_btn.setGeometry(QRect(160, 530, 121, 31))
+        self.correct_hard_btn.setGeometry(QRect(290, 490, 81, 61))
         self.correct_soft_btn = QPushButton(self.mag_cal_plot_tab)
         self.correct_soft_btn.setObjectName(u"correct_soft_btn")
-        self.correct_soft_btn.setGeometry(QRect(290, 530, 121, 31))
+        self.correct_soft_btn.setGeometry(QRect(380, 490, 81, 61))
+        self.send_clear_cal_data_btn = QPushButton(self.mag_cal_plot_tab)
+        self.send_clear_cal_data_btn.setObjectName(u"send_clear_cal_data_btn")
+        self.send_clear_cal_data_btn.setGeometry(QRect(110, 490, 81, 111))
         self.tab_container.addTab(self.mag_cal_plot_tab, "")
         self.label_6 = QLabel(self.centralwidget)
         self.label_6.setObjectName(u"label_6")
@@ -463,7 +466,7 @@ class Ui_MainWindow(object):
         self.rotate_to_slider.valueChanged.connect(self.label_16.setNum)
         self.tower_slider.valueChanged.connect(self.label_17.setNum)
 
-        self.tab_container.setCurrentIndex(3)
+        self.tab_container.setCurrentIndex(0)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -501,7 +504,9 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(accessibility)
         self.mag_cal_plot_tab.setAccessibleName("")
 #endif // QT_CONFIG(accessibility)
-        self.clear_mag_cal_data_btn.setText(QCoreApplication.translate("MainWindow", u"CLEAR DATA", None))
+        self.clear_mag_cal_data_btn.setText(QCoreApplication.translate("MainWindow", u"CLEAR\n"
+"GRAPH\n"
+"DATA", None))
         self.label_8.setText(QCoreApplication.translate("MainWindow", u"MIN", None))
         self.label_9.setText(QCoreApplication.translate("MainWindow", u"MAX", None))
         self.label_18.setText(QCoreApplication.translate("MainWindow", u"OFFSET", None))
@@ -513,8 +518,10 @@ class Ui_MainWindow(object):
         self.max_y_label.setText(QCoreApplication.translate("MainWindow", u"-", None))
         self.offset_x_label.setText(QCoreApplication.translate("MainWindow", u"-", None))
         self.offset_y_label.setText(QCoreApplication.translate("MainWindow", u"-", None))
-        self.measure_btn.setText(QCoreApplication.translate("MainWindow", u"MANUAL MEASUREMENT", None))
-        self.autocalibrate_btn.setText(QCoreApplication.translate("MainWindow", u"AUTOCALIBRATE", None))
+        self.measure_btn.setText(QCoreApplication.translate("MainWindow", u"MEASURE\n"
+"[MANUAL]", None))
+        self.auto_measure_btn.setText(QCoreApplication.translate("MainWindow", u"MEASURE\n"
+"[AUTO]", None))
         self.label_22.setText(QCoreApplication.translate("MainWindow", u"HARD IRON CORRECTION", None))
         self.label_23.setText(QCoreApplication.translate("MainWindow", u"SOFT IRON CORRECTION", None))
         self.label_24.setText(QCoreApplication.translate("MainWindow", u"Rmax", None))
@@ -534,11 +541,24 @@ class Ui_MainWindow(object):
         self.label_32.setText(QCoreApplication.translate("MainWindow", u"sin \u03b8", None))
         self.noname_label_8.setText(QCoreApplication.translate("MainWindow", u"[", None))
         self.noname_label_9.setText(QCoreApplication.translate("MainWindow", u"]", None))
-        self.sendcalibration_btn.setText(QCoreApplication.translate("MainWindow", u"SEND CAL. DATA", None))
+        self.send_cal_data_btn.setText(QCoreApplication.translate("MainWindow", u"SEND\n"
+"CALCULATED\n"
+"CALIBRATION\n"
+"DATA", None))
         self.label_33.setText(QCoreApplication.translate("MainWindow", u"\u03c3", None))
         self.sigma_label.setText(QCoreApplication.translate("MainWindow", u"-", None))
-        self.correct_hard_btn.setText(QCoreApplication.translate("MainWindow", u"CORRECT HARD IRON", None))
-        self.correct_soft_btn.setText(QCoreApplication.translate("MainWindow", u"CORRECT SOFT IRON", None))
+        self.correct_hard_btn.setText(QCoreApplication.translate("MainWindow", u"CORRECT\n"
+"HARD\n"
+"IRON\n"
+"OFFSET", None))
+        self.correct_soft_btn.setText(QCoreApplication.translate("MainWindow", u"CORRECT\n"
+"SOFT\n"
+"IRON\n"
+"OFFSET", None))
+        self.send_clear_cal_data_btn.setText(QCoreApplication.translate("MainWindow", u"SEND\n"
+"CLEAR\n"
+"CALIBRATION\n"
+"DATA", None))
         self.tab_container.setTabText(self.tab_container.indexOf(self.mag_cal_plot_tab), QCoreApplication.translate("MainWindow", u"magnetometer calibration", None))
         self.label_6.setText(QCoreApplication.translate("MainWindow", u"CONSOLE", None))
         self.connection_status_label.setText(QCoreApplication.translate("MainWindow", u"<html><head/><body><p align=\"center\">\u274c</p></body></html>", None))
