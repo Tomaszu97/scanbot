@@ -25,7 +25,7 @@ class PolePlots():
         self.pole_plot_3d.addItem(gr)
         self.main_window.pole_plot_3d_layout.addWidget(self.pole_plot_3d)
 
-        self.reset_plots()
+        self.reset_all()
 
     def reset_data(self):
         self.points = np.zeros((0, 2))

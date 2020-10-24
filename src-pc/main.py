@@ -15,6 +15,7 @@ from strings import *
 import randomcolor
 import PySide2.QtCore as QtCore
 from math import radians, degrees, sin, cos, sqrt, atan2, pi
+from scipy.spatial import distance
 
 
 class MainWindow(QMainWindow, Ui_MainWindow):
@@ -186,13 +187,15 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.reset_mag_cal_plot()
 
     def find_xy_closest_point_distance(self, this_point, other_points):
-        smallest_distance = None
-        for other_point in other_points:
-            current_distance = sqrt(
-                (other_point[0]-this_point[0])**2 + (other_point[1]-this_point[1])**2)
-            if smallest_distance is None or current_distance < smallest_distance:
-                smallest_distance = current_distance
-        return smallest_distance
+        min_distance = min(distance.cdist([this_point], other_points)[0])
+        return min_distance
+        # smallest_distance = None
+        # for other_point in other_points:
+        #     current_distance = sqrt(
+        #         (other_point[0]-this_point[0])**2 + (other_point[1]-this_point[1])**2)
+        #     if smallest_distance is None or current_distance < smallest_distance:
+        #         smallest_distance = current_distance
+        # return smallest_distance
 
     def rotate_points(self, points, angle, center_x=0, center_y=0):
         rotated_points = np.zeros((0, 2))
