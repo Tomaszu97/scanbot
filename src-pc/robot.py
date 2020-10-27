@@ -3,10 +3,11 @@ from math import radians, degrees, sin, cos
 
 
 class Robot:
-    def __init__(self, send_recv_function):
+    def __init__(self, send_recv_function, main_window):
         self.send = send_recv_function
         self.position = [0, 0]
         self.azimuth = 0
+        self.main_window = main_window
 
     def rotate_tower(self, angle):
         return self.send(f"ROTATE_TOWER:{angle}#")
@@ -17,6 +18,11 @@ class Robot:
     def stop(self):
         return self.drive(0, 0)
 
+    def reset_position(self):
+        self.position = [0, 0]
+        self.main_window.robot_pos_x_label.setText("0")
+        self.main_window.robot_pos_y_label.setText("0")
+
     def rotate(self, angle):
         self.azimuth = int(self.send(f"ROTATE:{angle}#"))
         return self.azimuth
@@ -26,8 +32,13 @@ class Robot:
         return self.azimuth
 
     def move(self, distance):
+        self.get_azimuth()
         self.position[0] += cos(radians(self.azimuth)) * distance
         self.position[1] += sin(radians(self.azimuth)) * distance
+        self.main_window.robot_pos_x_label.setText(
+            str(round(self.position[0], 2)))
+        self.main_window.robot_pos_y_label.setText(
+            str(round(self.position[1], 2)))
         return self.send(f"MOVE:{distance}#")
 
     def get_distance(self):

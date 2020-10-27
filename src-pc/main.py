@@ -28,7 +28,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # Data / objects
         self.serial = SerialConnection(self)
-        self.robot = Robot(self.serial.send_command)
+        self.robot = Robot(self.serial.send_command, self)
         self.randcol = lambda: randomcolor.RandomColor().generate(
             luminosity="bright", count=1)[0]
 
@@ -151,6 +151,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.correct_hard_btn.clicked.connect(self.correct_hard_mag_cal)
         self.correct_soft_btn.clicked.connect(self.correct_soft_mag_cal)
         self.send_cal_data_btn.clicked.connect(self.sendcal_mag_cal)
+        self.reset_robot_pos_btn.clicked.connect(self.robot.reset_position)
 
     def place_point_mag_cal_plot(self, x, y, color="#FF00FF"):
         self.mag_cal_points = np.append(
@@ -189,15 +190,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def find_xy_closest_point_distance(self, this_point, other_points):
         min_distance = min(distance.cdist([this_point], other_points)[0])
         return min_distance
-        # smallest_distance = None
-        # for other_point in other_points:
-        #     current_distance = sqrt(
-        #         (other_point[0]-this_point[0])**2 + (other_point[1]-this_point[1])**2)
-        #     if smallest_distance is None or current_distance < smallest_distance:
-        #         smallest_distance = current_distance
-        # return smallest_distance
 
-    def rotate_points(self, points, angle, center_x=0, center_y=0):
+    def rotate_points(self, points, angle):
         rotated_points = np.zeros((0, 2))
         for point in points:
             rotated_points = np.append(rotated_points, np.array(
@@ -234,12 +228,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # rotate to fit
         if self.pole_plots.points.size != 0:
-            max_correction_angle = 15
+            max_correction_angle = 25
             rotation_scores = {}
             for current_rotation in range(-max_correction_angle, max_correction_angle+1):
                 # rotate
                 rotated_data = self.rotate_points(
-                    filtered_data, current_rotation)
+                    points=filtered_data,
+                    angle=current_rotation)
 
                 # calc xy positions
                 rotated_xy_data = np.zeros((0, 2))
@@ -390,8 +385,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         )), theta=float(self.theta_label.text()), sigma=float(self.sigma_label.text()))
 
     def calc_robot_angle_distance_to_xy(self, _angle, distance):
-        # TODO: think about moving it back to main
-        angle = _angle + self.robot.azimuth
+        angle = _angle + self.robot.azimuth - 90
         angle = radians(angle)
         x = distance * cos(angle) + self.robot.position[0]
         y = distance * sin(angle) + self.robot.position[1]

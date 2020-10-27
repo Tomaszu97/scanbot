@@ -70,14 +70,15 @@ class PolePlots():
         self.reset_plots()
 
         # draw lines
-        linedata = np.zeros((0, 2))
-        for pole in self.points:
-            linedata = np.append(linedata, np.array([[0, 0]]), axis=0)
-            linedata = np.append(linedata, np.array(
-                [[pole[0], pole[1]]]), axis=0)
-        lines = pg.PlotCurveItem(
-            x=linedata[:, 0], y=linedata[:, 1], connect="pairs", pen=pg.mkPen("#555555"))
-        self.pole_plot.addItem(lines)
+        # linedata = np.zeros((0, 2))
+        # for pole in self.points:
+        #     linedata = np.append(linedata, np.array(
+        #         [[0, 0]]), axis=0)
+        #     linedata = np.append(linedata, np.array(
+        #         [[pole[0], pole[1]]]), axis=0)
+        # lines = pg.PlotCurveItem(
+        #     x=linedata[:, 0], y=linedata[:, 1], connect="pairs", pen=pg.mkPen("#555555"))
+        # self.pole_plot.addItem(lines)
 
         pens = []
         for color in self.colors:
