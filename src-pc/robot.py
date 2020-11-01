@@ -24,11 +24,11 @@ class Robot:
         self.main_window.robot_pos_y_label.setText("0")
 
     def rotate(self, angle):
-        self.azimuth = int(self.send(f"ROTATE:{angle}#"))
+        self.update_azimuth(int(self.send(f"ROTATE:{angle}#")))
         return self.azimuth
 
     def rotate_to(self, azimuth):
-        self.azimuth = int(self.send(f"ROTATE_TO:{azimuth}#"))
+        self.update_azimuth(int(self.send(f"ROTATE_TO:{azimuth}#")))
         return self.azimuth
 
     def move(self, distance):
@@ -39,13 +39,14 @@ class Robot:
             str(round(self.position[0], 2)))
         self.main_window.robot_pos_y_label.setText(
             str(round(self.position[1], 2)))
+        self.get_azimuth()
         return self.send(f"MOVE:{distance}#")
 
     def get_distance(self):
         return int(self.send("GET_DISTANCE#"))
 
     def get_azimuth(self):
-        self.azimuth = int(self.send("GET_AZIMUTH#"))
+        self.update_azimuth(int(self.send("GET_AZIMUTH#")))
         return self.azimuth
 
     def beep(self, time_ms, repeat_count=1):
@@ -83,3 +84,7 @@ class Robot:
         for i in range(len(data)):
             data[i] = int(data[i])
         return data
+
+    def update_azimuth(self, angle):
+        self.azimuth = angle
+        self.main_window.robot_azimuth_label.setText(str(self.azimuth))

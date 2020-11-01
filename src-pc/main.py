@@ -228,7 +228,7 @@ class MainWindow(QMainWindow, Ui_MainWindow):
 
         # rotate to fit
         if self.pole_plots.points.size != 0:
-            max_correction_angle = 25
+            max_correction_angle = 10
             rotation_scores = {}
             for current_rotation in range(-max_correction_angle, max_correction_angle+1):
                 # rotate
@@ -253,10 +253,13 @@ class MainWindow(QMainWindow, Ui_MainWindow):
                 rotation_scores, key=rotation_scores.get)]
             best_rotation = max(rotation_scores, key=rotation_scores.get)
             print(
-                f"max score {max_score} for adjustment rotation {best_rotation}. adjusted only if score is above threshold")
+                f"max score {max_score} for adjustment rotation {best_rotation}.")
 
             if score > 2500:
+                print(
+                    f"adjusted plot and robot rotation by {best_rotation} degrees.")
                 rotated_data = self.rotate_points(filtered_data, best_rotation)
+                self.robot.update_azimuth(self.robot.azimuth + best_rotation)
             else:
                 rotated_data = filtered_data
 
