@@ -3,16 +3,13 @@
 ################################################################################
 ## Form generated from reading UI file 'layout.ui'
 ##
-## Created by: Qt User Interface Compiler version 5.15.0
+## Created by: Qt User Interface Compiler version 5.15.1
 ##
 ## WARNING! All changes made in this file will be lost when recompiling UI file!
 ################################################################################
 
-from PySide2.QtCore import (QCoreApplication, QDate, QDateTime, QMetaObject,
-    QObject, QPoint, QRect, QSize, QTime, QUrl, Qt)
-from PySide2.QtGui import (QBrush, QColor, QConicalGradient, QCursor, QFont,
-    QFontDatabase, QIcon, QKeySequence, QLinearGradient, QPalette, QPainter,
-    QPixmap, QRadialGradient)
+from PySide2.QtCore import *
+from PySide2.QtGui import *
 from PySide2.QtWidgets import *
 
 
@@ -75,7 +72,7 @@ class Ui_MainWindow(object):
         self.print_duck_btn.setGeometry(QRect(440, 100, 101, 31))
         self.send_btn = QPushButton(self.centralwidget)
         self.send_btn.setObjectName(u"send_btn")
-        self.send_btn.setGeometry(QRect(460, 520, 101, 31))
+        self.send_btn.setGeometry(QRect(460, 520, 91, 31))
         self.command_input = QLineEdit(self.centralwidget)
         self.command_input.setObjectName(u"command_input")
         self.command_input.setGeometry(QRect(10, 520, 441, 31))
@@ -92,7 +89,7 @@ class Ui_MainWindow(object):
         self.label_5.setGeometry(QRect(10, 0, 161, 20))
         self.tab_container = QTabWidget(self.centralwidget)
         self.tab_container.setObjectName(u"tab_container")
-        self.tab_container.setGeometry(QRect(560, 10, 580, 630))
+        self.tab_container.setGeometry(QRect(560, 10, 580, 641))
         self.pole_plot_tab = QWidget()
         self.pole_plot_tab.setObjectName(u"pole_plot_tab")
         self.gridLayoutWidget_3 = QWidget(self.pole_plot_tab)
@@ -434,55 +431,13 @@ class Ui_MainWindow(object):
         self.label_7.setGeometry(QRect(320, 80, 121, 20))
         self.clear_buffer_btn = QPushButton(self.centralwidget)
         self.clear_buffer_btn.setObjectName(u"clear_buffer_btn")
-        self.clear_buffer_btn.setGeometry(QRect(460, 570, 101, 31))
+        self.clear_buffer_btn.setGeometry(QRect(460, 570, 91, 31))
         self.get_mag_btn = QPushButton(self.centralwidget)
         self.get_mag_btn.setObjectName(u"get_mag_btn")
         self.get_mag_btn.setGeometry(QRect(320, 180, 101, 31))
         self.get_mag_cal_btn = QPushButton(self.centralwidget)
         self.get_mag_cal_btn.setObjectName(u"get_mag_cal_btn")
         self.get_mag_cal_btn.setGeometry(QRect(440, 180, 101, 31))
-        self.reset_robot_pos_btn = QPushButton(self.centralwidget)
-        self.reset_robot_pos_btn.setObjectName(u"reset_robot_pos_btn")
-        self.reset_robot_pos_btn.setGeometry(QRect(440, 310, 101, 31))
-        self.label_21 = QLabel(self.centralwidget)
-        self.label_21.setObjectName(u"label_21")
-        self.label_21.setGeometry(QRect(380, 310, 51, 17))
-        self.label_21.setFrameShape(QFrame.WinPanel)
-        self.label_21.setAlignment(Qt.AlignCenter)
-        self.robot_pos_x_label = QLabel(self.centralwidget)
-        self.robot_pos_x_label.setObjectName(u"robot_pos_x_label")
-        self.robot_pos_x_label.setGeometry(QRect(320, 330, 51, 17))
-        self.robot_pos_x_label.setFrameShape(QFrame.StyledPanel)
-        self.robot_pos_x_label.setAlignment(Qt.AlignCenter)
-        self.label_25 = QLabel(self.centralwidget)
-        self.label_25.setObjectName(u"label_25")
-        self.label_25.setGeometry(QRect(320, 310, 51, 17))
-        self.label_25.setFrameShape(QFrame.WinPanel)
-        self.label_25.setAlignment(Qt.AlignCenter)
-        self.robot_pos_y_label = QLabel(self.centralwidget)
-        self.robot_pos_y_label.setObjectName(u"robot_pos_y_label")
-        self.robot_pos_y_label.setGeometry(QRect(380, 330, 51, 17))
-        self.robot_pos_y_label.setFrameShape(QFrame.StyledPanel)
-        self.robot_pos_y_label.setAlignment(Qt.AlignCenter)
-        self.label_34 = QLabel(self.centralwidget)
-        self.label_34.setObjectName(u"label_34")
-        self.label_34.setGeometry(QRect(320, 280, 231, 21))
-        self.label_34.setFrameShape(QFrame.NoFrame)
-        self.line_5 = QFrame(self.centralwidget)
-        self.line_5.setObjectName(u"line_5")
-        self.line_5.setGeometry(QRect(310, 260, 241, 21))
-        self.line_5.setFrameShape(QFrame.HLine)
-        self.line_5.setFrameShadow(QFrame.Sunken)
-        self.label_35 = QLabel(self.centralwidget)
-        self.label_35.setObjectName(u"label_35")
-        self.label_35.setGeometry(QRect(320, 350, 111, 17))
-        self.label_35.setFrameShape(QFrame.WinPanel)
-        self.label_35.setAlignment(Qt.AlignCenter)
-        self.robot_azimuth_label = QLabel(self.centralwidget)
-        self.robot_azimuth_label.setObjectName(u"robot_azimuth_label")
-        self.robot_azimuth_label.setGeometry(QRect(320, 370, 111, 17))
-        self.robot_azimuth_label.setFrameShape(QFrame.StyledPanel)
-        self.robot_azimuth_label.setAlignment(Qt.AlignCenter)
         MainWindow.setCentralWidget(self.centralwidget)
         QWidget.setTabOrder(self.serial_combo, self.serial_refresh_btn)
         QWidget.setTabOrder(self.serial_refresh_btn, self.serial_connect_btn)
@@ -508,7 +463,7 @@ class Ui_MainWindow(object):
         self.rotate_to_slider.valueChanged.connect(self.label_16.setNum)
         self.tower_slider.valueChanged.connect(self.label_17.setNum)
 
-        self.tab_container.setCurrentIndex(0)
+        self.tab_container.setCurrentIndex(3)
 
 
         QMetaObject.connectSlotsByName(MainWindow)
@@ -634,13 +589,5 @@ class Ui_MainWindow(object):
 #if QT_CONFIG(shortcut)
         self.get_mag_cal_btn.setShortcut(QCoreApplication.translate("MainWindow", u"Space", None))
 #endif // QT_CONFIG(shortcut)
-        self.reset_robot_pos_btn.setText(QCoreApplication.translate("MainWindow", u"RESET POSITION", None))
-        self.label_21.setText(QCoreApplication.translate("MainWindow", u"Y", None))
-        self.robot_pos_x_label.setText(QCoreApplication.translate("MainWindow", u"0", None))
-        self.label_25.setText(QCoreApplication.translate("MainWindow", u"X", None))
-        self.robot_pos_y_label.setText(QCoreApplication.translate("MainWindow", u"0", None))
-        self.label_34.setText(QCoreApplication.translate("MainWindow", u"ROBOT POSITION", None))
-        self.label_35.setText(QCoreApplication.translate("MainWindow", u"AZIMUTH (MATH.)", None))
-        self.robot_azimuth_label.setText(QCoreApplication.translate("MainWindow", u"0", None))
     # retranslateUi
 

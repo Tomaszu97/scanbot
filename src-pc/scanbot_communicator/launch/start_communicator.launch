@@ -1,0 +1,5 @@
+  <launch>
+    <!--<node name="scanbot_communicator" pkg="scanbot_communicator" type="main.py" output="screen" />-->
+    <node name="slam_gmapping" pkg="gmapping" type="slam_gmapping" args="scan:=scan _base_frame:=map" output="screen"/>
+    <node name="rviz" pkg="rviz" type="rviz" args=" -f map " output="log"/>
+  </launch>

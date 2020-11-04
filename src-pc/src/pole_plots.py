@@ -9,15 +9,12 @@ class PolePlots():
     def __init__(self, main_window):
         self.main_window = main_window
 
-        # Data
         self.points = np.zeros((0, 2))
         self.colors = []
 
-        # 2D graph
         self.pole_plot = pg.PlotWidget()
         self.main_window.pole_plot_layout.addWidget(self.pole_plot)
 
-        # 3D graph
         self.pole_plot_3d = gl.GLViewWidget()
         self.pole_plot_3d.setCameraPosition(distance=400)
         gr = gl.GLGridItem(size=QtGui.QVector3D(500, 500, 1))
@@ -48,7 +45,7 @@ class PolePlots():
 
     def place_pole(self, x=None, y=None, angle=None, distance=None, color="#FF00FF"):
         if angle is not None and distance is not None:
-            x, y = self.main_window.calc_robot_angle_distance_to_xy(
+            x, y = self.calc_robot_angle_distance_to_xy(
                 angle, distance)
 
         # 2D plot
@@ -97,3 +94,10 @@ class PolePlots():
 
     def place_robot(self, color="#777700"):
         pass
+
+    def calc_robot_angle_distance_to_xy(self, _angle, distance):
+        angle = _angle + self.main_window.robot.azimuth - 90
+        angle = radians(angle)
+        x = distance * cos(angle) + self.main_window.robot.position[0]
+        y = distance * sin(angle) + self.main_window.robot.position[1]
+        return x, y
