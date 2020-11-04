@@ -1,5 +1,6 @@
   <launch>
     <!--<node name="scanbot_communicator" pkg="scanbot_communicator" type="main.py" output="screen" />-->
-    <node name="slam_gmapping" pkg="gmapping" type="slam_gmapping" args="scan:=scan _base_frame:=map" output="screen"/>
+    <node name="slam_gmapping" pkg="gmapping" type="slam_gmapping" args="scan:=scan" output="screen"/>
+    <node name="laser_static_pos_broadcaster" pkg="tf" type="static_transform_publisher" args="0 0 0 0 0 0 base_link base_laser 100" />
     <node name="rviz" pkg="rviz" type="rviz" args=" -f map " output="log"/>
   </launch>

@@ -89,16 +89,16 @@ class Robot:
             data[i] = int(data[i])
         
         # Draw on pole plots
-        transformed_data = np.zeros((0, 2))
-        for idx, dist in enumerate(data):
-            ang = idx
-            transformed_data = np.append(
-                    transformed_data, np.array([[ang, dist]]), axis=0)
-        rcol = self.main_window.randcol()
-        for ang, dist in transformed_data:
-            self.main_window.pole_plots.place_pole(
-                angle=ang, distance=dist, color=rcol)
-        self.main_window.pole_plots.redraw()
+        # transformed_data = np.zeros((0, 2))
+        # for idx, dist in enumerate(data):
+        #     ang = idx
+        #     transformed_data = np.append(
+        #             transformed_data, np.array([[ang, dist]]), axis=0)
+        # rcol = self.main_window.randcol()
+        # for ang, dist in transformed_data:
+        #     self.main_window.pole_plots.place_pole(
+        #         angle=ang, distance=dist, color=rcol)
+        # self.main_window.pole_plots.redraw()
 
         # print("Correcting position according to scan (no rotation correction)")
         # try:
@@ -118,15 +118,15 @@ class Robot:
             translation=(self.position[0]/100, self.position[1]/100, 0),
             rotation=tf.transformations.quaternion_from_euler(0, 0, radians(self.azimuth)),
             time=rospy.Time.now(),
-            child='scanbot',
-            parent='map'
+            child='base_link',
+            parent='odom'
         )
 
     def publish_ros_scan(self, data):
         msg = LaserScan()
         msg.header.stamp = rospy.Time.now()
         # create and set more appropriate tower frame
-        msg.header.frame_id = 'scanbot'
+        msg.header.frame_id = 'base_laser'
         msg.angle_min = -(pi/2)
         msg.angle_max = pi/2
         msg.angle_increment = pi/180
