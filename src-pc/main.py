@@ -37,29 +37,29 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         if not event.isAutoRepeat():
             key = event.key()
             if key == QtCore.Qt.Key_Up:
-                self.robot.drive(90, 90)
+                self.robot.move(self.drive_step_slider.value())
             elif key == QtCore.Qt.Key_Down:
-                self.robot.drive(-90, -90)
+                self.robot.move(-self.drive_step_slider.value())
             elif key == QtCore.Qt.Key_Left:
-                self.robot.drive(-90, 90)
+                self.robot.rotate(self.rotate_step_slider.value())
             elif key == QtCore.Qt.Key_Right:
-                self.robot.drive(90, -90)
+                self.robot.rotate(-self.rotate_step_slider.value())
             elif key == QtCore.Qt.Key_S:
-                self.scan()
+                self.robot.scan()
         return super().keyPressEvent(event)
 
-    def keyReleaseEvent(self, event):
-        if not event.isAutoRepeat():
-            key = event.key()
-            if key == QtCore.Qt.Key_Up:
-                self.robot.stop()
-            elif key == QtCore.Qt.Key_Down:
-                self.robot.stop()
-            elif key == QtCore.Qt.Key_Left:
-                self.robot.stop()
-            elif key == QtCore.Qt.Key_Right:
-                self.robot.stop()
-        return super().keyReleaseEvent(event)
+    # def keyReleaseEvent(self, event):
+    #     if not event.isAutoRepeat():
+    #         key = event.key()
+    #         if key == QtCore.Qt.Key_Up:
+    #             self.robot.stop()
+    #         elif key == QtCore.Qt.Key_Down:
+    #             self.robot.stop()
+    #         elif key == QtCore.Qt.Key_Left:
+    #             self.robot.stop()
+    #         elif key == QtCore.Qt.Key_Right:
+    #             self.robot.stop()
+    #     return super().keyReleaseEvent(event)
 
     def closeEvent(self, event):
         try:
@@ -99,10 +99,10 @@ class MainWindow(QMainWindow, Ui_MainWindow):
             lambda: self.robot.move(-self.drive_step_slider.value())
         )
         self.turn_left_step_btn.clicked.connect(
-            lambda: self.robot.rotate(-self.rotate_step_slider.value())
+            lambda: self.robot.rotate(self.rotate_step_slider.value())
         )
         self.turn_right_step_btn.clicked.connect(
-            lambda: self.robot.rotate(self.rotate_step_slider.value())
+            lambda: self.robot.rotate(-self.rotate_step_slider.value())
         )
         self.rotate_to_btn.clicked.connect(
             lambda: self.robot.rotate_to(self.rotate_to_slider.value())
