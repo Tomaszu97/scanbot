@@ -28,7 +28,7 @@ class Robot:
         return self.drive(0, 0)
 
     def rotate(self, angle):
-        self.azimuth = int(self.send(f"ROTATE:{angle}#"))
+        self.azimuth += angle #int(self.send(f"ROTATE:{angle}#"))
         self.publish_ros_odometry()
         return self.azimuth
 
@@ -38,10 +38,10 @@ class Robot:
         return self.azimuth
 
     def move(self, distance):
-        self.get_azimuth()
+        # self.get_azimuth() 
         self.position[0] += cos(radians(self.azimuth)) * distance
         self.position[1] += sin(radians(self.azimuth)) * distance
-        self.get_azimuth()
+        # self.get_azimuth()
         return self.send(f"MOVE:{distance}#")
 
     def get_distance(self):
@@ -83,7 +83,7 @@ class Robot:
         return self.send(f"SET_MAG_CAL:{x},{y},{theta},{sigma}#")
 
     def scan(self):
-        self.get_azimuth()
+        #self.get_azimuth()
         data = self.send("SCAN#").split(",")[:-1]
         for i in range(len(data)):
             data[i] = int(data[i])
