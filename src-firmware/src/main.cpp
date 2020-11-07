@@ -24,7 +24,10 @@ get accel data
 #define OLED_CS PA0
 #define OLED_DC PB14
 #define OLED_RST PB15
-#define SHARP_SENSOR_PIN PA5
+#define LEFT_ENCODER_PIN_A PB1
+#define LEFT_ENCODER_PIN_B PB0
+#define RIGHT_ENCODER_PIN_A PA7
+#define RIGHT_ENCODER_PIN_B PA6
 
 #define TOWER_SERVO_MS_MIN 500
 #define TOWER_SERVO_MS_MAX 2400
@@ -44,6 +47,9 @@ Servo towerservo;
 U8X8_SSD1306_128X64_NONAME_4W_SW_SPI u8x8(OLED_CLK, OLED_DATA, OLED_CS, OLED_DC, OLED_RST);
 HardwareSerial Serial2(PA3, PA2);
 LIS3MDL mag;
+
+volatile int left_encoder_counter = 0;
+volatile int right_encoder_counter = 0;
 
 const uint8_t printbuffer_size = 128;
 char printbuffer[printbuffer_size];
@@ -66,6 +72,43 @@ String commands[command_count] = {
     "SET_MAG_CAL",
     "GET_MAG_CAL",
     "RESET"};
+
+void beep(int time_ms, int count)
+{
+    for (int i = 0; i < count; i++)
+    {
+        digitalWrite(BUZZER_PIN, HIGH);
+        delay(time_ms);
+        digitalWrite(BUZZER_PIN, LOW);
+        delay(100);
+    }
+}
+
+void leftEncoderISR()
+{
+    //filtered only pinA, thus not detecting direction here
+    left_encoder_counter++;
+    // if (digitalRead(LEFT_ENCODER_PIN_B) == 0)
+    //     left_encoder_counter++;
+    // else
+    //     left_encoder_counter--;
+}
+
+void rightEncoderISR()
+{
+    //filtered only pinA, thus not detecting direction here
+    right_encoder_counter++;
+    // if (digitalRead(RIGHT_ENCODER_PIN_B) == 0)
+    //     right_encoder_counter++;
+    // else
+    //     right_encoder_counter--;
+}
+
+void reset_encoders()
+{
+    left_encoder_counter = 0;
+    right_encoder_counter = 0;
+}
 
 void reset()
 {
@@ -169,20 +212,18 @@ void driveMotors(int speed_left, int speed_right)
     }
 }
 
-void beep(int time_ms, int count)
+void oled_reset_cursor()
 {
-    for (int i = 0; i < count; i++)
-    {
-        digitalWrite(BUZZER_PIN, HIGH);
-        delay(time_ms);
-        digitalWrite(BUZZER_PIN, LOW);
-        delay(100);
-    }
+    u8x8.setCursor(0, 0);
 }
 
-void print(char *str)
+void oled_clear()
 {
     u8x8.clear();
+}
+
+void oled_print(char *str)
+{
     u8x8.print(str);
 }
 
@@ -321,10 +362,17 @@ void setup()
     EEPROM.get(8, sigma);
     sintheta = sin(theta);
     costheta = cos(theta);
+    pinMode(LEFT_ENCODER_PIN_A, INPUT_PULLUP);
+    pinMode(LEFT_ENCODER_PIN_B, INPUT_PULLUP);
+    pinMode(RIGHT_ENCODER_PIN_A, INPUT_PULLUP);
+    pinMode(RIGHT_ENCODER_PIN_B, INPUT_PULLUP);
+    attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_PIN_A), leftEncoderISR, FALLING);
+    attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_PIN_A), rightEncoderISR, FALLING);
 
     beep(30, 3);
     Serial.println("Debug Serial ready");
-    print("ready");
+    oled_clear();
+    oled_print("ready");
 }
 
 void loop()
@@ -365,7 +413,9 @@ void loop()
         case 3:
         {
             command.substring(command.indexOf(':') + 1).toCharArray(printbuffer, printbuffer_size);
-            print(printbuffer);
+            oled_clear();
+            oled_reset_cursor();
+            oled_print(printbuffer);
             Serial2.println("OK");
         }
         break;
@@ -423,14 +473,21 @@ void loop()
         //MOVE
         case 9:
         {
-            int val = getArgument(command, 1).toInt();
-            int dtime = abs(val) * 100;
+            reset_encoders();
+            float val = getArgument(command, 1).toInt() * 1.178;
+
             if (val > 0)
                 driveMotors(90, 90);
             else
                 driveMotors(-90, -90);
-            delay(dtime);
+
+            val = abs(val);
+            while ((left_encoder_counter + right_encoder_counter) / 2 < val)
+            {
+            }
+
             driveMotors(0, 0);
+            delay(100);
             Serial2.println("OK");
         }
         break;
@@ -446,16 +503,31 @@ void loop()
         // ROTATE
         case 11:
         {
-            rotateTo((getAzimuth() - getArgument(command, 1).toInt()) % 360);
-            Serial2.println(getAzimuth(), DEC);
+            reset_encoders();
+            float val = getArgument(command, 1).toInt() * 0.164;
+            if (val > 0)
+                driveMotors(-90, 90);
+            else
+                driveMotors(90, -90);
+
+            val = abs(val);
+            while ((left_encoder_counter + right_encoder_counter) / 2 < val)
+            {
+            }
+
+            delay(100);
+            driveMotors(0, 0);
+            Serial2.println("OK");
         }
         break;
 
         //SCAN
         case 12:
         {
+            rotateTower(10);
+            delay(200);
             rotateTower(0);
-            delay(300);
+            delay(100);
             for (uint8_t i = 0; i <= 180; i += 1)
             {
                 rotateTower(i);
