@@ -474,7 +474,7 @@ void loop()
         case 9:
         {
             reset_encoders();
-            float val = getArgument(command, 1).toInt() * 1.178;
+            float val = getArgument(command, 1).toInt() * 1.325;
 
             if (val > 0)
                 driveMotors(90, 90);
