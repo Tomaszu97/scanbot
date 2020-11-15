@@ -12,6 +12,9 @@ Python 3.8.5
 pip 20.0.2
 Pyside2 (Qt for Python)
 ```
+--- 
+IMPORTANT: Install PyQtGraph from git repo (0.11 version doesnt have clear() implemented in 3d graphs)
+---  
 
 Required ROS packages can be downloaded directly from git or apt repository.
 The most important one is __slam_gmapping__:
@@ -59,17 +62,27 @@ If no errors are thrown everything should work. Connect robot in this manner:
 
 ```
 
+First you have to start ROS core by running
+```bash
+roscore
+```
+
 Finally run
 ```bash
 roslaunch scanbot_communicator start_communicator.launch
 ```
 
+If you don't have the robot (for obvious reasons) you can run an example ros bag (saved robot run):
+```bash
+rosparam set use_sim_time true
+rosbag play --clock <this_repo_directory>/src-pc/bag1.bag
+```
+After ~35 seconds first map pieces should appear in RViz window. Enjoy :)
+
 ---
 ### IMPORTANT NOTE:
-
 start_communicator.launch has hardcoded RViz config path.  
-If you dont want to change it and it fails, just remove portion
-of code in this file, presented below:
+Change it or remove it:
 ```bash
 -d /home/blep/Pulpit/ScanBot/src-pc/res/rviz-config.rviz
 ```

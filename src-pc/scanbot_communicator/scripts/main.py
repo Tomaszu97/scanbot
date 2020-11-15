@@ -7,8 +7,9 @@ from components.strings import *
 from layout.layout import Ui_MainWindow
 
 import sys
-from PySide2.QtWidgets import QApplication, QMainWindow, QMessageBox
-import PySide2.QtCore as QtCore
+from PySide2.QtCore import *
+from PySide2.QtGui import *
+from PySide2.QtWidgets import *
 from pyside_material import apply_stylesheet
 import randomcolor
 
@@ -37,30 +38,18 @@ class MainWindow(QMainWindow, Ui_MainWindow):
     def keyPressEvent(self, event):
         if not event.isAutoRepeat():
             key = event.key()
-            if key == QtCore.Qt.Key_Up:
+            if key == Qt.Key_Up:
                 self.robot.move(self.drive_step_slider.value())
-            elif key == QtCore.Qt.Key_Down:
+            elif key == Qt.Key_Down:
                 self.robot.move(-self.drive_step_slider.value())
-            elif key == QtCore.Qt.Key_Left:
+            elif key == Qt.Key_Left:
                 self.robot.rotate(self.rotate_step_slider.value())
-            elif key == QtCore.Qt.Key_Right:
+            elif key == Qt.Key_Right:
                 self.robot.rotate(-self.rotate_step_slider.value())
-            elif key == QtCore.Qt.Key_S:
+            elif key == Qt.Key_S:
                 self.robot.scan()
         return super().keyPressEvent(event)
 
-    # def keyReleaseEvent(self, event):
-    #     if not event.isAutoRepeat():
-    #         key = event.key()
-    #         if key == QtCore.Qt.Key_Up:
-    #             self.robot.stop()
-    #         elif key == QtCore.Qt.Key_Down:
-    #             self.robot.stop()
-    #         elif key == QtCore.Qt.Key_Left:
-    #             self.robot.stop()
-    #         elif key == QtCore.Qt.Key_Right:
-    #             self.robot.stop()
-    #     return super().keyReleaseEvent(event)
 
     def closeEvent(self, event):
         try:
@@ -138,6 +127,8 @@ class MainWindow(QMainWindow, Ui_MainWindow):
         self.correct_soft_btn.clicked.connect(self.mag_cal_plot.correct_soft)
         self.send_cal_data_btn.clicked.connect(self.mag_cal_plot.sendcal)
 
+        self.auto_drive_btn.clicked.connect(self.robot._auto_drive)
+        self.get_azimuth_kalman_btn.clicked.connect(self.robot.get_azimuth_kalman)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

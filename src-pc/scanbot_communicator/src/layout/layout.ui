@@ -300,11 +300,11 @@
      </rect>
     </property>
     <property name="currentIndex">
-     <number>0</number>
+     <number>2</number>
     </property>
     <widget class="QWidget" name="pole_plot_tab">
      <attribute name="title">
-      <string>2D view</string>
+      <string>map</string>
      </attribute>
      <widget class="QWidget" name="gridLayoutWidget_3">
       <property name="geometry">
@@ -329,22 +329,6 @@
       <property name="text">
        <string>CLEAR DATA</string>
       </property>
-     </widget>
-    </widget>
-    <widget class="QWidget" name="pole_plot_3d_tab">
-     <attribute name="title">
-      <string>3D view</string>
-     </attribute>
-     <widget class="QWidget" name="gridLayoutWidget_2">
-      <property name="geometry">
-       <rect>
-        <x>10</x>
-        <y>10</y>
-        <width>561</width>
-        <height>581</height>
-       </rect>
-      </property>
-      <layout class="QGridLayout" name="pole_plot_3d_layout"/>
      </widget>
     </widget>
     <widget class="QWidget" name="raw_tab">
@@ -1307,7 +1291,7 @@ DATA</string>
      <number>1</number>
     </property>
     <property name="maximum">
-     <number>30</number>
+     <number>150</number>
     </property>
     <property name="value">
      <number>10</number>
@@ -1506,7 +1490,7 @@ DATA</string>
      </rect>
     </property>
     <property name="text">
-     <string>FUNCTIONS</string>
+     <string>BASIC FUNCTIONS</string>
     </property>
    </widget>
    <widget class="QPushButton" name="clear_buffer_btn">
@@ -1555,6 +1539,62 @@ DATA</string>
     </property>
     <property name="shortcut">
      <string>Space</string>
+    </property>
+   </widget>
+   <widget class="Line" name="line_5">
+    <property name="geometry">
+     <rect>
+      <x>310</x>
+      <y>260</y>
+      <width>241</width>
+      <height>21</height>
+     </rect>
+    </property>
+    <property name="orientation">
+     <enum>Qt::Horizontal</enum>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="auto_drive_btn">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>290</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>AUTO DRIVE</string>
+    </property>
+    <property name="shortcut">
+     <string>Space</string>
+    </property>
+   </widget>
+   <widget class="QPushButton" name="get_azimuth_kalman_btn">
+    <property name="geometry">
+     <rect>
+      <x>440</x>
+      <y>290</y>
+      <width>101</width>
+      <height>31</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>GET_AZIMUTH
+USING KALMAN</string>
+    </property>
+   </widget>
+   <widget class="QLabel" name="label_21">
+    <property name="geometry">
+     <rect>
+      <x>320</x>
+      <y>270</y>
+      <width>151</width>
+      <height>20</height>
+     </rect>
+    </property>
+    <property name="text">
+     <string>EXTENDED FUNCTIONS</string>
     </property>
    </widget>
   </widget>
