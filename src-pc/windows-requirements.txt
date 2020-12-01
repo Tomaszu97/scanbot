@@ -131,7 +131,7 @@ six==1.12.0
 sklearn==0.0
 soupsieve==2.0
 spacy==2.1.9
-SQLAlchemy==1.2.19
+SQLAlchemy==1.3.0
 srsly==1.0.2
 stream-learn==0.8.11
 tabulate==0.8.7
