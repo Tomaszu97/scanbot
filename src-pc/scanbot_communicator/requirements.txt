@@ -22,7 +22,7 @@ command-not-found==0.3
 constantly==15.1.0
 controller-manager==0.19.2
 controller-manager-msgs==0.19.2
-cryptography==2.8
+cryptography==3.2
 cupshelpers==1.0
 cv-bridge==1.15.0
 cycler==0.10.0
