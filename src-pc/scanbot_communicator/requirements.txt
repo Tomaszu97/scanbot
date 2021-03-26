@@ -115,7 +115,7 @@ python-gnupg==0.4.5
 python-qt-binding==0.4.3
 python-snappy==0.5.3
 PyTrie==0.2
-PyYAML==5.3.1
+PyYAML==5.4
 qt-dotgraph==0.4.2
 qt-gui==0.4.2
 qt-gui-cpp==0.4.2
