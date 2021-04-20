@@ -2,7 +2,7 @@ actionlib==1.13.2
 angles==1.9.13
 apturl==0.5.2
 attrs==19.3.0
-autobahn==17.10.1
+autobahn==20.12.3
 Automat==0.8.0
 bcrypt==3.1.7
 blinker==1.4
