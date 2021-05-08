@@ -33,7 +33,7 @@ docutils==0.16
 ecdsa==0.15
 esphome==1.14.4
 esptool==2.8
-eventlet==0.25.1
+eventlet==0.31.0
 fbchat==1.9.6
 filelock==3.0.12
 Flask==1.1.1
