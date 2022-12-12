@@ -69,12 +69,8 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
     command: rviz -d /app/rviz-config.rviz
 
-  communicator:
-    hostname: communicator
-    build: communicator
-    depends_on:
-      - "roscore"
-    privileged: true
+  gazebo:
+    build: gazebo
     environment:
       ROS_MASTER_URI: "http://roscore:11311"
       DISPLAY: ${DISPLAY}
@@ -83,7 +79,8 @@ services:
       QT_X11_NO_MITSHM: 1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-    command: xterm -fa Monospace -fs 10 -bg yellow -fg black -e "sleep 10 && source /app/devel/setup.bash && roslaunch scanbot_communicator start_communicator.launch"
+      - ${HOME}/.Xauthority:${DOCKER_HOME}/.Xauthority
+    command: bash -c "gazebo"
 
 networks:
   default:

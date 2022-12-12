@@ -1,3 +1,0 @@
-  <launch>
-    <node name="scanbot_communicator" pkg="scanbot_communicator" type="main.py" output="screen" />
-  </launch>

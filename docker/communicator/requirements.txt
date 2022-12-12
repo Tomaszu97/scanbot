@@ -1,9 +1,0 @@
-catkin_pkg==0.5.2
-numpy==1.22.3
-pyqtgraph==0.13.1
-pyserial==3.5
-PySide2==5.15.2.1
-pyside_material==1.17
-randomcolor==0.4.4.6
-pyopengl
-jinja2

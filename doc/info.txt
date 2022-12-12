@@ -1,3 +1,0 @@
-promotor: dr in¿. Pawe³ Trajdos (KSSK)
-tytu³: Tworzenie mapy pomieszczenia za pomoc¹ autonomicznej, mobilnej platformy skanuj¹cej
-(Creating room map using autonomous, mobile scanning platform)
