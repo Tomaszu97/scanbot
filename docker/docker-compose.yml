@@ -85,8 +85,10 @@ services:
       QT_X11_NO_MITSHM: 1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-      - ./gazebo-files:/root/gazebo
-    command: xterm
+      - ./gazebo-files/worlds:/root/worlds
+      - ./gazebo-files/models:/root/.gazebo/models
+      - ./gazebo-files/gui.ini:/root/.gazebo/gui.ini
+    command: xterm -fa Monospace -fs 10 -bg black -fg slateblue1
 
 networks:
   default:
