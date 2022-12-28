@@ -1,0 +1,28 @@
+<?xml version="1.0" ?>
+<sdf version="1.4">
+  <model name="bed">
+    <pose>0 0 0 0 0 0</pose>
+    <static>true</static>
+    <link name="link">
+
+      <collision name="collision">
+        <geometry>
+          <mesh>
+            <scale>0.008 0.008 0.008</scale>
+            <uri>model://bed/meshes/California_King_Size_Bed_With_Thyme_Sheets_Pine_V1_NEW.obj</uri>
+          </mesh>
+        </geometry>
+      </collision>
+
+      <visual name="visual">
+        <geometry>
+          <mesh>
+            <scale>0.008 0.008 0.008</scale>
+            <uri>model://bed/meshes/California_King_Size_Bed_With_Thyme_Sheets_Pine_V1_NEW.obj</uri>
+          </mesh>
+        </geometry>
+      </visual>
+
+    </link>
+  </model>
+</sdf>
