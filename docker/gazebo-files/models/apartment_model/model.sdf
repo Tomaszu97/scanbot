@@ -7,7 +7,7 @@
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
-            <uri>model://apartment/meshes/apartment.obj</uri>
+            <uri>model://apartment_model/meshes/apartment_model.dae</uri>
           </mesh>
         </geometry>
       </collision>
@@ -15,7 +15,7 @@
         <geometry>
           <mesh>
             <scale>0.001 0.001 0.001</scale>
-            <uri>model://apartment/meshes/apartment.obj</uri>
+            <uri>model://apartment_model/meshes/apartment_model.dae</uri>
           </mesh>
         </geometry>
         <material>
