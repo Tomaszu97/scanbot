@@ -242,7 +242,7 @@ cylinder:
     <sensor type="ray" name="lidar">
       <pose>0 0 0 0 0 0</pose>
       <visualize>true</visualize>
-      <update_rate>1</update_rate>
+      <update_rate>4</update_rate>
       <ray>
         <scan>
           <horizontal>
@@ -258,6 +258,11 @@ cylinder:
           <max>8</max>
           <resolution>0.06</resolution>
         </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.06</stddev>
+        </noise>
       </ray>
     </sensor>
 
