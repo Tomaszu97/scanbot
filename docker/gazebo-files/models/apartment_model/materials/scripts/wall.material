@@ -1,0 +1,15 @@
+material apartment_wall
+{
+  technique
+  {
+    pass
+    {
+      texture_unit
+      {
+        texture concrete.png
+        scale 0.1 0.1
+      }
+    }
+  }
+}
+

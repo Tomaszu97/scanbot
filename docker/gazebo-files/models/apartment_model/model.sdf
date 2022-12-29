@@ -1,12 +1,12 @@
 <?xml version="1.0" ?>
 <sdf version="1.6">
-  <model name="apartment">
+  <model name="apartment_model">
     <static>true</static>
     <link name="link">
       <collision name="collision">
         <geometry>
           <mesh>
-            <scale>0.001 0.001 0.001</scale>
+            <scale>1 1 1</scale>
             <uri>model://apartment_model/meshes/apartment_model.dae</uri>
           </mesh>
         </geometry>
@@ -14,15 +14,16 @@
       <visual name="visual">
         <geometry>
           <mesh>
-            <scale>0.001 0.001 0.001</scale>
+            <scale>1 1 1</scale>
             <uri>model://apartment_model/meshes/apartment_model.dae</uri>
           </mesh>
         </geometry>
         <material>
-          <ambient>0.9 0.9 0.95 1</ambient>
-          <diffuse>0.9 0.9 0.95 1</diffuse>
-          <specular>0.1 0.1 0.1 1</specular>
-          <emissive>0 0 0 0</emissive>
+          <script>
+            <uri>model://apartment_model/materials/scripts</uri>
+            <uri>model://apartment_model/materials/textures</uri>
+            <name>apartment_wall</name>
+          </script>
         </material>
       </visual>
     </link>
