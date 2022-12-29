@@ -3365,31 +3365,18 @@
       <pose>-1.45 -3.1 0 0 -0 0</pose>
     </model>
 
-    <model name='apartment'>
-      <static>1</static>
-      <link name='link'>
-        <collision name='collision'>
+    <model name="apartment">
+      <static>true</static>
+      <link name="link">
+        <collision name="collision">
           <geometry>
             <mesh>
               <scale>0.001 0.001 0.001</scale>
               <uri>model://apartment/meshes/apartment.obj</uri>
             </mesh>
           </geometry>
-          <max_contacts>10</max_contacts>
-          <surface>
-            <contact>
-              <ode/>
-            </contact>
-            <bounce/>
-            <friction>
-              <torsional>
-                <ode/>
-              </torsional>
-              <ode/>
-            </friction>
-          </surface>
         </collision>
-        <visual name='visual'>
+        <visual name="visual">
           <geometry>
             <mesh>
               <scale>0.001 0.001 0.001</scale>
@@ -3403,9 +3390,6 @@
             <emissive>0 0 0 0</emissive>
           </material>
         </visual>
-        <self_collide>0</self_collide>
-        <enable_wind>0</enable_wind>
-        <kinematic>0</kinematic>
       </link>
       <pose>2.11463 -5.11891 0 0 -0 0</pose>
     </model>
