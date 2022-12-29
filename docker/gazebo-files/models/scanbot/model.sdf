@@ -287,6 +287,10 @@ cylinder:
       <parent>chassis</parent>
       <axis>
         <xyz>0 0 1</xyz>
+        <limit>
+        <lower>0</lower>
+        <upper>0</upper>
+        </limit>
       </axis>
     </joint>
 
