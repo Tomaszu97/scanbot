@@ -1,0 +1,124 @@
+<?xml version="1.0" ?>
+<robot name="scanbot">
+  <joint name="scanbot__left_wheel_revolute" type="fixed">
+    <parent link="scanbot__chassis"/>
+    <child link="scanbot__left_wheel"/>
+    <origin xyz="0      0.05    0.02749" rpy="0     1.5707 1.5707"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="0" effort="0" velocity="0"/>
+  </joint>
+  <joint name="scanbot__right_wheel_revolute" type="fixed">
+    <parent link="scanbot__chassis"/>
+    <child link="scanbot__right_wheel"/>
+    <origin xyz="0     -0.05    0.0275" rpy="0     1.5707 1.5707"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="0" effort="0" velocity="0"/>
+  </joint>
+  <joint name="scanbot__tower_revolute" type="fixed">
+    <parent link="scanbot__chassis"/>
+    <child link="scanbot__tower"/>
+    <origin xyz="-0.01   0     0.083" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0.0" upper="0.0" effort="0.0" velocity="0.0"/>
+  </joint>
+  <link name="scanbot__chassis">
+    <inertial>
+      <mass value="0.5"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.00059270833" ixy="0" ixz="0" iyy="0.00124270833" iyz="0" izz="0.00148333333"/>
+    </inertial>
+    <collision name="scanbot__base_collision">
+      <origin xyz="0   0   0.05" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.160 0.100 0.065"/>
+      </geometry>
+    </collision>
+    <collision name="scanbot__caster_collision">
+      <origin xyz="0.06   0     0.0175" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
+    <collision name="scanbot__caster2_collision">
+      <origin xyz="-0.06    0      0.0175" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </collision>
+    <visual name="scanbot__base_visual">
+      <origin xyz="0   0   0.05" rpy="0 0 0"/>
+      <geometry>
+        <box size="0.160 0.100 0.065"/>
+      </geometry>
+    </visual>
+    <visual name="scanbot__caster_visual">
+      <origin xyz="0.06   0     0.0175" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </visual>
+    <visual name="scanbot__caster2_visual">
+      <origin xyz="-0.06    0      0.0175" rpy="0 0 0"/>
+      <geometry>
+        <sphere radius="0.02"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="scanbot__left_wheel">
+    <inertial>
+      <mass value="0.075"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.0000189" ixy="0" ixz="0" iyy="0.0000189" iyz="0" izz="0.00003375"/>
+    </inertial>
+    <collision name="scanbot__left_wheel_collision">
+      <origin xyz="0   0   0.01" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.03" length="0.018"/>
+      </geometry>
+    </collision>
+    <visual name="scanbot__left_wheel_visual">
+      <origin xyz="0   0   0.01" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.03" length="0.018"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="scanbot__right_wheel">
+    <inertial>
+      <mass value="0.075"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.0000189" ixy="0" ixz="0" iyy="0.0000189" iyz="0" izz="0.00003375"/>
+    </inertial>
+    <collision name="scanbot__right_wheel_collision">
+      <origin xyz="0    0   -0.01" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.03" length="0.018"/>
+      </geometry>
+    </collision>
+    <visual name="scanbot__right_wheel_visual">
+      <origin xyz="0    0   -0.01" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.03" length="0.018"/>
+      </geometry>
+    </visual>
+  </link>
+  <link name="scanbot__tower">
+    <inertial>
+      <mass value="0.050"/>
+      <origin xyz="0 0 0" rpy="0 0 0"/>
+      <inertia ixx="0.00002" ixy="0" ixz="0" iyy="0.00002" iyz="0" izz="0.00001"/>
+    </inertial>
+    <collision name="scanbot__tower_collision">
+      <origin xyz="0   0   0.03" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.06"/>
+      </geometry>
+    </collision>
+    <visual name="scanbot__tower_visual">
+      <origin xyz="0   0   0.03" rpy="0 0 0"/>
+      <geometry>
+        <cylinder radius="0.02" length="0.06"/>
+      </geometry>
+    </visual>
+  </link>
+</robot>
