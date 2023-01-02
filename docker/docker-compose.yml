@@ -8,7 +8,8 @@ services:
       DISPLAY: $DISPLAY
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-    command: xterm -fa Monospace -fs 10 -bg blue -fg white -e "roscore"
+      - ./ros-files:/root/persistent-files
+    command: xterm -fa Monospace -fs 10 -bg blue -fg white -e "roslaunch /root/persistent-files/core.launch"
 
   rosconsole:
     privileged: true
@@ -74,7 +75,8 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
-    command: rviz -d /app/rviz-config.rviz
+    command: rviz -d /root/persistent-files/rviz-config.rviz
+   #command: xterm -fa Monospace -fs 10 -bg yellow -fg slateblue1
 
   gazebo:
     privileged: true
@@ -90,6 +92,7 @@ services:
       - ./gazebo-files/worlds:/root/worlds
       - ./gazebo-files/models:/root/.gazebo/models
       - ./gazebo-files/gui.ini:/root/.gazebo/gui.ini
+    #command: gazebo /root/worlds/apartment/apartment.world
     command: xterm -fa Monospace -fs 10 -bg black -fg slateblue1
 
 networks:

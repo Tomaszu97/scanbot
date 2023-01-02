@@ -1,3 +1,6 @@
 [submodule "docker/ros-files/catkin_ws/src/pysdf"]
 	path = docker/ros-files/catkin_ws/src/pysdf
 	url = https://github.com/Tomaszu97/pysdf.git
+[submodule "docker/ros-files/converter/catkin_ws/src/pysdf"]
+	path = docker/ros-files/converter/catkin_ws/src/pysdf
+	url = https://github.com/Tomaszu97/pysdf.git

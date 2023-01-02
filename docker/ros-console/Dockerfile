@@ -9,3 +9,5 @@ RUN apt update && apt -y install vim
 RUN apt update && apt -y install git
 
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
+
+WORKDIR /root
