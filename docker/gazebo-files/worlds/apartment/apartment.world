@@ -104,6 +104,8 @@
       <pose>0 0 0 0 0 0</pose>
     </model>
 
+<!-- scanbot will be spawned from ROS using URDF file -->
+<!--
     <model name='scanbot'>
       <static>false</static>
       <pose>3.5 -3.9 0.1 0 0 3.141592653</pose>
@@ -440,6 +442,7 @@
         </axis>
       </joint>
     </model>
+-->
 
     <model name='drawer_white'>
       <link name='link_0'>
