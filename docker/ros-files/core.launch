@@ -1,17 +1,39 @@
 <launch>
-  <!-- robot to use by publishers below and rviz -->
-  <param name="robot_description" command="$(find xacro)/xacro --inorder /root/persistent-files/scanbot.urdf" />
+  <!-- robot used -->
+  <param name="robot_description"
+         command="$(find xacro)/xacro --inorder /root/persistent-files/scanbot.urdf" />
 
-  <!-- publishes on /joint_states -->
-  <node name="joint_state_publisher" pkg="joint_state_publisher" type="joint_state_publisher" />
-
-  <!-- publishes on /tf depending on /joint_states -->
-  <node name="robot_state_publisher" pkg="robot_state_publisher" type="robot_state_publisher" />
-
-  <!-- publishes robot position -->
-  <node name="robot_position_publisher" pkg="tf" type="static_transform_publisher" args="2 2 0 0 0 0 base_link scanbot_chassis 100" />
+  <!-- joint controller parameters -->
+  <rosparam file="/root/persistent-files/scanbot_control.yaml"
+            command="load" />
 
   <!-- spawn robot in gazebo -->
-  <node name="spawn_scanbot" pkg="gazebo_ros" type="spawn_model" args="-file /root/persistent-files/scanbot.urdf -urdf -model scanbot -x 3.5 -y -3.9 -z 0.1 -R 0 -P 0 -Y 3.141592653" />
+  <node name="spawn_scanbot"
+        pkg="gazebo_ros"
+        type="spawn_model"
+        args="-param robot_description -urdf -model scanbot -x 3.5 -y -3.9 -z 0.1 -R 0 -P 0 -Y 3.141592653" />
+
+  <!-- load controllers to steer joints and advetise their position on joint_states -->
+  <node name="controller_spawner"
+        pkg="controller_manager"
+        type="spawner"
+        respawn="false"
+        output="screen"
+        args="scanbot_base_controller joint_state_controller" />
+
+  <!-- publish on /tf depending on /joint_states -->
+  <node name="robot_state_publisher"
+        pkg="robot_state_publisher"
+        type="robot_state_publisher"
+        respawn="false"
+        output="screen">
+    <remap from="/joint_states" to="/scanbot/joint_states" />
+  </node>
+
+  <!-- connect base_link and robot chassis position -->
+  <node name="robot_position_publisher"
+        pkg="tf"
+        type="static_transform_publisher"
+        args="0 0 0 0 0 0 base_link scanbot_chassis 100" />
 
 </launch>

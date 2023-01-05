@@ -137,7 +137,7 @@
   <transmission name="scanbot_left_wheel_transmission">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="scanbot_left_wheel_revolute">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     </joint>
     <actuator name="scanbot_left_wheel_revolute">
       <mechanicalReduction>1</mechanicalReduction>
@@ -147,7 +147,7 @@
   <transmission name="scanbot_right_wheel_transmission">
     <type>transmission_interface/SimpleTransmission</type>
     <joint name="scanbot_right_wheel_revolute">
-      <hardwareInterface>EffortJointInterface</hardwareInterface>
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
     </joint>
     <actuator name="scanbot_right_wheel_revolute">
       <mechanicalReduction>1</mechanicalReduction>
@@ -156,7 +156,7 @@
 
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      <robotNamespace>/scanbot</robotNamespace>
+      <robotNamespace>/</robotNamespace>
       <robotParam>robot_description</robotParam>
       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
     </plugin>
