@@ -1,6 +1,6 @@
 <?xml version='1.0'?>
 <sdf version='1.6'>
-  <model name='scanbot'>
+  <model name='scanbot_sdf'>
 <!--
 INERTIA TENSOR FORMULAS:
 box:
