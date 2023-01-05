@@ -1,124 +1,165 @@
 <?xml version="1.0" ?>
 <robot name="scanbot">
-  <joint name="scanbot__left_wheel_revolute" type="fixed">
-    <parent link="scanbot__chassis"/>
-    <child link="scanbot__left_wheel"/>
-    <origin xyz="0      0.05    0.02749" rpy="0     1.5707 1.5707"/>
-    <axis xyz="0 0 1"/>
-    <limit lower="0" upper="0" effort="0" velocity="0"/>
-  </joint>
-  <joint name="scanbot__right_wheel_revolute" type="fixed">
-    <parent link="scanbot__chassis"/>
-    <child link="scanbot__right_wheel"/>
-    <origin xyz="0     -0.05    0.0275" rpy="0     1.5707 1.5707"/>
-    <axis xyz="0 0 1"/>
-    <limit lower="0" upper="0" effort="0" velocity="0"/>
-  </joint>
-  <joint name="scanbot__tower_revolute" type="fixed">
-    <parent link="scanbot__chassis"/>
-    <child link="scanbot__tower"/>
-    <origin xyz="-0.01   0     0.083" rpy="0 0 0"/>
-    <axis xyz="0 0 1"/>
-    <limit lower="0.0" upper="0.0" effort="0.0" velocity="0.0"/>
-  </joint>
-  <link name="scanbot__chassis">
+
+  <link name="scanbot_chassis">
     <inertial>
       <mass value="0.5"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <inertia ixx="0.00059270833" ixy="0" ixz="0" iyy="0.00124270833" iyz="0" izz="0.00148333333"/>
     </inertial>
-    <collision name="scanbot__base_collision">
-      <origin xyz="0   0   0.05" rpy="0 0 0"/>
+    <collision name="scanbot_base_collision">
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
       <geometry>
         <box size="0.160 0.100 0.065"/>
       </geometry>
     </collision>
-    <collision name="scanbot__caster_collision">
-      <origin xyz="0.06   0     0.0175" rpy="0 0 0"/>
+    <collision name="scanbot_caster_collision">
+      <origin xyz="0.06 0 0.0175" rpy="0 0 0"/>
       <geometry>
         <sphere radius="0.02"/>
       </geometry>
     </collision>
-    <collision name="scanbot__caster2_collision">
-      <origin xyz="-0.06    0      0.0175" rpy="0 0 0"/>
+    <collision name="scanbot_caster2_collision">
+      <origin xyz="-0.06 0 0.0175" rpy="0 0 0"/>
       <geometry>
         <sphere radius="0.02"/>
       </geometry>
     </collision>
-    <visual name="scanbot__base_visual">
-      <origin xyz="0   0   0.05" rpy="0 0 0"/>
+    <visual name="scanbot_base_visual">
+      <origin xyz="0 0 0.05" rpy="0 0 0"/>
       <geometry>
         <box size="0.160 0.100 0.065"/>
       </geometry>
     </visual>
-    <visual name="scanbot__caster_visual">
-      <origin xyz="0.06   0     0.0175" rpy="0 0 0"/>
+    <visual name="scanbot_caster_visual">
+      <origin xyz="0.06 0 0.0175" rpy="0 0 0"/>
       <geometry>
         <sphere radius="0.02"/>
       </geometry>
     </visual>
-    <visual name="scanbot__caster2_visual">
-      <origin xyz="-0.06    0      0.0175" rpy="0 0 0"/>
+    <visual name="scanbot_caster2_visual">
+      <origin xyz="-0.06 0 0.0175" rpy="0 0 0"/>
       <geometry>
         <sphere radius="0.02"/>
       </geometry>
     </visual>
   </link>
-  <link name="scanbot__left_wheel">
+
+  <link name="scanbot_left_wheel">
     <inertial>
       <mass value="0.075"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <inertia ixx="0.0000189" ixy="0" ixz="0" iyy="0.0000189" iyz="0" izz="0.00003375"/>
     </inertial>
-    <collision name="scanbot__left_wheel_collision">
-      <origin xyz="0   0   0.01" rpy="0 0 0"/>
+    <collision name="scanbot_left_wheel_collision">
+      <origin xyz="0 0 0.01" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.03" length="0.018"/>
       </geometry>
     </collision>
-    <visual name="scanbot__left_wheel_visual">
-      <origin xyz="0   0   0.01" rpy="0 0 0"/>
+    <visual name="scanbot_left_wheel_visual">
+      <origin xyz="0 0 0.01" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.03" length="0.018"/>
       </geometry>
     </visual>
   </link>
-  <link name="scanbot__right_wheel">
+
+  <link name="scanbot_right_wheel">
     <inertial>
       <mass value="0.075"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <inertia ixx="0.0000189" ixy="0" ixz="0" iyy="0.0000189" iyz="0" izz="0.00003375"/>
     </inertial>
-    <collision name="scanbot__right_wheel_collision">
-      <origin xyz="0    0   -0.01" rpy="0 0 0"/>
+    <collision name="scanbot_right_wheel_collision">
+      <origin xyz="0 0 -0.01" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.03" length="0.018"/>
       </geometry>
     </collision>
-    <visual name="scanbot__right_wheel_visual">
-      <origin xyz="0    0   -0.01" rpy="0 0 0"/>
+    <visual name="scanbot_right_wheel_visual">
+      <origin xyz="0 0 -0.01" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.03" length="0.018"/>
       </geometry>
     </visual>
   </link>
-  <link name="scanbot__tower">
+
+  <link name="scanbot_tower">
     <inertial>
       <mass value="0.050"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
       <inertia ixx="0.00002" ixy="0" ixz="0" iyy="0.00002" iyz="0" izz="0.00001"/>
     </inertial>
-    <collision name="scanbot__tower_collision">
-      <origin xyz="0   0   0.03" rpy="0 0 0"/>
+    <collision name="scanbot_tower_collision">
+      <origin xyz="0 0 0.03" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.02" length="0.06"/>
       </geometry>
     </collision>
-    <visual name="scanbot__tower_visual">
-      <origin xyz="0   0   0.03" rpy="0 0 0"/>
+    <visual name="scanbot_tower_visual">
+      <origin xyz="0 0 0.03" rpy="0 0 0"/>
       <geometry>
         <cylinder radius="0.02" length="0.06"/>
       </geometry>
     </visual>
   </link>
+
+  <joint name="scanbot_left_wheel_revolute" type="continuous">
+    <parent link="scanbot_chassis"/>
+    <child link="scanbot_left_wheel"/>
+    <origin xyz="0 0.05 0.02749" rpy="0 1.5707 1.5707"/>
+    <axis xyz="0 0 1"/>
+    <!-- effort is % and velocity is rad/s -->
+    <limit effort="80" velocity="25.1327412287"/>
+  </joint>
+
+  <joint name="scanbot_right_wheel_revolute" type="continuous">
+    <parent link="scanbot_chassis"/>
+    <child link="scanbot_right_wheel"/>
+    <origin xyz="0 -0.05 0.0275" rpy="0 1.5707 1.5707"/>
+    <axis xyz="0 0 1"/>
+    <!-- effort is % and velocity is rad/s -->
+    <limit effort="80" velocity="25.1327412287"/>
+  </joint>
+
+  <!-- left immobilized, for future changes -->
+  <!-- when unlocking remember to change limits or change revolute to continuous -->
+  <!-- for now just use a sensor with multiple rays -->
+  <joint name="scanbot_tower_revolute" type="revolute">
+    <parent link="scanbot_chassis"/>
+    <child link="scanbot_tower"/>
+    <origin xyz="-0.01 0 0.083" rpy="0 0 0"/>
+    <axis xyz="0 0 1"/>
+    <limit lower="0" upper="0" effort="0" velocity="0"/>
+  </joint>
+
+  <transmission name="scanbot_left_wheel_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="scanbot_left_wheel_revolute">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="scanbot_left_wheel_revolute">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <transmission name="scanbot_right_wheel_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="scanbot_right_wheel_revolute">
+      <hardwareInterface>EffortJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="scanbot_right_wheel_revolute">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
+  <gazebo>
+    <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
+      <robotNamespace>/scanbot</robotNamespace>
+      <robotParam>robot_description</robotParam>
+      <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
+    </plugin>
+  </gazebo>
+
 </robot>
