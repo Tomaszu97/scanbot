@@ -64,6 +64,8 @@ services:
   gazebo:
     privileged: true
     build: ros
+    depends_on:
+      - "roscore"
     environment:
       ROS_MASTER_URI: "http://roscore:11311"
       DISPLAY: ${DISPLAY}
