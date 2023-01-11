@@ -12,6 +12,8 @@ RUN apt update && apt -y install ros-${ROS_DISTRO}-effort-controllers
 RUN apt update && apt -y install ros-${ROS_DISTRO}-joint-state-controller
 RUN apt update && apt -y install ros-${ROS_DISTRO}-rqt-gui
 RUN apt update && apt -y install ros-${ROS_DISTRO}-diff-drive-controller
+RUN apt update && apt -y install ros-${ROS_DISTRO}-velocity-controllers
+RUN apt update && apt -y install ros-${ROS_DISTRO}-gazebo-ros-pkgs
 
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 WORKDIR /root
