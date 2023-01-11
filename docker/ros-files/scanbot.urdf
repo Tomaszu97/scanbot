@@ -1,7 +1,7 @@
 <?xml version="1.0" ?>
 <robot name="scanbot">
 
-  <link name="scanbot_chassis">
+  <link name="base_link">
     <inertial>
       <mass value="0.5"/>
       <origin xyz="0 0 0" rpy="0 0 0"/>
@@ -106,7 +106,7 @@
   </link>
 
   <joint name="scanbot_left_wheel_revolute" type="continuous">
-    <parent link="scanbot_chassis"/>
+    <parent link="base_link"/>
     <child link="scanbot_left_wheel"/>
     <origin xyz="0 0.05 0.02749" rpy="0 1.5707 1.5707"/>
     <axis xyz="0 0 1"/>
@@ -115,7 +115,7 @@
   </joint>
 
   <joint name="scanbot_right_wheel_revolute" type="continuous">
-    <parent link="scanbot_chassis"/>
+    <parent link="base_link"/>
     <child link="scanbot_right_wheel"/>
     <origin xyz="0 -0.05 0.0275" rpy="0 1.5707 1.5707"/>
     <axis xyz="0 0 1"/>
@@ -123,11 +123,9 @@
     <limit effort="80" velocity="25.1327412287"/>
   </joint>
 
-  <!-- left immobilized, for future changes -->
-  <!-- when unlocking remember to change limits or change revolute to continuous -->
-  <!-- for now just use a sensor with multiple rays -->
+  <!-- for now immobilize and use a sensor with multiple rays -->
   <joint name="scanbot_tower_revolute" type="revolute">
-    <parent link="scanbot_chassis"/>
+    <parent link="base_link"/>
     <child link="scanbot_tower"/>
     <origin xyz="-0.01 0 0.083" rpy="0 0 0"/>
     <axis xyz="0 0 1"/>
@@ -154,12 +152,66 @@
     </actuator>
   </transmission>
 
+  <transmission name="scanbot_tower_transmission">
+    <type>transmission_interface/SimpleTransmission</type>
+    <joint name="scanbot_tower_revolute">
+      <hardwareInterface>hardware_interface/VelocityJointInterface</hardwareInterface>
+    </joint>
+    <actuator name="scanbot_tower_revolute">
+      <mechanicalReduction>1</mechanicalReduction>
+    </actuator>
+  </transmission>
+
   <gazebo>
     <plugin name="gazebo_ros_control" filename="libgazebo_ros_control.so">
-      <robotNamespace>/</robotNamespace>
+      <robotNamespace>/scanbot</robotNamespace>
       <robotParam>robot_description</robotParam>
       <robotSimType>gazebo_ros_control/DefaultRobotHWSim</robotSimType>
     </plugin>
   </gazebo>
 
+  <gazebo reference="scanbot_tower">
+    <sensor type="ray" name="lidar">
+      <pose>0 0 0 0 0 0</pose>
+      <always_on>true</always_on>
+      <visualize>true</visualize>
+      <update_rate>4</update_rate>
+      <ray>
+        <scan>
+          <horizontal>
+            <!-- number of beams = samples * resolution -->
+            <samples>180</samples>
+            <resolution>1</resolution>
+            <min_angle>1.57079632679</min_angle>
+            <max_angle>4.71238898038</max_angle>
+          </horizontal>
+        </scan>
+        <range>
+          <min>0.2</min>
+          <max>8</max>
+          <resolution>0.06</resolution>
+        </range>
+        <noise>
+          <type>gaussian</type>
+          <mean>0.0</mean>
+          <stddev>0.06</stddev>
+        </noise>
+      </ray>
+
+      <!--
+      <plugin name="gazebo_ros_range" filename="libgazebo_ros_range.so">
+        <ros>
+          <remapping>~/out:=scan</remapping>
+        </ros>
+        <output_type>sensor_msgs/LaserScan</output_type>
+        <frame_name>sensor</frame_name>
+      </plugin>
+      -->
+
+      <plugin name="gazebo_ros_laser" filename="libgazebo_ros_laser.so">
+        <topicName>/scanbot/scan</topicName>
+        <frameName>scanbot_tower</frameName>
+      </plugin>
+    </sensor>
+  </gazebo>
 </robot>
