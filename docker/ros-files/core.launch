@@ -1,6 +1,9 @@
 <launch>
-  <!-- robot used -->
-  <param name="robot_description"
+  <!-- use simulator time - for gazebo -->
+  <param name="/use_sim_time" value="true"/>
+
+  <!-- robot urdf description -->
+  <param name="/scanbot/robot_description"
          command="$(find xacro)/xacro --inorder /root/persistent-files/scanbot.urdf" />
 
   <!-- joint controller parameters -->
@@ -11,29 +14,32 @@
   <node name="spawn_scanbot"
         pkg="gazebo_ros"
         type="spawn_model"
-        args="-param robot_description -urdf -model scanbot -x 3.5 -y -3.9 -z 0.1 -R 0 -P 0 -Y 3.141592653" />
+        args="-param /scanbot/robot_description -urdf -model scanbot -x 3.5 -y -3.9 -z 0.1 -R 0 -P 0 -Y 3.141592653" />
 
-  <!-- load controllers to steer joints and advetise their position on joint_states -->
+  <!-- load scanbot_base_controller to steer joints -->
+  <!-- load scanbot_joint_state_controller controller to advertise relative joint position on /scanbot/joint_states -->
   <node name="controller_spawner"
         pkg="controller_manager"
         type="spawner"
         respawn="false"
         output="screen"
-        args="scanbot_base_controller joint_state_controller" />
+        ns="/scanbot"
+        args="scanbot_base_controller scanbot_joint_state_controller" />
 
-  <!-- publish on /tf depending on /joint_states -->
+  <!-- publish joint absolute position on /tf calculated from from /scanbot/joint_states -->
   <node name="robot_state_publisher"
         pkg="robot_state_publisher"
         type="robot_state_publisher"
         respawn="false"
         output="screen">
     <remap from="/joint_states" to="/scanbot/joint_states" />
+    <!-- /robot_description with a slash does not work for some reason -->
+    <remap from="robot_description" to="/scanbot/robot_description" />
   </node>
 
-  <!-- connect base_link and robot chassis position -->
   <node name="robot_position_publisher"
         pkg="tf"
         type="static_transform_publisher"
-        args="0 0 0 0 0 0 base_link scanbot_chassis 100" />
+        args="0 0 0 0 0 0 scanbot_tower base_laser 100" />
 
 </launch>
