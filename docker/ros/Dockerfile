@@ -14,6 +14,9 @@ RUN apt update && apt -y install ros-${ROS_DISTRO}-rqt-gui
 RUN apt update && apt -y install ros-${ROS_DISTRO}-diff-drive-controller
 RUN apt update && apt -y install ros-${ROS_DISTRO}-velocity-controllers
 RUN apt update && apt -y install ros-${ROS_DISTRO}-gazebo-ros-pkgs
+RUN apt update && apt -y install ros-${ROS_DISTRO}-joy
+RUN apt update && apt -y install ros-${ROS_DISTRO}-joy-teleop
+RUN apt update && apt -y install ros-${ROS_DISTRO}-teleop-twist-joy
 
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 WORKDIR /root
