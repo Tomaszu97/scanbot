@@ -27,7 +27,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
-   #command: xterm -fa Monospace -fs 10 -bg black -fg green
+    command: xterm -fa Monospace -fs 10 -bg black -fg green
 
   gmapping:
     privileged: true
