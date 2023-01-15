@@ -131,3 +131,4 @@ dmypy.json
 old/
 *.swp
 devel/
+.catkin_workspace
