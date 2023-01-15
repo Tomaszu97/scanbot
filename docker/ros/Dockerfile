@@ -18,5 +18,13 @@ RUN apt update && apt -y install ros-${ROS_DISTRO}-joy
 RUN apt update && apt -y install ros-${ROS_DISTRO}-joy-teleop
 RUN apt update && apt -y install ros-${ROS_DISTRO}-teleop-twist-joy
 
+WORKDIR /root
+COPY catkin_ws catkin_ws
+WORKDIR /root/catkin_ws/src
+RUN bash -c 'source /opt/ros/${ROS_DISTRO}/setup.bash && catkin_init_workspace'
+WORKDIR /root/catkin_ws
+RUN bash -c 'source /opt/ros/${ROS_DISTRO}/setup.bash && catkin_make'
+RUN bash -c 'source /opt/ros/${ROS_DISTRO}/setup.bash && catkin_make install'
+
 RUN echo "source /opt/ros/${ROS_DISTRO}/setup.bash" >> ~/.bashrc
 WORKDIR /root
