@@ -28,8 +28,6 @@ services:
     privileged: true
     hostname: rosconsole
     build: ros
-    depends_on:
-      - "roscore"
     environment:
       ROS_MASTER_URI: "http://roscore:11311"
       DISPLAY: ${DISPLAY}
@@ -45,8 +43,6 @@ services:
     privileged: true
     hostname: gmapping
     build: ros
-    depends_on:
-      - "roscore"
     environment:
       ROS_MASTER_URI: "http://roscore:11311"
       DISPLAY: ${DISPLAY}
@@ -62,8 +58,6 @@ services:
     privileged: true
     hostname: rviz
     build: ros
-    depends_on:
-      - "roscore"
     environment:
       ROS_MASTER_URI: "http://roscore:11311"
       DISPLAY: ${DISPLAY}
@@ -79,8 +73,6 @@ services:
   gazebo:
     privileged: true
     build: ros
-    depends_on:
-      - "roscore"
     environment:
       ROS_MASTER_URI: "http://roscore:11311"
       DISPLAY: ${DISPLAY}
@@ -98,8 +90,6 @@ services:
   gamepad:
     privileged: true
     build: ros
-    depends_on:
-      - "roscore"
     environment:
       ROS_MASTER_URI: "http://roscore:11311"
       DISPLAY: ${DISPLAY}
@@ -114,9 +104,6 @@ services:
   gamepad_conv:
     privileged: true
     build: ros
-    depends_on:
-      - "roscore"
-      - "gamepad"
     environment:
       ROS_MASTER_URI: "http://roscore:11311"
       DISPLAY: ${DISPLAY}
