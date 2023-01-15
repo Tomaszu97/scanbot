@@ -1,0 +1,23 @@
+launch:
+<node name="ROBOT_hardware_interface" pkg="ROBOT_hardware_interface" type="ROBOT_hardware_interface_node" output="screen"/>
+
+    <node name="controller_spawner" pkg="controller_manager" type="spawner" respawn="false" output="screen" ns="/"
+        args="
+            /ROBOT/controller/state
+            /ROBOT/controller/position/YOUR_ROBOT_JOINT
+            /ROBOT/controller/position/YOUR_OTHER_ROBOT_JOINT
+        "/>
+
+
+
+
+
+hardware.yaml
+ROBOT:
+  hardware_interface:
+     loop_hz: 10 # hz
+     joints:
+       - YOUR_ROBOT_JOINT
+       - YOUR_OTHER_ROBOT_JOINT
+
+
