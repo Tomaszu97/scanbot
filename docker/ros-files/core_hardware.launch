@@ -10,12 +10,6 @@
   <rosparam file="/root/persistent-files/scanbot_control.yaml"
             command="load" />
 
-  <!-- spawn robot in gazebo -->
-  <node name="spawn_scanbot"
-        pkg="gazebo_ros"
-        type="spawn_model"
-        args="-param /scanbot/robot_description -urdf -model scanbot -x 3.5 -y -3.9 -z 0.1 -R 0 -P 0 -Y 3.141592653" />
-
   <!-- load scanbot_base_controller to steer joints -->
   <!-- load scanbot_joint_state_controller controller to advertise relative joint position on /scanbot/joint_states -->
   <node name="controller_spawner"
