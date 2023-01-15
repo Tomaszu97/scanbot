@@ -17,6 +17,7 @@ gazebo
 gamepad
 gamepad_conv"
 hardware_with_gamepad="
+scanbot_hwiface
 roscore_hardware
 rosconsole
 gmapping
