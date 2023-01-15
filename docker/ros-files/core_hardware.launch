@@ -1,0 +1,45 @@
+<launch>
+  <!-- use wall clock -->
+  <param name="/use_sim_time" value="false"/>
+
+  <!-- robot urdf description -->
+  <param name="/scanbot/robot_description"
+         command="$(find xacro)/xacro --inorder /root/persistent-files/scanbot.urdf" />
+
+  <!-- joint controller parameters -->
+  <rosparam file="/root/persistent-files/scanbot_control.yaml"
+            command="load" />
+
+  <!-- spawn robot in gazebo -->
+  <node name="spawn_scanbot"
+        pkg="gazebo_ros"
+        type="spawn_model"
+        args="-param /scanbot/robot_description -urdf -model scanbot -x 3.5 -y -3.9 -z 0.1 -R 0 -P 0 -Y 3.141592653" />
+
+  <!-- load scanbot_base_controller to steer joints -->
+  <!-- load scanbot_joint_state_controller controller to advertise relative joint position on /scanbot/joint_states -->
+  <node name="controller_spawner"
+        pkg="controller_manager"
+        type="spawner"
+        respawn="false"
+        output="screen"
+        ns="/scanbot"
+        args="scanbot_base_controller scanbot_joint_state_controller" />
+
+  <!-- publish joint absolute position on /tf calculated from from /scanbot/joint_states -->
+  <node name="robot_state_publisher"
+        pkg="robot_state_publisher"
+        type="robot_state_publisher"
+        respawn="false"
+        output="screen">
+    <remap from="/joint_states" to="/scanbot/joint_states" />
+    <!-- /robot_description with a slash does not work for some reason -->
+    <remap from="robot_description" to="/scanbot/robot_description" />
+  </node>
+
+  <node name="robot_position_publisher"
+        pkg="tf"
+        type="static_transform_publisher"
+        args="0 0 0 0 0 0 scanbot_tower base_laser 100" />
+
+</launch>

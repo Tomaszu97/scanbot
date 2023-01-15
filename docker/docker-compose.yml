@@ -1,6 +1,6 @@
 version: '3'
 services:
-  roscore:
+  roscore_gazebo:
     privileged: true
     hostname: roscore
     build: ros
@@ -9,8 +9,20 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
+    command: bash -c "roslaunch /root/persistent-files/core_gazebo.launch"
    #command: xterm -fa Monospace -fs 10 -bg blue -fg white -e "roslaunch /root/persistent-files/core.launch"
-    command: bash -c "roslaunch /root/persistent-files/core.launch"
+
+  roscore_hardware:
+    privileged: true
+    hostname: roscore
+    build: ros
+    environment:
+      DISPLAY: $DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./ros-files:/root/persistent-files
+    command: bash -c "roslaunch /root/persistent-files/core_hardware.launch"
+   #command: xterm -fa Monospace -fs 10 -bg blue -fg white -e "roslaunch /root/persistent-files/core.launch"
 
   rosconsole:
     privileged: true
