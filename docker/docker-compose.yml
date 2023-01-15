@@ -99,7 +99,8 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
-    command: bash -c "rosrun joy joy_node _autorepeat_rate:=10"
+    command: xterm -fa Monospace -fs 10 -bg black -fg orange -e "rosrun joy joy_node _autorepeat_rate:=10"
+   #command: bash -c "rosrun joy joy_node _autorepeat_rate:=10"
 
   gamepad_conv:
     privileged: true
@@ -113,7 +114,23 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
-    command: bash -c "rosrun teleop_twist_joy teleop_node cmd_vel:=/scanbot/scanbot_base_controller/cmd_vel _axis_linear:=1 _axis_angular:=3 _scale_linear:=-0.1 _scale_angular:=0.2 _enable_button:=5 _enable_turbo_button:=4 _scale_linear_turbo:=-1 _scale_angular_turbo:=2"
+    command: xterm -fa Monospace -fs 10 -bg black -fg purple -e "rosrun teleop_twist_joy teleop_node cmd_vel:=/scanbot/scanbot_base_controller/cmd_vel _axis_linear:=1 _axis_angular:=3 _scale_linear:=-0.1 _scale_angular:=0.2 _enable_button:=5 _enable_turbo_button:=4 _scale_linear_turbo:=-1 _scale_angular_turbo:=2"
+   #command: bash -c "rosrun teleop_twist_joy teleop_node cmd_vel:=/scanbot/scanbot_base_controller/cmd_vel _axis_linear:=1 _axis_angular:=3 _scale_linear:=-0.1 _scale_angular:=0.2 _enable_button:=5 _enable_turbo_button:=4 _scale_linear_turbo:=-1 _scale_angular_turbo:=2"
+
+  scanbot_hwiface:
+    privileged: true
+    build: ros
+    environment:
+      ROS_MASTER_URI: "http://roscore:11311"
+      DISPLAY: ${DISPLAY}
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
+      QT_X11_NO_MITSHM: 1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./ros-files:/root/persistent-files
+    command: xterm -fa Monospace -fs 10 -bg white -fg blue -e "source /root/catkin_ws/devel/setup.bash && rosrun scanbot_hwiface scanbot_hwiface"
+   #command: bash -c "rosrun scanbot_hwiface scanbot_hwiface"
 
 networks:
   default:
