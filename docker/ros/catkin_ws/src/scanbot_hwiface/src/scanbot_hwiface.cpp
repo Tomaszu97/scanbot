@@ -17,14 +17,15 @@ private:
 public:
     Scanbot()
     {
-        hardware_interface::JointStateHandle left_wheel_state_handle("left_wheel_revolute", &pos[0], &vel[0], &eff[0]);
-        hardware_interface::JointStateHandle right_wheel_state_handle("right_wheel_revolute", &pos[1], &vel[1], &eff[1]);
+        ROS_INFO("registering scanbot hardware interfaces");
+        hardware_interface::JointStateHandle left_wheel_state_handle("scanbot_left_wheel_revolute", &pos[0], &vel[0], &eff[0]);
+        hardware_interface::JointStateHandle right_wheel_state_handle("scanbot_right_wheel_revolute", &pos[1], &vel[1], &eff[1]);
         wheel_state_interface.registerHandle(left_wheel_state_handle);
         wheel_state_interface.registerHandle(right_wheel_state_handle);
         registerInterface(&wheel_state_interface);
 
-        hardware_interface::JointHandle left_wheel_vel_handle(wheel_state_interface.getHandle("left_wheel_revolute"), &vel_cmd[0]);
-        hardware_interface::JointHandle right_wheel_vel_handle(wheel_state_interface.getHandle("right_wheel_revolute"), &vel_cmd[1]);
+        hardware_interface::JointHandle left_wheel_vel_handle(wheel_state_interface.getHandle("scanbot_left_wheel_revolute"), &vel_cmd[0]);
+        hardware_interface::JointHandle right_wheel_vel_handle(wheel_state_interface.getHandle("scanbot_right_wheel_revolute"), &vel_cmd[1]);
         wheel_vel_interface.registerHandle(left_wheel_vel_handle);
         wheel_vel_interface.registerHandle(right_wheel_vel_handle);
         registerInterface(&wheel_vel_interface);
@@ -70,7 +71,7 @@ int main(int argc, char **argv)
     ros::Time last_t = ros::Time::now();
     ros::Rate rate(10);
 
-    while (true) {
+    while (ros::ok()) {
        robot.read();
        cm.update(ros::Time::now(),
                  ros::Time::now() - last_t);
