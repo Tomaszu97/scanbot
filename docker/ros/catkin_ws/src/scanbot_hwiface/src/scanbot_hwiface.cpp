@@ -4,6 +4,12 @@
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
 
+extern "C"
+{
+    #include "serial.c.h"
+}
+
+
 class Scanbot : public hardware_interface::RobotHW
 {
 private:
@@ -31,53 +37,77 @@ public:
         registerInterface(&wheel_vel_interface);
     }
 
-    void read()
+    void send_drive_cmd(int left, int right)
     {
-        ROS_INFO("------------------------");
-        ROS_INFO("reading pos/vel/eff from robot");
+        sprintf(send_buf, "DR:%d,%d#\n", left, right);
+        send_cmd();
+        /* TODO according to previous drive directions and received encoder clicks update odometry pos[] buffer */
+        recv_cmd();
+    }
 
-        /* update those values here ? */
+    void hw_read()
+    {
+        /* copy velocity command to state */
+        vel[0] = vel_cmd[0];
+        vel[1] = vel_cmd[1];
 
-        ROS_INFO("pos[0](left): %.02f", pos[0]);
-        ROS_INFO("pos[1](right): %.02f", pos[1]);
-        ROS_INFO("vel[0](left): %.02f", vel[0]);
-        ROS_INFO("vel[1](right): %.02f", vel[1]);
-        ROS_INFO("eff[0](left): %.02f", eff[0]);
-        ROS_INFO("eff[1](right): %.02f", eff[1]);
-        ROS_INFO("------------------------");
+        /* update state position */
+        pos[0] += 0.1;
+        pos[1] += 0.1;
+
+        /* ignore effort state */
 
     }
 
-    void write()
+    void hw_write()
     {
-        ROS_INFO("------------------------");
-        ROS_INFO("writing cmd to robot");
-
-        ROS_INFO("vel_cmd[0](left): %.02f", vel_cmd[0]);
-        ROS_INFO("vel_cmd[1](right): %.02f", vel_cmd[1]);
-
-        /* apply those values here ? */
-        ROS_INFO("------------------------");
+        int left = vel_cmd[0]*100;
+        int right = vel_cmd[1]*100;
+        left *= -1;
+        right *= -1;
+        ROS_INFO("left: %d", left);
+        ROS_INFO("right: %d", right);
+        /* not sure why its reversed */
+        send_drive_cmd(right, left);
     }
 
 };
 
 int main(int argc, char **argv)
 {
+    /* arg1 is serial port filename */
+    if (argc != 2) {
+        ROS_ERROR("provide serial port as first argument");
+        return EXIT_FAILURE;
+    }
+
     ros::init(argc, argv, "scanbot_hwiface");
-    Scanbot robot;
     ros::NodeHandle n;
+    Scanbot robot;
     controller_manager::ControllerManager cm(&robot);
+
+    ros::AsyncSpinner asyncSpinner(0);
+    asyncSpinner.start();
+
     ros::Time last_t = ros::Time::now();
-    ros::Rate rate(10);
+    ros::Rate rate(5);
+
+    const char *serial_filename = argv[1];
+    open_serial(serial_filename);
 
     while (ros::ok()) {
-       robot.read();
+       flush_serial();
+       robot.hw_read();
+
        cm.update(ros::Time::now(),
                  ros::Time::now() - last_t);
        last_t = ros::Time::now();
-       robot.write();
 
+       robot.hw_write();
+
+       ros::spinOnce();
        rate.sleep();
     }
+
+    close_serial();
 }

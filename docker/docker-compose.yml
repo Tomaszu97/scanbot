@@ -129,8 +129,8 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
-    command: xterm -fa Monospace -fs 10 -bg white -fg blue -e "source /root/catkin_ws/devel/setup.bash && rosrun scanbot_hwiface scanbot_hwiface"
-   #command: bash -c "rosrun scanbot_hwiface scanbot_hwiface"
+    command: xterm -fa Monospace -fs 10 -bg white -fg blue -e "source /root/catkin_ws/devel/setup.bash && env ROS_NAMESPACE=/scanbot rosrun scanbot_hwiface scanbot_hwiface /dev/ttyUSB0"
+   #command: bash -c "rosrun scanbot_hwiface scanbot_hwiface /dev/ttyUSB0"
 
 networks:
   default:
