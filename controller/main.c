@@ -21,13 +21,13 @@ SDL_GameController *g_controller = NULL;
 
 
 void
-open_serial()
+open_serial(const char *serial_filename)
 {
-    g_serial_port = open("/dev/ttyUSB0", O_RDWR);
+    g_serial_port = open(serial_filename, O_RDWR);
     struct termios tty;
 
     if(tcgetattr(g_serial_port, &tty) != 0) {
-        printf("error %i from tcgetattr: %s\n", errno, strerror(errno));
+        fprintf(stderr, "error %i from tcgetattr: %s\n", errno, strerror(errno));
         exit(-1);
     }
 
@@ -55,7 +55,7 @@ open_serial()
     cfsetospeed(&tty, B38400);
 
     if (tcsetattr(g_serial_port, TCSANOW, &tty) != 0) {
-        printf("error %i from tcsetattr: %s\n", errno, strerror(errno));
+        fprintf(stderr, "error %i from tcsetattr: %s\n", errno, strerror(errno));
         exit(-1);
     }
 }
@@ -71,17 +71,17 @@ init_controller()
 {
     int result = SDL_Init(SDL_INIT_GAMECONTROLLER);
     if (result < 0 ) {
-        printf("sdl controller initialization failed");
+        fprintf(stderr, "sdl controller initialization failed\n");
         exit(-1);
     }
     if (SDL_NumJoysticks() < 1) {
-        printf("no controllers detected");
+        fprintf(stderr, "no controllers detected\n");
         exit(-1);
     }
 
     g_controller = SDL_GameControllerOpen(CONTROLLER_ID);
     if (g_controller == NULL) {
-        printf("could not connect controller");
+        fprintf(stderr, "could not connect controller\n");
         exit(-1);
     }
 }
@@ -119,12 +119,12 @@ recv_cmd()
 {
     int num_bytes = read(g_serial_port, &g_recv_buf, sizeof(g_recv_buf) - 1);
     if (num_bytes < 0) {
-        printf("error reading: %s", strerror(errno));
+        fprintf(stderr, "error reading: %s\n", strerror(errno));
         return false;
     }
     g_recv_buf[num_bytes] = '\0';
 
-    printf("recv: %s", g_recv_buf);
+    printf("recv: %s\n", g_recv_buf);
     return true;
 }
 
@@ -137,7 +137,7 @@ serial_flush()
 bool
 send_cmd()
 {
-    printf("send: %s",g_send_buf);
+    printf("send: %s\n",g_send_buf);
     int retval = write(g_serial_port, g_send_buf, strlen(g_send_buf));
     if (retval < 0 ) return false;
     return true;
@@ -146,23 +146,16 @@ send_cmd()
 void
 send_drive_cmd()
 {
-    sprintf(g_send_buf, "DRIVE:%d,%d#\n", speed, turn);
+    sprintf(g_send_buf, "DV:%d,%d#\n", speed, turn);
     send_cmd();
-
-    /* response is ignored due to lag (synchronous communication)
-     * remember to flush buffer before reading data elsewhere
-     * response should probably be read in automated environment
-     * that's why i did not delete it
-     * // recv_cmd();
-     */
-    printf("ignoring response\n");
+    recv_cmd();
 }
 
 void
 update_speed(int gas_pedal, int brake_pedal)
 {
     int in[] = {0, 32767};
-    int out[] = {0, 90};
+    int out[] = {0, 390};
     speed = multi_map(gas_pedal, in, out, 2)
           - multi_map(brake_pedal, in, out, 2);
     if (speed%5==0) send_drive_cmd();
@@ -172,18 +165,24 @@ void
 update_turn(int wheel)
 {
     int in[] = {-32768, 0, 32767};
-    int out[] = {-60, 0, 60};
+    int out[] = {-390, 0, 390};
     turn = multi_map(wheel, in, out, 3);
     if (turn%5==0) send_drive_cmd();
 }
 
 int
-main(int argc,
-     char *argv[])
+main(int argc, char *argv[])
 {
-    init_controller();
-    open_serial();
+    /* arg1 is serial port filename */
+    if (argc != 2) {
+        fprintf(stderr, "provide serial port as first argument\n");
+        return EXIT_FAILURE;
+    }
 
+    init_controller();
+
+    const char *serial_filename = argv[1];
+    open_serial(serial_filename);
 
     int gas_pedal = 0;
     int brake_pedal = 0;
@@ -221,49 +220,33 @@ main(int argc,
 
                     if (e.cbutton.button == SDL_CONTROLLER_BUTTON_A) {
                         serial_flush();
-                        sprintf(g_send_buf, "RESET#\n");
+                        sprintf(g_send_buf, "RT#\n");
                         send_cmd();
-                        recv_cmd();
                     }
                     if (e.cbutton.button == SDL_CONTROLLER_BUTTON_B) {
                         serial_flush();
-                        sprintf(g_send_buf, "BEEP:10,1#\n");
+                        sprintf(g_send_buf, "BE:10,1#\n");
                         send_cmd();
-                        recv_cmd();
                     }
                     if (e.cbutton.button == SDL_CONTROLLER_BUTTON_X) {
                         serial_flush();
-                        sprintf(g_send_buf, "SCAN_START#\n");
+                        sprintf(g_send_buf, "SC#\n");
                         send_cmd();
-                        recv_cmd();
                     }
                     if (e.cbutton.button == SDL_CONTROLLER_BUTTON_Y) {
                         serial_flush();
-                        sprintf(g_send_buf, "SCAN_STOP#\n");
+                        sprintf(g_send_buf, "SS#\n");
                         send_cmd();
-                        recv_cmd();
                     }
                     if (e.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_UP) {
                         serial_flush();
-                        sprintf(g_send_buf, "GET_TIME#\n");
-                        send_cmd();
-                        recv_cmd();
-                    }
-                    if (e.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
-                        serial_flush();
-                        sprintf(g_send_buf, "GET_ENCODERS#\n");
+                        sprintf(g_send_buf, "GT#\n");
                         send_cmd();
                         recv_cmd();
                     }
                     if (e.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_LEFT) {
                         serial_flush();
-                        sprintf(g_send_buf, "GET_SCAN#\n");
-                        send_cmd();
-                        recv_cmd();
-                    }
-                    if (e.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_RIGHT) {
-                        serial_flush();
-                        sprintf(g_send_buf, "DRIVE:30,0#\n");
+                        sprintf(g_send_buf, "GS#\n");
                         send_cmd();
                         recv_cmd();
                     }
