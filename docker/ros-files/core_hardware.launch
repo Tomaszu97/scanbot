@@ -7,7 +7,7 @@
          command="$(find xacro)/xacro --inorder /root/persistent-files/scanbot.urdf" />
 
   <!-- joint controller parameters -->
-  <rosparam file="/root/persistent-files/scanbot_control.yaml"
+  <rosparam file="/root/persistent-files/scanbot_control_hardware.yaml"
             command="load" />
 
   <!-- load scanbot_base_controller to steer joints -->
