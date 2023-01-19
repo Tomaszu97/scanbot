@@ -7,11 +7,11 @@ typedef enum {
     NO_COMMAND,
     PING,
     DRIVE,
+    DRIVE_RAW,
     KILL,
     PRINT,
     CLEAR,
     BEEP,
-    GET_ENCODERS,
     GET_TIME,
     SCAN_START,
     SCAN_STOP,
@@ -41,18 +41,18 @@ private:
     static const unsigned int command_type_strings_len = 13;
     char command_type_strings[command_type_strings_len][32] = {
         "NO_COMMAND",
-        "PING",
-        "DRIVE",
-        "KILL",
-        "PRINT",
-        "CLEAR",
-        "BEEP",
-        "GET_ENCODERS",
-        "GET_TIME",
-        "SCAN_START",
-        "SCAN_STOP",
-        "GET_SCAN",
-        "RESET"
+        "PG", /*PING*/
+        "DV", /*DRIVE*/
+        "DR", /*DRIVE RAW*/
+        "KL", /*KILL*/
+        "PR", /*PRINT*/
+        "CL", /*CLEAR*/
+        "BE", /*BEEP*/
+        "GT", /*GET_TIME*/
+        "SC", /*SCAN START*/
+        "SS", /*SCAN STOP*/
+        "GS", /*GET SCAN*/
+        "RS", /*RESET PLATFORM*/
     };
 };
 

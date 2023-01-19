@@ -3,11 +3,6 @@
 #include "config.h"
 #include "util.cpp.h"
 
-#define MIN_SPEED -90
-#define MAX_SPEED 90
-#define MIN_TURN -60
-#define MAX_TURN 60
-
 class Drive
 {
 private:
@@ -15,7 +10,6 @@ private:
     Servo right_servo;
     int left_encoder_counter;
     int right_encoder_counter;
-    void set_motors(int speed_left, int speed_right);
     int speed;
     int turn;
 
@@ -25,6 +19,7 @@ public:
     void detach();
     void set_speed(const int speed);
     void set_turn(const int val);
+    void set_motors(int speed_left, int speed_right);
     void update_motors();
     int get_left_encoder_counter();
     int get_right_encoder_counter();
@@ -124,14 +119,17 @@ void
 Drive::set_motors(int speed_left,
                   int speed_right)
 {
-    int deadzone = DRIVE_SERVO_DEADZONE;
-    int in[] = {-90, 0, 90};
-    int left_out[] = {180, DRIVE_SERVO_MIDDLE, 0};
-    int right_out[] = {0, DRIVE_SERVO_MIDDLE, 180};
+    int deadzone = DRIVE_SERVO_IN_DEADZONE;
+
+    int left_in[] = DRIVE_SERVO_CURVE_LEFT_IN;
+    int right_in[] = DRIVE_SERVO_CURVE_RIGHT_IN;
+
+    int left_out[] = DRIVE_SERVO_CURVE_LEFT_OUT;
+    int right_out[] = DRIVE_SERVO_CURVE_RIGHT_OUT;
 
     if (speed_left >= -deadzone && speed_left <= deadzone) left_servo.detach();
     else {
-        int new_speed_left = multi_map(speed_left, in, left_out, ARRAY_SIZE(in));
+        int new_speed_left = multi_map(speed_left, left_in, left_out, ARRAY_SIZE(left_in));
 
         if (left_servo.attached() == false)
             left_servo.attach(LEFT_SERVO_PIN, DRIVE_SERVO_US_MIN, DRIVE_SERVO_US_MAX);
@@ -140,7 +138,7 @@ Drive::set_motors(int speed_left,
     }
     if (speed_right >= -deadzone && speed_right <= deadzone) right_servo.detach();
     else {
-        int new_speed_right = multi_map(speed_right, in, right_out, ARRAY_SIZE(in));
+        int new_speed_right = multi_map(speed_right, right_in, right_out, ARRAY_SIZE(right_in));
 
         if (right_servo.attached() == false)
             right_servo.attach(RIGHT_SERVO_PIN, DRIVE_SERVO_US_MIN, DRIVE_SERVO_US_MAX);

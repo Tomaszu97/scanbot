@@ -54,39 +54,45 @@ loop()
             drive.set_speed(atoi(cmd.argv[1]));
             drive.set_turn(atoi(cmd.argv[2]));
             drive.update_motors();
-            command.respond(true);
-            break;
-
-        case KILL:
-            if (assert_argc(1 + 0, cmd) == false) break;
-            drive.detach();
-            command.respond(true);
-            break;
-
-        case PRINT:
-            if (assert_argc(1 + 1, cmd) == false) break;
-            display.print(cmd.argv[1]);
-            command.respond(true);
-            break;
-
-        case CLEAR:
-            display.clear();
-            command.respond(true);
-            break;
-
-        case BEEP:
-            if (assert_argc(1 + 2, cmd) == false) break;
-            display.beep(atoi(cmd.argv[1]), atoi(cmd.argv[2]));
-            command.respond(true);
-            break;
-
-        case GET_ENCODERS:
-            if (assert_argc(1 + 0, cmd) == false) break;
             command.print(drive.get_left_encoder_counter());
             command.print(CMD_PARAM_SEPARATOR_DELIMITER);
             command.print(drive.get_right_encoder_counter());
             command.println(CMD_TERMINATOR);
             drive.reset_encoder_counters();
+            break;
+
+        case DRIVE_RAW:
+            if (assert_argc(1 + 2, cmd) == false) break;
+            drive.set_motors(atoi(cmd.argv[1]),
+                             atoi(cmd.argv[2]));
+            command.print(drive.get_left_encoder_counter());
+            command.print(CMD_PARAM_SEPARATOR_DELIMITER);
+            command.print(drive.get_right_encoder_counter());
+            command.println(CMD_TERMINATOR);
+            drive.reset_encoder_counters();
+            break;
+
+        case KILL:
+            if (assert_argc(1 + 0, cmd) == false) break;
+            drive.detach();
+            /* no response */
+            break;
+
+        case PRINT:
+            if (assert_argc(1 + 1, cmd) == false) break;
+            display.print(cmd.argv[1]);
+            /* no response */
+            break;
+
+        case CLEAR:
+            display.clear();
+            /* no response */
+            break;
+
+        case BEEP:
+            if (assert_argc(1 + 2, cmd) == false) break;
+            display.beep(atoi(cmd.argv[1]), atoi(cmd.argv[2]));
+            /* no response */
             break;
 
         case GET_TIME:
@@ -98,13 +104,13 @@ loop()
         case SCAN_START:
             if (assert_argc(1 + 0, cmd) == false) break;
             scan.start();
-            command.respond(true);
+            /* no response */
             break;
 
         case SCAN_STOP:
             if (assert_argc(1 + 0, cmd) == false) break;
             scan.stop();
-            command.respond(true);
+            /* no response */
             break;
 
         case GET_SCAN:
@@ -123,6 +129,7 @@ loop()
         case RESET_PLATFORM:
             IWatchdog.begin(10000);
             while (true);
+            /* no response */
             break;
 
         case NO_COMMAND:
