@@ -51,7 +51,7 @@ services:
       QT_X11_NO_MITSHM: 1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-    command: bash -c 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.1 _maxUrange:=5.0 _kernel_size:=2 _delta:=0.06 output="screen"'
+    command: bash -c 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.1 _maxUrange:=5.0 _kernel_size:=2 _delta:=0.1 output="screen"'
    #command: xterm -fa Monospace -fs 10 -bg brown -fg orange -e 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.1 _maxUrange:=5.0 _kernel_size:=2 _delta:=0.05 output="screen"'
 
   rviz:
