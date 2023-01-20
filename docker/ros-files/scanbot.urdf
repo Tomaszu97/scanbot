@@ -182,8 +182,8 @@
             <!-- number of beams = samples * resolution -->
             <samples>180</samples>
             <resolution>1</resolution>
-            <min_angle>1.57079632679</min_angle>
-            <max_angle>4.71238898038</max_angle>
+            <min_angle>-1.57079632679</min_angle>
+            <max_angle>1.57079632679</max_angle>
           </horizontal>
         </scan>
         <range>
