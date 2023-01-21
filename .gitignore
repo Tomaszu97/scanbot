@@ -132,3 +132,4 @@ old/
 *.swp
 devel/
 .catkin_workspace
+cscope.out
