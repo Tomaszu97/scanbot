@@ -24,12 +24,18 @@ gmapping
 rviz
 gamepad
 gamepad_conv"
+rosbag_replay="
+roscore_gazebo
+rosconsole
+gmapping
+rviz"
 
 if [ "$1" == "gb" ] ; then
     env $nvidia_offload docker-compose up $gazebo_with_gamepad
 elif [ "$1" == "hw" ] ; then
-    # REMEMBER TO SET  /use_sim_time to FALSE
     env $nvidia_offload docker-compose up $hardware_with_gamepad
+elif [ "$1" == "rp" ] ; then
+    env $nvidia_offload docker-compose up $rosbag_replay
 else
     echo "specify container collection to run, available:"
     echo "  gb - gazebo"
