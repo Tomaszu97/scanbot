@@ -220,7 +220,7 @@ main(int argc, char *argv[])
 
                     if (e.cbutton.button == SDL_CONTROLLER_BUTTON_A) {
                         serial_flush();
-                        sprintf(g_send_buf, "RT#\n");
+                        sprintf(g_send_buf, "RS#\n");
                         send_cmd();
                     }
                     if (e.cbutton.button == SDL_CONTROLLER_BUTTON_B) {
