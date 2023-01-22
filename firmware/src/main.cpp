@@ -54,6 +54,20 @@ cmd_bump_watchdog(command_t *cmd)
     }
 }
 
+void
+cmd_wakeup_watchdog(command_t *cmd)
+{
+    if (cmd == NULL) return;
+
+    switch (cmd->type) {
+        case PING:
+            if (assert_argc(1 + 0, *cmd) == false) break;
+            command.respond(true);
+            ping_watchdog = millis();
+            break;
+    }
+}
+
 bool
 watchdog_active()
 {
@@ -185,12 +199,12 @@ loop()
     if (watchdog_active() == true) {
         drive.detach();
         scan.stop();
-        /* FIXME display prints can cause program to hang - investigace u8x8 and display hardware */
+        /* FIXME display prints can cause program to hang - investigate u8x8 and display hardware */
         display.dbg_print("E:ping tmout");
         display.beep(200,2);
         while (watchdog_active() == true) {
             command_t cmd = command.get_command();
-            cmd_bump_watchdog(&cmd);
+            cmd_wakeup_watchdog(&cmd);
         }
     }
 }
