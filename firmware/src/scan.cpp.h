@@ -105,7 +105,8 @@ Scan::work()
     }
     else {
         pos--;
-        if (pos <= -90) dir_inc = true;
+        /* important detail */
+        if (pos <= -89) dir_inc = true;
     }
     set_tower(pos);
 }
