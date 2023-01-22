@@ -26,6 +26,42 @@ assert_argc(const unsigned int argc,
 }
 
 void
+reset_platform()
+{
+    IWatchdog.begin(10000);
+    while (true);
+}
+
+void
+cmd_bump_watchdog(command_t *cmd)
+{
+    if (cmd == NULL) return;
+
+    switch (cmd->type) {
+        case PING:
+        case DRIVE:
+        case DRIVE_RAW:
+        case KILL:
+        case PRINT:
+        case CLEAR:
+        case BEEP:
+        case GET_TIME:
+        case SCAN_START:
+        case SCAN_STOP:
+        case GET_SCAN:
+            ping_watchdog = millis();
+            break;
+    }
+}
+
+bool
+watchdog_active()
+{
+    const bool active = (millis() > ping_watchdog + PING_TIMEOUT_MS);
+    return active;
+}
+
+void
 setup()
 {
     SystemClock_Config();
@@ -41,11 +77,11 @@ void
 loop()
 {
     command_t cmd = command.get_command();
+    cmd_bump_watchdog(&cmd);
 
     switch (cmd.type) {
         case PING:
             if (assert_argc(1 + 0, cmd) == false) break;
-            ping_watchdog = millis();
             command.respond(true);
             break;
 
@@ -130,8 +166,7 @@ loop()
             break;
 
         case RESET_PLATFORM:
-            IWatchdog.begin(10000);
-            while (true);
+            reset_platform();
             /* no response */
             break;
 
@@ -147,10 +182,15 @@ loop()
 
     scan.work();
 
-    if (millis() > ping_watchdog + PING_TIMEOUT_MS) {
+    if (watchdog_active() == true) {
         drive.detach();
         scan.stop();
-        display.dbg_print("E:ping timeout");
-        display.dbg_beep(500,3);
+        /* FIXME display prints can cause program to hang - investigace u8x8 and display hardware */
+        display.dbg_print("E:ping tmout");
+        display.beep(200,2);
+        while (watchdog_active() == true) {
+            command_t cmd = command.get_command();
+            cmd_bump_watchdog(&cmd);
+        }
     }
 }
