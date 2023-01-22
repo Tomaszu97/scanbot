@@ -4,14 +4,25 @@
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
 #include <controller_manager/controller_manager.h>
-#include <std_msgs/String.h>
+#include <sensor_msgs/LaserScan.h>
+#include <string>
+#include <sstream>
 
 #define ENCODER_PPR 20
-#define LOOP_RATE_HZ 5
 #define SCAN_ARRAY_SIZE 180
+#define LASER_RANGE_MIN_M 0.2
+#define LASER_RANGE_MAX_M 8.0
+#define LASER_DEG_MIN 1
+#define LASER_DEG_MAX 180
+#define LASER_DEG_STEP 1
+
 #define CMD_DELIMITER ":"
 #define CMD_PARAM_SEPARATOR_DELIMITER ","
+#define CMD_TERMINATOR '#'
+
 #define PI 3.141592
+#define DEG_TO_RAD 0.0174532925
+#define RAD_TO_DEG 57.2957795
 
 extern "C"
 {
@@ -97,85 +108,86 @@ public:
     {
         int left = vel_cmd[0]*100;
         int right = vel_cmd[1]*100;
-        ROS_INFO("left: %d", left);
-        ROS_INFO("right: %d", right);
         send_drive_cmd(left, right);
     }
 
-    bool get_scan(int *scan_array)
+    bool get_scan(float *scan_array)
     {
-        //sprintf(send_buf, "GS#\n");
-        //send_cmd();
-        /* TODO fetch scan data and fill in scan_array*/
-        //SCAN_ARRAY_SIZE
-        //const bool received = recv_cmd();
-        //char *data = recv_buf;
-        //const char *delims = CMD_DELIMITER CMD_PARAM_SEPARATOR_DELIMITER;
-        //if (received == false) {
-        //    ROS_ERROR("receive failed");
-        //    return;
-        //}
-        //char *left_encoder_str = strtok(data, delims);
-        //if (left_encoder_str == NULL) {
-        //    ROS_ERROR("cannot read left encoder");
-        //    return;
-        //}
-        //char *right_encoder_str = strtok(NULL, delims);
-        //if (right_encoder_str == NULL) {
-        //    ROS_ERROR("cannot read right encoder");
-        //    return;
-        //}
+        sprintf(send_buf, "GS#\n");
+        send_cmd();
 
-        ///* unsafe, but robot has limits anyway */
-        //const int left_encoder = atoi(left_encoder_str);
-        //const int right_encoder = atoi(right_encoder_str);
+        const bool received = recv_cmd();
+        const char *delims = CMD_DELIMITER CMD_PARAM_SEPARATOR_DELIMITER;
+        if (received == false) {
+            ROS_ERROR("receive failed");
+            return false;
+        }
 
-        ///* update state position */
-        //pos[0] += (double)left_encoder * (PI / ENCODER_PPR);
-        //pos[1] += (double)right_encoder * (PI / ENCODER_PPR);
-        ///* ignore velocity state */
-        ///* ignore effort state */
-        return false;
+        std::string str(recv_buf);
+        std::istringstream ss(str);
+        std::string token;
+        unsigned int i = 0;
+        while (std::getline(ss, token, ',')) {
+            if (i >= SCAN_ARRAY_SIZE) break;
+            token.erase(remove(token.begin(), token.end(), CMD_TERMINATOR), token.end());
+            token.erase(remove(token.begin(), token.end(), '\r'), token.end());
+            token.erase(remove(token.begin(), token.end(), '\n'), token.end());
+            token.erase(remove(token.begin(), token.end(), '\t'), token.end());
+            token.erase(remove(token.begin(), token.end(), ' '), token.end());
+            if (token.length() == 0) {
+                scan_array[i] = 0;
+            }
+            else {
+                scan_array[i] = std::stoi(token);
+            }
+            i++;
+        }
+
+        return true;
     }
 };
 
 int main(int argc, char **argv)
 {
-    /* arg1 is serial port filename */
-    /* arg2 is topic to publish on */
-    if (argc != 3) {
+    /* get commandline parameters */
+    if (argc != 5) {
         ROS_ERROR("provide serial port as first argument");
         return EXIT_FAILURE;
     }
+    const char *serial_port_filename = argv[1];
+    const char *laser_scan_publish_topic = argv[2];
+    const char *laser_scan_frame_id = argv[3];
+    const char *loop_rate_str = argv[4];
+    const int loop_rate_hz = std::stoi(std::string(loop_rate_str));
 
+    /* initialize ros node and get its handle */
     ros::init(argc, argv, "scanbot_hwiface");
-
     ros::NodeHandle n;
 
+    /* create a laser scan publisher */
     ros::Publisher scan_publisher;
-    scan_publisher = n.advertise<std_msgs::String>(argv[2], 10);
+    scan_publisher = n.advertise<sensor_msgs::LaserScan>(laser_scan_publish_topic, 10);
+    int last_seq = 0;
 
+    /* instantiate scanbot class */
     Scanbot robot;
 
+    /* init required ros objects */
     controller_manager::ControllerManager cm(&robot);
-
     ros::AsyncSpinner asyncSpinner(0);
     asyncSpinner.start();
 
-    ros::Time last_t = ros::Time::now();
-    ros::Rate rate(LOOP_RATE_HZ);
+    /* enable scanning and open serial */
+    open_serial(serial_port_filename);
+    sprintf(send_buf, "SC#\n");
+    send_cmd();
 
-    const char *serial_filename = argv[1];
-    open_serial(serial_filename);
-
-    ///* enable scanning */
-    //sprintf(send_buf, "SC#\n");
-    //send_cmd();
-
+    /* prepare to loop */
     flush_serial();
-
+    ros::Time last_t = ros::Time::now();
+    ros::Rate rate(loop_rate_hz);
     while (ros::ok()) {
-        /* update controller time */
+        /* update controller's time delta */
         cm.update(ros::Time::now(),
                   ros::Time::now() - last_t);
         last_t = ros::Time::now();
@@ -184,19 +196,39 @@ int main(int argc, char **argv)
         robot.update();
 
         /* fetch and publish scans  */
-        static int scan_values[SCAN_ARRAY_SIZE];
+        float scan_values[SCAN_ARRAY_SIZE] = {0};
         const bool scan_successful = robot.get_scan(scan_values);
         if (scan_successful == true) {
-            /*TODO*/
-            std_msgs::String str;
-            str.data = "hello world";
-            scan_publisher.publish(str);
+            /* prepare laser scan message */
+            ROS_DEBUG("preparing laser scan");
+            sensor_msgs::LaserScan laser_scan;
+            laser_scan.header.seq = last_seq++;
+            laser_scan.header.stamp = last_t;
+            laser_scan.header.frame_id = std::string(laser_scan_frame_id);
+            laser_scan.angle_min = LASER_DEG_MIN * DEG_TO_RAD;
+            laser_scan.angle_max = LASER_DEG_MAX * DEG_TO_RAD;
+            laser_scan.angle_increment = LASER_DEG_STEP * DEG_TO_RAD;
+            laser_scan.time_increment = 0;
+            laser_scan.scan_time = 0;
+            laser_scan.range_min = LASER_RANGE_MIN_M;
+            laser_scan.range_max = LASER_RANGE_MAX_M;
+            for (int i = 0; i < SCAN_ARRAY_SIZE; i++) {
+                laser_scan.ranges.push_back(scan_values[i]);
+            }
+            /* publish  laser scan message */
+            ROS_DEBUG("publishing laser scan");
+            scan_publisher.publish(laser_scan);
         }
-        else ROS_ERROR("scan failed");
+        else {
+            ROS_ERROR("scan failed");
+        }
 
         ros::spinOnce();
         rate.sleep();
     }
 
+    /* disable scanning and close serial */
+    sprintf(send_buf, "SS#\n");
+    send_cmd();
     close_serial();
 }
