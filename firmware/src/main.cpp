@@ -116,11 +116,14 @@ loop()
         case GET_SCAN:
             if (assert_argc(1 + 0, cmd) == false) break;
 
-            static int16_t scan_array[SCAN_BUF_LEN];
-            scan.get_scan(scan_array);
+            static int16_t *scan_array = scan.scan_buf;
+            static bool *scan_array_updated = scan.scan_buf_updated;
 
             for (int i = 0; i < SCAN_BUF_LEN; i++) {
-                command.print(scan_array[i], DEC);
+                if (scan_array_updated[i] == true) {
+                    command.print(scan_array[i], DEC);
+                    scan_array_updated[i] = false;
+                }
                 if (i != SCAN_BUF_LEN - 1) command.print(",");
             }
             command.println(CMD_TERMINATOR);

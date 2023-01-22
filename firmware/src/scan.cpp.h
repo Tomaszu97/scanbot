@@ -9,7 +9,6 @@ TwoWire Wire2 = TwoWire(SDA2, SCL2);
 class Scan
 {
 private:
-    int16_t scan_buf[SCAN_BUF_LEN];
     bool working = false;
     Servo tower_servo;
     void attach();
@@ -20,11 +19,8 @@ public:
     void start();
     void stop();
     void work();
-    void get_scan(int16_t *scan_array);
-
-    /* TODO implement start and stop offloaded scan */
-
-    /* TODO request last data */
+    int16_t scan_buf[SCAN_BUF_LEN];
+    bool scan_buf_updated[SCAN_BUF_LEN];
 };
 
 Scan scan;
@@ -101,6 +97,7 @@ Scan::work()
     Wire2.endTransmission();
     const unsigned int i = 180 - (pos + 90);
     scan_buf[i] = distance;
+    scan_buf_updated[i] = true;
 
     if (dir_inc == true) {
         pos++;
@@ -111,11 +108,5 @@ Scan::work()
         if (pos <= -90) dir_inc = true;
     }
     set_tower(pos);
-}
-
-void
-Scan::get_scan(int16_t *scan_array)
-{
-    memcpy(scan_array, scan_buf, sizeof(scan_buf));
 }
 
