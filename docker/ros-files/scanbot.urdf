@@ -175,12 +175,12 @@
       <pose>0 0 0 0 0 0</pose>
       <always_on>true</always_on>
       <visualize>true</visualize>
-      <update_rate>4</update_rate>
+      <update_rate>1</update_rate>
       <ray>
         <scan>
           <horizontal>
             <!-- number of beams = samples * resolution -->
-            <samples>180</samples>
+            <samples>60</samples>
             <resolution>1</resolution>
             <min_angle>-1.57079632679</min_angle>
             <max_angle>1.57079632679</max_angle>

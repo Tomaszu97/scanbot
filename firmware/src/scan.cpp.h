@@ -13,7 +13,12 @@ private:
     Servo tower_servo;
     void attach();
     void detach();
-    void set_tower(int pos);
+    void set_tower();
+    bool throttle();
+    void step_tower();
+    int pos;
+    bool dir_inc;
+
 public:
     void init();
     void start();
@@ -31,7 +36,9 @@ Scan::init()
     Wire2.begin();
     memset(scan_buf, -1, sizeof(scan_buf));
     attach();
-    set_tower(0);
+    pos = (SCAN_BUF_LEN/2);
+    dir_inc = true;
+    set_tower();
 }
 
 void
@@ -49,10 +56,10 @@ Scan::detach()
 }
 
 void
-Scan::set_tower(int pos)
+Scan::set_tower()
 {
-    int in[] = {-90, 0, 90};
-    int out[] = {180, TOWER_SERVO_MIDDLE, 0};
+    int in[] = {0, (SCAN_BUF_LEN/2), SCAN_BUF_LEN};
+    int out[] = {0, TOWER_SERVO_MIDDLE, 180};
     int new_pos = multi_map(pos, in, out, ARRAY_SIZE(in));
     tower_servo.write(new_pos);
     /* TODO add delay / timer / a way to read position (best) */
@@ -72,21 +79,44 @@ Scan::stop()
     working = false;
 }
 
+bool
+Scan::throttle()
+{
+    /* skip if work called too fast - let servo stabilize */
+    static unsigned long last_millis = millis();
+
+    const unsigned long delta_ms = millis() - last_millis;
+
+    const bool pos_extreme = (pos == 0) || (pos == (SCAN_BUF_LEN - 1));
+    if (pos_extreme == true && delta_ms < MIN_INTERSCAN_INTERVAL_MS) return true;
+    if (pos_extreme == false && delta_ms < MIN_SCAN_INTERVAL_MS) return true;
+
+    last_millis = millis();
+    return false;
+}
+
+void
+Scan::step_tower()
+{
+    /* traverse left and right */
+    if (dir_inc == true) {
+        pos++;
+        if (pos >= (SCAN_BUF_LEN-1)) dir_inc = false;
+    }
+    else {
+        pos--;
+        if (pos <= 0) dir_inc = true;
+    }
+    set_tower();
+}
+
 void
 Scan::work()
 {
-    static int pos = 0;
-    static bool dir_inc = true; 
-    static unsigned long last_millis = millis();
-
     if (working == false) return;
+    if (throttle() == true) return;
 
-    /* skip if work called too fast - let servo stabilize */
-    const unsigned long delta_ms = millis() - last_millis;
-    if (delta_ms < MIN_SCAN_INTERVAL_MS) return;
-    last_millis = millis();
-
-    /* update value */
+    /* read distance */
     int16_t distance = -1;
     Wire2.beginTransmission(0x10);
     Wire2.write(0x00);
@@ -95,19 +125,13 @@ Scan::work()
     distance = Wire2.read();
     distance |= Wire2.read() << 8;
     Wire2.endTransmission();
-    const unsigned int i = 180 - (pos + 90);
-    scan_buf[i] = distance;
-    scan_buf_updated[i] = true;
 
+    /* update value */
     if (dir_inc == true) {
-        pos++;
-        if (pos >= 90) dir_inc = false;
+        scan_buf[pos] = distance;
+        scan_buf_updated[pos] = true;
     }
-    else {
-        pos--;
-        /* important detail */
-        if (pos <= -89) dir_inc = true;
-    }
-    set_tower(pos);
+
+    step_tower();
 }
 

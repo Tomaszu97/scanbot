@@ -201,7 +201,7 @@ loop()
         scan.stop();
         /* FIXME display prints can cause program to hang - investigate u8x8 and display hardware */
         display.dbg_print("E:ping tmout");
-        display.beep(200,2);
+        display.beep(50,4);
         while (watchdog_active() == true) {
             command_t cmd = command.get_command();
             cmd_wakeup_watchdog(&cmd);

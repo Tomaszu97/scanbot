@@ -1,5 +1,6 @@
 #include <ros/ros.h>
 #include <ros/node_handle.h>
+#include <ros/time.h>
 #include <hardware_interface/joint_command_interface.h>
 #include <hardware_interface/joint_state_interface.h>
 #include <hardware_interface/robot_hw.h>
@@ -9,12 +10,10 @@
 #include <sstream>
 
 #define ENCODER_PPR 20
-#define SCAN_ARRAY_SIZE 180
+#define SCAN_ARRAY_SIZE 60
+#define LASER_DEG_STEP 3
 #define LASER_RANGE_MIN_M 0.2
 #define LASER_RANGE_MAX_M 8.0
-#define LASER_DEG_MIN 1
-#define LASER_DEG_MAX 180
-#define LASER_DEG_STEP 1
 
 #define CMD_DELIMITER ":"
 #define CMD_PARAM_SEPARATOR_DELIMITER ","
@@ -139,6 +138,7 @@ public:
             }
             else {
                 scan_array[i] = std::stoi(token);
+                scan_array[i] /= 100;
             }
             i++;
         }
@@ -158,7 +158,7 @@ int main(int argc, char **argv)
     const char *laser_scan_publish_topic = argv[2];
     const char *laser_scan_frame_id = argv[3];
     const char *loop_rate_str = argv[4];
-    const int loop_rate_hz = std::stoi(std::string(loop_rate_str));
+    const double loop_rate_hz = std::stod(std::string(loop_rate_str));
 
     /* initialize ros node and get its handle */
     ros::init(argc, argv, "scanbot_hwiface");
@@ -177,8 +177,12 @@ int main(int argc, char **argv)
     ros::AsyncSpinner asyncSpinner(0);
     asyncSpinner.start();
 
-    /* enable scanning and open serial */
+    /* wake up and enable scanning and open serial */
     open_serial(serial_port_filename);
+    sprintf(send_buf, "PG#\n");
+    send_cmd();
+    recv_cmd();
+
     sprintf(send_buf, "SC#\n");
     send_cmd();
 
@@ -202,19 +206,38 @@ int main(int argc, char **argv)
             /* prepare laser scan message */
             ROS_DEBUG("preparing laser scan");
             sensor_msgs::LaserScan laser_scan;
-            laser_scan.header.seq = last_seq++;
             laser_scan.header.stamp = last_t;
+            laser_scan.header.seq = last_seq++;
             laser_scan.header.frame_id = std::string(laser_scan_frame_id);
-            laser_scan.angle_min = LASER_DEG_MIN * DEG_TO_RAD;
-            laser_scan.angle_max = LASER_DEG_MAX * DEG_TO_RAD;
             laser_scan.angle_increment = LASER_DEG_STEP * DEG_TO_RAD;
             laser_scan.time_increment = 0;
             laser_scan.scan_time = 0;
             laser_scan.range_min = LASER_RANGE_MIN_M;
             laser_scan.range_max = LASER_RANGE_MAX_M;
+
+            /* code below assumes continuous range */
             for (int i = 0; i < SCAN_ARRAY_SIZE; i++) {
+                if (scan_values[i] == 0) continue;
                 laser_scan.ranges.push_back(scan_values[i]);
+                laser_scan.intensities.push_back(0.0f);
             }
+            /* determine angle range */
+            int min_angle = 0;
+            for (int i = 0; i < SCAN_ARRAY_SIZE; i++) {
+                if (scan_values[i] == 0) min_angle = i;
+                else break;
+            }
+
+            int max_angle = SCAN_ARRAY_SIZE - 1;
+            for (int i = (SCAN_ARRAY_SIZE - 1); i >= 0; i--) {
+                if (scan_values[i] == 0) max_angle = i;
+                else break;
+            }
+            min_angle *= LASER_DEG_STEP;
+            max_angle *= LASER_DEG_STEP;
+            laser_scan.angle_min = (-PI / 2) + (min_angle * DEG_TO_RAD);
+            laser_scan.angle_max = (-PI / 2) + (max_angle * DEG_TO_RAD);
+
             /* publish  laser scan message */
             ROS_DEBUG("publishing laser scan");
             scan_publisher.publish(laser_scan);

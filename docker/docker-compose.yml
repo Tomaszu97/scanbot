@@ -51,7 +51,7 @@ services:
       QT_X11_NO_MITSHM: 1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-    command: bash -c 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.1 _maxUrange:=5.0 _kernel_size:=2 _delta:=0.1 output="screen"'
+    command: bash -c 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=1 _maxUrange:=5.0 _kernel_size:=2 _delta:=0.12 output="screen"'
    #command: xterm -fa Monospace -fs 10 -bg brown -fg orange -e 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.1 _maxUrange:=5.0 _kernel_size:=2 _delta:=0.05 output="screen"'
 
   rviz:
@@ -67,8 +67,8 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
-    command: bash -c "rosrun rviz rviz -f odom -d /root/persistent-files/rviz-config.rviz"
-   #command: xterm -fa Monospace -fs 10 -bg yellow -fg slateblue1 -e "rosrun rviz rviz -f odom -d /root/persistent-files/rviz-config.rviz"
+   #command: bash -c "rosrun rviz rviz -f odom -d /root/persistent-files/rviz-config.rviz"
+    command: xterm -fa Monospace -fs 10 -bg yellow -fg slateblue1 -e "rosrun rviz rviz -f odom -d /root/persistent-files/rviz-config.rviz"
 
   gazebo:
     privileged: true
@@ -127,7 +127,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
-    command: xterm -fa Monospace -fs 10 -bg white -fg blue -e "source /root/catkin_ws/devel/setup.bash && env ROS_NAMESPACE=/scanbot rosrun scanbot_hwiface scanbot_hwiface $$(find /dev/ -name 'ttyUSB*' 2>/dev/null | head -n1) /scanbot/scan scanbot_tower 5"
+    command: xterm -fa Monospace -fs 10 -bg white -fg blue -e "source /root/catkin_ws/devel/setup.bash && env ROS_NAMESPACE=/scanbot rosrun scanbot_hwiface scanbot_hwiface $$(find /dev/ -name 'ttyUSB*' 2>/dev/null | head -n1) /scanbot/scan scanbot_tower 1.5"
 
 networks:
   default:
