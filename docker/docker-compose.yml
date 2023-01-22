@@ -100,7 +100,6 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
     command: xterm -fa Monospace -fs 10 -bg black -fg orange -e "rosrun joy joy_node _autorepeat_rate:=10"
-   #command: bash -c "rosrun joy joy_node _autorepeat_rate:=10"
 
   gamepad_conv:
     privileged: true
@@ -115,7 +114,6 @@ services:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
     command: xterm -fa Monospace -fs 10 -bg black -fg purple -e "rosrun teleop_twist_joy teleop_node cmd_vel:=/scanbot/scanbot_base_controller/cmd_vel _axis_linear:=1 _axis_angular:=3 _scale_linear:=0.1 _scale_angular:=1.5 _enable_button:=5 _enable_turbo_button:=4 _scale_linear_turbo:=0.5 _scale_angular_turbo:=7.5"
-   #command: bash -c "rosrun teleop_twist_joy teleop_node cmd_vel:=/scanbot/scanbot_base_controller/cmd_vel _axis_linear:=1 _axis_angular:=3 _scale_linear:=-0.1 _scale_angular:=0.2 _enable_button:=5 _enable_turbo_button:=4 _scale_linear_turbo:=-1 _scale_angular_turbo:=2"
 
   scanbot_hwiface:
     privileged: true
@@ -129,8 +127,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
-    command: xterm -fa Monospace -fs 10 -bg white -fg blue -e "source /root/catkin_ws/devel/setup.bash && env ROS_NAMESPACE=/scanbot rosrun scanbot_hwiface scanbot_hwiface /dev/ttyUSB0 /scanbot/scan"
-   #command: bash -c "rosrun scanbot_hwiface scanbot_hwiface /dev/ttyUSB0"
+    command: xterm -fa Monospace -fs 10 -bg white -fg blue -e "source /root/catkin_ws/devel/setup.bash && env ROS_NAMESPACE=/scanbot rosrun scanbot_hwiface scanbot_hwiface $$(find /dev/ -name 'ttyUSB*' 2>/dev/null | head -n1) /scanbot/scan scanbot_tower 5"
 
 networks:
   default:
