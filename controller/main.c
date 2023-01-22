@@ -250,6 +250,12 @@ main(int argc, char *argv[])
                         send_cmd();
                         recv_cmd();
                     }
+                    if (e.cbutton.button == SDL_CONTROLLER_BUTTON_DPAD_DOWN) {
+                        serial_flush();
+                        sprintf(g_send_buf, "PG#\n");
+                        send_cmd();
+                        recv_cmd();
+                    }
                     break;
             }
         }
