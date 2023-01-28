@@ -55,13 +55,11 @@ cmd_bump_watchdog(command_t *cmd)
 }
 
 void
-cmd_wakeup_watchdog(command_t *cmd)
+cmd_wakeup_watchdog(command_t cmd)
 {
-    if (cmd == NULL) return;
-
-    switch (cmd->type) {
+    switch (cmd.type) {
         case PING:
-            if (assert_argc(1 + 0, *cmd) == false) break;
+            if (assert_argc(1 + 0, cmd) == false) break;
             command.respond(true);
             ping_watchdog = millis();
             break;
@@ -204,7 +202,7 @@ loop()
         display.beep(50,4);
         while (watchdog_active() == true) {
             command_t cmd = command.get_command();
-            cmd_wakeup_watchdog(&cmd);
+            cmd_wakeup_watchdog(cmd);
         }
     }
 }
