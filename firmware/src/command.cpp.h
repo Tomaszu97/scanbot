@@ -76,7 +76,7 @@ Command::respond(bool is_ok) {
     if (is_ok == true)
         Serial2.println("OK#");
     else
-        Serial2.println("CMD_ERR#");
+        Serial2.println("ERR#");
 }
 
 command_t

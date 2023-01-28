@@ -11,10 +11,15 @@ private:
     unsigned int last_msg_idx = 0;
 public:
     void init();
-    void beep(const unsigned int time_ms, const unsigned int count, const unsigned int interval = 100);
-    void dbg_beep(const unsigned int time_ms, const unsigned int count, const unsigned int interval = 100);
+    void beep(const unsigned int time_ms = 100,
+              const unsigned int count = 1,
+              const unsigned int interval = 100);
+    void dbg_beep(const unsigned int time_ms= 100,
+                  const unsigned int count = 1,
+                  const unsigned int interval = 100);
     void print(const char *str);
     void dbg_print(const char *str);
+    void panic(const char *str);
     void clear();
 };
 
@@ -27,10 +32,6 @@ Display::init()
     digitalWrite(BUZZER_PIN, LOW);
 
     u8x8.begin();
-
-    /* thin font */
-    //u8x8.setFont(u8x8_font_chroma48medium8_r);
-    /* bold font */
     u8x8.setFont(u8x8_font_pxplusibmcga_f);
 
     beep(30, 3);
@@ -88,6 +89,15 @@ Display::dbg_print(const char *str)
     print(str);
     beep(5,1,0);
 #endif
+}
+
+void
+Display::panic(const char *str)
+{
+    print(str);
+    while (true) {
+        beep();
+    }
 }
 
 void

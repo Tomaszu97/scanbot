@@ -17,7 +17,7 @@ assert_argc(const unsigned int argc,
     if (command.argc == argc) return true;
 
     if(command.argc > 0) {
-        display.dbg_print("E:incorrect argc ");
+        display.dbg_print("E:incorrect argc");
     }
     else {
         display.dbg_print("E:no arguments");
@@ -30,28 +30,6 @@ reset_platform()
 {
     IWatchdog.begin(10000);
     while (true);
-}
-
-void
-cmd_bump_watchdog(command_t *cmd)
-{
-    if (cmd == NULL) return;
-
-    switch (cmd->type) {
-        case PING:
-        case DRIVE:
-        case DRIVE_RAW:
-        case KILL:
-        case PRINT:
-        case CLEAR:
-        case BEEP:
-        case GET_TIME:
-        case SCAN_START:
-        case SCAN_STOP:
-        case GET_SCAN:
-            ping_watchdog = millis();
-            break;
-    }
 }
 
 void
@@ -74,23 +52,40 @@ watchdog_active()
 }
 
 void
-setup()
+cmd_work_watchdog(command_t cmd)
 {
-    SystemClock_Config();
-    scan.init();
-    drive.init();
-    display.init();
-    command.init();
+    switch (cmd.type) {
+        case PING:
+        case DRIVE:
+        case DRIVE_RAW:
+        case KILL:
+        case PRINT:
+        case CLEAR:
+        case BEEP:
+        case GET_TIME:
+        case SCAN_START:
+        case SCAN_STOP:
+        case GET_SCAN:
+            ping_watchdog = millis();
+            break;
+    }
 
-    ping_watchdog = millis();
+    if (watchdog_active() == true) {
+        drive.detach();
+        scan.stop();
+        /* FIXME display prints can cause program to hang - investigate u8x8 and display hardware */
+        //display.dbg_print("E:ping tmout");
+        display.beep(50,4);
+        while (watchdog_active() == true) {
+            command_t cmd = command.get_command();
+            cmd_wakeup_watchdog(cmd);
+        }
+    }
 }
 
 void
-loop()
+cmd_handle(command_t cmd)
 {
-    command_t cmd = command.get_command();
-    cmd_bump_watchdog(&cmd);
-
     switch (cmd.type) {
         case PING:
             if (assert_argc(1 + 0, cmd) == false) break;
@@ -162,10 +157,11 @@ loop()
             break;
 
         case GET_SCAN:
+            {
             if (assert_argc(1 + 0, cmd) == false) break;
 
-            static int16_t *scan_array = scan.scan_buf;
-            static bool *scan_array_updated = scan.scan_buf_updated;
+            uint16_t *scan_array = scan.scan_buf;
+            bool *scan_array_updated = scan.scan_buf_updated;
 
             for (int i = 0; i < SCAN_BUF_LEN; i++) {
                 if (scan_array_updated[i] == true) {
@@ -176,6 +172,7 @@ loop()
             }
             command.println(CMD_TERMINATOR);
             break;
+            }
 
         case RESET_PLATFORM:
             reset_platform();
@@ -191,18 +188,25 @@ loop()
             command.respond(false);
             break;
     }
+}
 
+void
+setup()
+{
+    SystemClock_Config();
+    display.init();
+    if (scan.init() == false) display.panic("E:scan init");
+    drive.init();
+    command.init();
+
+    ping_watchdog = millis();
+}
+
+void
+loop()
+{
+    command_t cmd = command.get_command();
+    cmd_work_watchdog(cmd);
+    cmd_handle(cmd);
     scan.work();
-
-    if (watchdog_active() == true) {
-        drive.detach();
-        scan.stop();
-        /* FIXME display prints can cause program to hang - investigate u8x8 and display hardware */
-        display.dbg_print("E:ping tmout");
-        display.beep(50,4);
-        while (watchdog_active() == true) {
-            command_t cmd = command.get_command();
-            cmd_wakeup_watchdog(cmd);
-        }
-    }
 }

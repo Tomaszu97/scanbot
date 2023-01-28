@@ -9,36 +9,75 @@ TwoWire Wire2 = TwoWire(SDA2, SCL2);
 class Scan
 {
 private:
-    bool working = false;
-    Servo tower_servo;
+    bool lidar_init();
+    void servo_init();
     void attach();
     void detach();
     void set_tower();
     bool throttle();
     void step_tower();
+    void set_reg_u8(uint8_t reg, uint8_t val);
+    void set_reg_u16(uint8_t reg_low, uint16_t val);
+    uint8_t get_reg_u8(uint8_t reg);
+    uint16_t get_reg_u16(uint8_t reg_low);
+    bool working = false;
+    Servo tower_servo;
     int pos;
     bool dir_inc;
 
 public:
-    void init();
+    bool init();
     void start();
     void stop();
     void work();
-    int16_t scan_buf[SCAN_BUF_LEN];
+    uint16_t scan_buf[SCAN_BUF_LEN];
     bool scan_buf_updated[SCAN_BUF_LEN];
 };
 
 Scan scan;
 
-void
+bool
 Scan::init()
 {
-    Wire2.begin();
-    memset(scan_buf, -1, sizeof(scan_buf));
-    attach();
+    if (lidar_init() == false) return false;
+    servo_init();
+    return true;
+}
+
+void
+Scan::servo_init()
+{
     pos = (SCAN_BUF_LEN/2);
     dir_inc = true;
     set_tower();
+    attach();
+}
+
+bool
+Scan::lidar_init()
+{
+    Wire2.begin();
+    memset(scan_buf, LIDAR_CONST_DUMMY_DIST, sizeof(scan_buf));
+
+    /* set invalid measurement value */
+    set_reg_u16(LIDAR_REG_DUMMY_DIST_LOW, LIDAR_CONST_DUMMY_DIST);
+    if (get_reg_u16(LIDAR_REG_DUMMY_DIST_LOW) != LIDAR_CONST_DUMMY_DIST) return false;
+
+    /* set valid distance range */
+    set_reg_u16(LIDAR_REG_MIN_DIST_LOW, LIDAR_CONST_MIN_DIST * 10);
+    if (get_reg_u16(LIDAR_REG_MIN_DIST_LOW) != LIDAR_CONST_MIN_DIST * 10) return false;
+    set_reg_u16(LIDAR_REG_MAX_DIST_LOW, LIDAR_CONST_MAX_DIST * 10);
+    if (get_reg_u16(LIDAR_REG_MAX_DIST_LOW) != LIDAR_CONST_MAX_DIST * 10) return false;
+
+    /* set valid amp (signal strength) range */
+    set_reg_u16(LIDAR_REG_AMP_THR_LOW, LIDAR_CONST_MIN_AMP);
+    if (get_reg_u16(LIDAR_REG_AMP_THR_LOW) != LIDAR_CONST_MIN_AMP) return false;
+
+    /* set trigger mode */
+    set_reg_u8(LIDAR_REG_MODE, LIDAR_REG_MODE_VAL_TRIG);
+    if (get_reg_u8(LIDAR_REG_MODE) != LIDAR_REG_MODE_VAL_TRIG) return false;
+
+    return true;
 }
 
 void
@@ -62,7 +101,6 @@ Scan::set_tower()
     int out[] = {0, TOWER_SERVO_MIDDLE, 180};
     int new_pos = multi_map(pos, in, out, ARRAY_SIZE(in));
     tower_servo.write(new_pos);
-    /* TODO add delay / timer / a way to read position (best) */
 }
 
 void
@@ -82,9 +120,7 @@ Scan::stop()
 bool
 Scan::throttle()
 {
-    /* skip if work called too fast - let servo stabilize */
     static unsigned long last_millis = millis();
-
     const unsigned long delta_ms = millis() - last_millis;
 
     const bool pos_extreme = (pos == 0) || (pos == (SCAN_BUF_LEN - 1));
@@ -98,7 +134,7 @@ Scan::throttle()
 void
 Scan::step_tower()
 {
-    /* traverse left and right */
+    /* sweep back and forth */
     if (dir_inc == true) {
         pos++;
         if (pos >= (SCAN_BUF_LEN-1)) dir_inc = false;
@@ -111,27 +147,83 @@ Scan::step_tower()
 }
 
 void
+Scan::set_reg_u8(uint8_t reg,
+                 uint8_t val)
+{
+    Wire2.beginTransmission(LIDAR_I2C_ADDRESS);
+    Wire2.write(reg);
+    Wire2.write(val);
+    Wire2.endTransmission();
+}
+
+void
+Scan::set_reg_u16(uint8_t reg_low,
+                  uint16_t val)
+{
+    const uint8_t low = val & 0x00ff;
+    const uint8_t high = ((val & 0xff00) >> 8);
+    Wire2.beginTransmission(LIDAR_I2C_ADDRESS);
+    Wire2.write(reg_low);
+    Wire2.write(low);
+    Wire2.write(high);
+    Wire2.endTransmission();
+}
+
+uint8_t
+Scan::get_reg_u8(uint8_t reg)
+{
+    uint8_t ret_val;
+    const uint8_t req_byte_count = 1;
+    Wire2.beginTransmission(LIDAR_I2C_ADDRESS);
+    Wire2.write(reg);
+    Wire2.endTransmission();
+    Wire2.requestFrom(LIDAR_I2C_ADDRESS, req_byte_count);
+    ret_val = Wire2.read();
+    Wire2.endTransmission();
+    return ret_val;
+}
+
+uint16_t
+Scan::get_reg_u16(uint8_t reg_low)
+{
+    uint16_t ret_val = 0x0000;
+    const uint8_t req_byte_count = 2;
+    Wire2.beginTransmission(LIDAR_I2C_ADDRESS);
+    Wire2.write(reg_low);
+    Wire2.endTransmission();
+    Wire2.requestFrom(LIDAR_I2C_ADDRESS, req_byte_count);
+    ret_val = Wire2.read();
+    ret_val |= Wire2.read() << 8;
+    Wire2.endTransmission();
+    return ret_val;
+}
+
+void
 Scan::work()
 {
     if (working == false) return;
     if (throttle() == true) return;
 
     /* read distance */
-    int16_t distance = -1;
-    Wire2.beginTransmission(0x10);
-    Wire2.write(0x00);
-    Wire2.endTransmission();
-    Wire2.requestFrom(0x10, 0x02);
-    distance = Wire2.read();
-    distance |= Wire2.read() << 8;
-    Wire2.endTransmission();
+    set_reg_u8(LIDAR_REG_TRIG_ONE_SHOT,
+               LIDAR_REG_TRIG_ONE_SHOT_VAL_TRIG_ONCE);
+    delayMicroseconds(LIDAR_CONST_DELAY_AFTER_TRIG_US);
+    uint16_t distance = get_reg_u16(LIDAR_REG_DIST_LOW);
+
+    /* constrain value */
+    /* LIDAR will report dummy value in case of weak
+     * signal, however when hitting range boundary it
+     * returns mininum / maximum value. Code below
+     * ensures returning dummy value instead.
+     */
+    if (distance <= LIDAR_CONST_MIN_DIST ||
+        distance >= LIDAR_CONST_MAX_DIST) {
+        distance = LIDAR_CONST_DUMMY_DIST;
+    }
 
     /* update value */
-    if (dir_inc == true) {
-        scan_buf[pos] = distance;
-        scan_buf_updated[pos] = true;
-    }
+    scan_buf[pos] = distance;
+    scan_buf_updated[pos] = true;
 
     step_tower();
 }
-
