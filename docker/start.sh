@@ -40,6 +40,7 @@ else
     echo "specify container collection to run, available:"
     echo "  gb - gazebo"
     echo "  hw - hardware"
+    echo "  rp - replay rosbag"
     echo "example: ./start.sh gb"
     exit 1
 fi
