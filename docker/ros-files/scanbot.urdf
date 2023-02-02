@@ -188,13 +188,13 @@
         </scan>
         <range>
           <min>0.2</min>
-          <max>8</max>
+          <max>2.5</max>
           <resolution>0.06</resolution>
         </range>
         <noise>
           <type>gaussian</type>
           <mean>0.0</mean>
-          <stddev>0.03</stddev>
+          <stddev>0.06</stddev>
         </noise>
       </ray>
 

@@ -10,10 +10,11 @@
 #include <sstream>
 
 #define ENCODER_PPR 20
-#define SCAN_ARRAY_SIZE 60
-#define LASER_DEG_STEP 3
+#define SCAN_ARRAY_SIZE 180
+#define LASER_DEG_STEP 1
 #define LASER_RANGE_MIN_M 0.2
-#define LASER_RANGE_MAX_M 8.0
+#define LASER_RANGE_MAX_M 2.5
+#define LASER_DUMMY_VAL 0
 
 #define CMD_DELIMITER ":"
 #define CMD_PARAM_SEPARATOR_DELIMITER ","
@@ -134,7 +135,7 @@ public:
             token.erase(remove(token.begin(), token.end(), '\t'), token.end());
             token.erase(remove(token.begin(), token.end(), ' '), token.end());
             if (token.length() == 0) {
-                scan_array[i] = 0;
+                scan_array[i] = LASER_DUMMY_VAL;
             }
             else {
                 scan_array[i] = std::stoi(token);

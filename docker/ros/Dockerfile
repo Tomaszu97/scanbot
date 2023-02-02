@@ -17,6 +17,9 @@ RUN apt update && apt -y install ros-${ROS_DISTRO}-gazebo-ros-pkgs
 RUN apt update && apt -y install ros-${ROS_DISTRO}-joy
 RUN apt update && apt -y install ros-${ROS_DISTRO}-joy-teleop
 RUN apt update && apt -y install ros-${ROS_DISTRO}-teleop-twist-joy
+RUN apt update && apt -y install ros-${ROS_DISTRO}-hector-slam
+RUN apt update && apt -y install dvtm
+RUN apt update && apt -y install vim
 
 WORKDIR /root
 COPY catkin_ws catkin_ws
