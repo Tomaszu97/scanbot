@@ -10,26 +10,27 @@ class Scan
 {
 private:
     bool lidar_init();
+    void lidar_trigger();
+    void lidar_update(unsigned int curr_pos);
     void servo_init();
-    void attach();
-    void detach();
-    void set_tower();
+    unsigned int servo_next_pos(unsigned int curr_pos);
     bool throttle();
-    void step_tower();
     void set_reg_u8(uint8_t reg, uint8_t val);
     void set_reg_u16(uint8_t reg_low, uint16_t val);
     uint8_t get_reg_u8(uint8_t reg);
     uint16_t get_reg_u16(uint8_t reg_low);
-    bool working = false;
     Servo tower_servo;
-    int pos;
-    bool dir_inc;
+    bool working = false;
+    unsigned int pos;
 
 public:
     bool init();
     void start();
     void stop();
     void work();
+    void servo_attach();
+    void servo_detach();
+    void servo_set(unsigned int position);
     uint16_t scan_buf[SCAN_BUF_LEN];
     bool scan_buf_updated[SCAN_BUF_LEN];
 };
@@ -48,9 +49,8 @@ void
 Scan::servo_init()
 {
     pos = (SCAN_BUF_LEN/2);
-    dir_inc = true;
-    set_tower();
-    attach();
+    servo_set(pos);
+    servo_attach();
 }
 
 bool
@@ -81,7 +81,7 @@ Scan::lidar_init()
 }
 
 void
-Scan::attach()
+Scan::servo_attach()
 {
     if (tower_servo.attached() == false) {
         tower_servo.attach(TOWER_SERVO_PIN, TOWER_SERVO_US_MIN, TOWER_SERVO_US_MAX);
@@ -89,31 +89,31 @@ Scan::attach()
 }
 
 void
-Scan::detach()
+Scan::servo_detach()
 {
     tower_servo.detach();
 }
 
 void
-Scan::set_tower()
+Scan::servo_set(unsigned int position)
 {
     int in[] = {0, (SCAN_BUF_LEN/2), SCAN_BUF_LEN};
     int out[] = {0, TOWER_SERVO_MIDDLE, 180};
-    int new_pos = multi_map(pos, in, out, ARRAY_SIZE(in));
-    tower_servo.write(new_pos);
+    int raw_pos = multi_map(position, in, out, ARRAY_SIZE(in));
+    tower_servo.write(raw_pos);
 }
 
 void
 Scan::start()
 {
-    attach();
+    servo_attach();
     working = true;
 }
 
 void
 Scan::stop()
 {
-    detach();
+    servo_detach();
     working = false;
 }
 
@@ -124,26 +124,25 @@ Scan::throttle()
     const unsigned long delta_ms = millis() - last_millis;
 
     const bool pos_extreme = (pos == 0) || (pos == (SCAN_BUF_LEN - 1));
-    if (pos_extreme == true && delta_ms < MIN_INTERSCAN_INTERVAL_MS) return true;
-    if (pos_extreme == false && delta_ms < MIN_SCAN_INTERVAL_MS) return true;
+    if (pos_extreme == true && delta_ms < *SCAN_INTERSCAN_INTERVAL_MS) return true;
+    if (pos_extreme == false && delta_ms < *SCAN_INTERVAL_MS) return true;
 
     last_millis = millis();
     return false;
 }
 
-void
-Scan::step_tower()
+unsigned int
+Scan::servo_next_pos(unsigned int curr_pos)
 {
-    /* sweep back and forth */
-    if (dir_inc == true) {
-        pos++;
-        if (pos >= (SCAN_BUF_LEN-1)) dir_inc = false;
-    }
-    else {
-        pos--;
-        if (pos <= 0) dir_inc = true;
-    }
-    set_tower();
+    static bool dir_inc = true;
+    unsigned int next_pos;
+
+    if (dir_inc == true) next_pos = curr_pos + 1;
+    else next_pos = curr_pos - 1;
+    if (curr_pos == (SCAN_BUF_LEN-1)) dir_inc = false;
+    else if (curr_pos == 0) dir_inc = true;
+
+    return next_pos;
 }
 
 void
@@ -199,31 +198,45 @@ Scan::get_reg_u16(uint8_t reg_low)
 }
 
 void
+Scan::lidar_trigger()
+{
+    set_reg_u8(LIDAR_REG_TRIG_ONE_SHOT,
+               LIDAR_REG_TRIG_ONE_SHOT_VAL_TRIG_ONCE);
+}
+
+void
+Scan::lidar_update(unsigned int curr_pos)
+{
+    uint16_t distance = get_reg_u16(LIDAR_REG_DIST_LOW);
+    if (distance <= LIDAR_CONST_MIN_DIST ||
+        distance >= LIDAR_CONST_MAX_DIST) {
+        distance = LIDAR_CONST_DUMMY_DIST;
+    }
+    scan_buf[curr_pos] = distance;
+    scan_buf_updated[curr_pos] = true;
+}
+
+void
 Scan::work()
 {
     if (working == false) return;
     if (throttle() == true) return;
 
-    /* read distance */
-    set_reg_u8(LIDAR_REG_TRIG_ONE_SHOT,
-               LIDAR_REG_TRIG_ONE_SHOT_VAL_TRIG_ONCE);
-    delayMicroseconds(LIDAR_CONST_DELAY_AFTER_TRIG_US);
-    uint16_t distance = get_reg_u16(LIDAR_REG_DIST_LOW);
+    unsigned int next_pos = servo_next_pos(pos);
+    servo_set(next_pos);
 
-    /* constrain value */
-    /* LIDAR will report dummy value in case of weak
-     * signal, however when hitting range boundary it
-     * returns mininum / maximum value. Code below
-     * ensures returning dummy value instead.
-     */
-    if (distance <= LIDAR_CONST_MIN_DIST ||
-        distance >= LIDAR_CONST_MAX_DIST) {
-        distance = LIDAR_CONST_DUMMY_DIST;
+    lidar_trigger();
+    delayMicroseconds(LIDAR_CONST_AFTER_TRIG_DELAY_US);
+    if (next_pos > pos) {
+        lidar_update(pos);
+    }
+    else {
+        /* compensate for mechanical movement in another direction */
+        const unsigned int pos_w_compensation = pos + *SCAN_DIRECTION_COMPENSATION;
+        if (pos_w_compensation >=0 &&
+            pos_w_compensation <= (SCAN_BUF_LEN - 1))
+            lidar_update(pos_w_compensation);
     }
 
-    /* update value */
-    scan_buf[pos] = distance;
-    scan_buf_updated[pos] = true;
-
-    step_tower();
+    pos = next_pos;
 }

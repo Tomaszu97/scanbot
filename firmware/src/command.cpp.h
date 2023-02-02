@@ -16,6 +16,8 @@ typedef enum {
     SCAN_START,
     SCAN_STOP,
     GET_SCAN,
+    SET_TOWER,
+    SET_PARAM,
     RESET_PLATFORM
 } command_type_t;
 
@@ -38,7 +40,7 @@ public:
 private:
     char cmd_buf[CMD_BUF_SIZE];
     command_type_t parse_command_type(const char *command);
-    static const unsigned int command_type_strings_len = 13;
+    static const unsigned int command_type_strings_len = 15;
     char command_type_strings[command_type_strings_len][32] = {
         "NO_COMMAND",
         "PG", /*PING*/
@@ -52,6 +54,8 @@ private:
         "SC", /*SCAN START*/
         "SS", /*SCAN STOP*/
         "GS", /*GET SCAN*/
+        "ST", /*SET TOWER*/
+        "SP", /*SET PARAM*/
         "RS", /*RESET PLATFORM*/
     };
 };

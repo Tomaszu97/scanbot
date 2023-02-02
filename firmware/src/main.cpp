@@ -66,6 +66,8 @@ cmd_work_watchdog(command_t cmd)
         case SCAN_START:
         case SCAN_STOP:
         case GET_SCAN:
+        case SET_TOWER:
+        case SET_PARAM:
             ping_watchdog = millis();
             break;
     }
@@ -158,26 +160,44 @@ cmd_handle(command_t cmd)
 
         case GET_SCAN:
             {
-            if (assert_argc(1 + 0, cmd) == false) break;
+                if (assert_argc(1 + 0, cmd) == false) break;
 
-            uint16_t *scan_array = scan.scan_buf;
-            bool *scan_array_updated = scan.scan_buf_updated;
+                uint16_t *scan_array = scan.scan_buf;
+                bool *scan_array_updated = scan.scan_buf_updated;
 
-            for (int i = 0; i < SCAN_BUF_LEN; i++) {
-                if (scan_array_updated[i] == true) {
-                    command.print(scan_array[i], DEC);
-                    scan_array_updated[i] = false;
+                for (int i = 0; i < SCAN_BUF_LEN; i++) {
+                    if (scan_array_updated[i] == true) {
+                        command.print(scan_array[i], DEC);
+                        scan_array_updated[i] = false;
+                    }
+                    if (i != SCAN_BUF_LEN - 1) command.print(",");
                 }
-                if (i != SCAN_BUF_LEN - 1) command.print(",");
-            }
-            command.println(CMD_TERMINATOR);
-            break;
+                command.println(CMD_TERMINATOR);
+                break;
             }
 
         case RESET_PLATFORM:
             reset_platform();
             /* no response */
             break;
+
+        case SET_TOWER:
+            if (assert_argc(1 + 1, cmd) == false) break;
+            scan.servo_attach();
+            scan.servo_set(atoi(cmd.argv[1]));
+            /* no response */
+            break;
+
+        case SET_PARAM:
+            {
+                if (assert_argc(1 + 2, cmd) == false) break;
+                const int param_no = atoi(cmd.argv[1]);
+                const int val = atoi(cmd.argv[2]);
+                if (param_no >= sizeof(var_params)) break;
+                var_params[param_no] = val;
+                /* no response */
+                break;
+            }
 
         case NO_COMMAND:
             /* display.dbg_print("I:no_command"); */ /* too noisy */

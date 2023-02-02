@@ -1,6 +1,7 @@
 #ifndef CONFIG_H
 #define CONFIG_H
 
+/* constant parameters */
 #define TOWER_SERVO_PIN PB6
 #define LEFT_SERVO_PIN PB7
 #define RIGHT_SERVO_PIN PB8
@@ -18,7 +19,6 @@
 #define BLUETOOTH_SERIAL_TX PA2
 #define SDA2 PB11
 #define SCL2 PB10
-
 #define LIDAR_I2C_ADDRESS 0x10
 #define LIDAR_REG_DIST_LOW 0x00
 #define LIDAR_REG_DIST_HIGH 0x01
@@ -39,15 +39,11 @@
 #define LIDAR_CONST_DUMMY_DIST 0
 #define LIDAR_CONST_MIN_DIST 19
 #define LIDAR_CONST_MAX_DIST 251
-#define LIDAR_CONST_DELAY_AFTER_TRIG_US 2500
-
+#define LIDAR_CONST_AFTER_TRIG_DELAY_US 100
 #define TOWER_SERVO_US_MIN 500
 #define TOWER_SERVO_US_MAX 2333
 #define TOWER_SERVO_MIDDLE 90
-#define SCAN_BUF_LEN 60
-#define MIN_SCAN_INTERVAL_MS 8
-#define MIN_INTERSCAN_INTERVAL_MS 150
-
+#define SCAN_BUF_LEN 180
 #define DRIVE_SERVO_US_MIN 544
 #define DRIVE_SERVO_US_MAX 2400
 #define DRIVE_SERVO_IN_DEADZONE 119
@@ -59,10 +55,8 @@
 #define MAX_SPEED 390
 #define MIN_TURN -390
 #define MAX_TURN 390
-
 #define DEBUG_SERIAL_BAUD 115200
 #define COMMAND_SERIAL_BAUD 38400
-
 #define DISPLAY_PRINT_BUF_SIZE 128
 #define OLED_CHAR_WIDTH 16
 #define OLED_CHAR_HEIGHT 8
@@ -71,8 +65,16 @@
 #define CMD_DELIMITER ":"
 #define CMD_PARAM_SEPARATOR_DELIMITER ","
 #define CMD_TERMINATOR '#'
-
 #define PING_TIMEOUT_MS 35000
 //#define DEBUG
+
+/* variable parameters */
+int var_params[64] = {
+    20,
+    5,
+    50};
+int *SCAN_DIRECTION_COMPENSATION = &var_params[0];
+int *SCAN_INTERVAL_MS = &var_params[1];
+int *SCAN_INTERSCAN_INTERVAL_MS = &var_params[2];
 
 #endif /* CONFIG_H */
