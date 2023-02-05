@@ -1,86 +1,33 @@
 #include <Arduino.h>
 #include <string.h>
 #include "config.h"
-#include "util.cpp.h"
-
-typedef enum {
-    NO_COMMAND,
-    PING,
-    DRIVE,
-    DRIVE_RAW,
-    KILL,
-    PRINT,
-    CLEAR,
-    BEEP,
-    GET_TIME,
-    SCAN_START,
-    SCAN_STOP,
-    GET_SCAN,
-    SET_TOWER,
-    SET_PARAM,
-    RESET_PLATFORM
-} command_type_t;
-
-typedef struct {
-    command_type_t type;
-    unsigned int argc;
-    char *argv[CMD_MAX_ARG_N];
-} command_t;
+#include "util.h"
+#include "display.h"
+#include "command.h"
 
 HardwareSerial Serial2(BLUETOOTH_SERIAL_RX, BLUETOOTH_SERIAL_TX);
 
-class Command : public Print
+Command *Command::command_;
+
+Command *
+Command::get_instance()
 {
-public:
-    void init();
-    virtual size_t write(uint8_t c);
-    command_t get_command();
-    void respond(bool is_ok);
+    if (Command::command_ == nullptr)
+        Command::command_ = new Command();
+    return Command::command_;
+}
 
-private:
-    char cmd_buf[CMD_BUF_SIZE];
-    command_type_t parse_command_type(const char *command);
-    static const unsigned int command_type_strings_len = 15;
-    char command_type_strings[command_type_strings_len][32] = {
-        "NO_COMMAND",
-        "PG", /*PING*/
-        "DV", /*DRIVE*/
-        "DR", /*DRIVE RAW*/
-        "KL", /*KILL*/
-        "PR", /*PRINT*/
-        "CL", /*CLEAR*/
-        "BE", /*BEEP*/
-        "GT", /*GET_TIME*/
-        "SC", /*SCAN START*/
-        "SS", /*SCAN STOP*/
-        "GS", /*GET SCAN*/
-        "ST", /*SET TOWER*/
-        "SP", /*SET PARAM*/
-        "RS", /*RESET PLATFORM*/
-    };
-};
-
-Command command;
-
-void
-Command::init()
+Command::Command()
 {
+    display = Display::get_instance();
     Serial2.begin(COMMAND_SERIAL_BAUD);
-    respond(true);
+    display->print("command init ok");
 }
 
 size_t
 Command::write(uint8_t c)
 {
     return Serial2.write(c);
-}
-
-void
-Command::respond(bool is_ok) {
-    if (is_ok == true)
-        Serial2.println("OK#");
-    else
-        Serial2.println("ERR#");
 }
 
 command_t
@@ -105,7 +52,7 @@ Command::get_command()
     int rlen = Serial2.readBytesUntil(CMD_TERMINATOR, cmd_buf, CMD_BUF_SIZE-1);
     cmd_buf[rlen] = '\0';
     if (rlen == 0) {
-        display.dbg_print("E:len=0 or tmout");
+        display->print("E:len=0 or tmout", true);
         command.type = NO_COMMAND;
         return command;
     }
@@ -131,7 +78,7 @@ Command::get_command()
         command.argc++;
 
         if (command.argc >= CMD_MAX_ARG_N) {
-            display.dbg_print("E:>max arg number");
+            display->print("E:>max arg number", true);
             command.type = NO_COMMAND;
             return command;
         }
@@ -140,7 +87,7 @@ Command::get_command()
     }
 
     if (command.argc == 0) {
-        display.dbg_print("E:bad cmd or args");
+        display->print("E:bad cmd or args", true);
         command.type = NO_COMMAND;
         return command;
     }
@@ -148,7 +95,7 @@ Command::get_command()
     command.type = parse_command_type(command.argv[0]);
 
     if (command.type == NO_COMMAND) {
-        display.dbg_print("E:unknown cmd");
+        display->print("E:unknown cmd", true);
     }
 
     return command;
@@ -162,13 +109,28 @@ Command::parse_command_type(const char *command_type_str)
             command_type_str,
             (OLED_CHAR_WIDTH+1)-strlen(msgbuf));
     msgbuf[OLED_CHAR_WIDTH] = '\0';
-    display.dbg_print(msgbuf);
+    display->print(msgbuf, true);
 
-    for (unsigned int i=1; i<command_type_strings_len; i++)
-    {
+    for (unsigned int i = 1; i < COMMANDS_COUNT; i++) {
         /* shortcut method mapping int to enum */
         if (strcmp(command_type_str, command_type_strings[i]) == 0)
             return (command_type_t)i;
     }
     return NO_COMMAND;
 }
+
+bool
+Command::assert_argc(const unsigned int argc,
+                     const command_t command)
+{
+    if (command.argc == argc) return true;
+
+    if(command.argc > 0) {
+        display->print("E:incorrect argc", true);
+    }
+    else {
+        display->print("E:no arguments", true);
+    }
+    return false;
+}
+

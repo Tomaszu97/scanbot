@@ -2,47 +2,27 @@
 #include <Servo.h>
 #include <Wire.h>
 #include "config.h"
-#include "util.cpp.h"
+#include "util.h"
+#include "scan.h"
 
 TwoWire Wire2 = TwoWire(SDA2, SCL2);
 
-class Scan
+Scan *Scan::scan_;
+
+Scan *
+Scan::get_instance()
 {
-private:
-    bool lidar_init();
-    void lidar_trigger();
-    void lidar_update(unsigned int curr_pos);
-    void servo_init();
-    unsigned int servo_next_pos(unsigned int curr_pos);
-    bool throttle();
-    void set_reg_u8(uint8_t reg, uint8_t val);
-    void set_reg_u16(uint8_t reg_low, uint16_t val);
-    uint8_t get_reg_u8(uint8_t reg);
-    uint16_t get_reg_u16(uint8_t reg_low);
-    Servo tower_servo;
-    bool working = false;
-    unsigned int pos;
+    if (Scan::scan_ == nullptr)
+        Scan::scan_ = new Scan();
+    return Scan::scan_;
+}
 
-public:
-    bool init();
-    void start();
-    void stop();
-    void work();
-    void servo_attach();
-    void servo_detach();
-    void servo_set(unsigned int position);
-    uint16_t scan_buf[SCAN_BUF_LEN];
-    bool scan_buf_updated[SCAN_BUF_LEN];
-};
-
-Scan scan;
-
-bool
-Scan::init()
+Scan::Scan()
 {
-    if (lidar_init() == false) return false;
+    display = Display::get_instance();
+    if (lidar_init() == false) display->panic("E:lidar fail");
     servo_init();
-    return true;
+    display->print("scan init ok");
 }
 
 void
@@ -124,8 +104,8 @@ Scan::throttle()
     const unsigned long delta_ms = millis() - last_millis;
 
     const bool pos_extreme = (pos == 0) || (pos == (SCAN_BUF_LEN - 1));
-    if (pos_extreme == true && delta_ms < *SCAN_INTERSCAN_INTERVAL_MS) return true;
-    if (pos_extreme == false && delta_ms < *SCAN_INTERVAL_MS) return true;
+    if (pos_extreme == true && delta_ms < SCAN_INTERSCAN_INTERVAL_MS) return true;
+    if (pos_extreme == false && delta_ms < SCAN_INTERVAL_MS) return true;
 
     last_millis = millis();
     return false;
@@ -232,7 +212,7 @@ Scan::work()
     }
     else {
         /* compensate for mechanical movement in another direction */
-        const unsigned int pos_w_compensation = pos + *SCAN_DIRECTION_COMPENSATION;
+        const unsigned int pos_w_compensation = pos + SCAN_DIRECTION_COMPENSATION;
         if (pos_w_compensation >=0 &&
             pos_w_compensation <= (SCAN_BUF_LEN - 1))
             lidar_update(pos_w_compensation);

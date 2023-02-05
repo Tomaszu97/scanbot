@@ -1,7 +1,13 @@
-#ifndef UTIL_H
-#define UTIL_H
+#include <Arduino.h>
+#include <IWatchdog.h>
+#include "util.h"
 
-#define ARRAY_SIZE(array) (sizeof(array) / sizeof(array[0]))
+void
+reset_platform()
+{
+    IWatchdog.begin(10000);
+    while (true);
+}
 
 void
 remove_char(char* str, char c)
@@ -146,4 +152,3 @@ extern "C" void SystemClock_Config(void)
     Error_Handler();
   }
 }
-#endif /* UTIL_H */

@@ -65,16 +65,11 @@
 #define CMD_DELIMITER ":"
 #define CMD_PARAM_SEPARATOR_DELIMITER ","
 #define CMD_TERMINATOR '#'
-#define PING_TIMEOUT_MS 35000
+#define PING_TIMEOUT_MS 5000
 //#define DEBUG
 
-/* variable parameters */
-int var_params[64] = {
-    20,
-    5,
-    50};
-int *SCAN_DIRECTION_COMPENSATION = &var_params[0];
-int *SCAN_INTERVAL_MS = &var_params[1];
-int *SCAN_INTERSCAN_INTERVAL_MS = &var_params[2];
+#define SCAN_DIRECTION_COMPENSATION 20
+#define SCAN_INTERVAL_MS 5
+#define SCAN_INTERSCAN_INTERVAL_MS 50
 
 #endif /* CONFIG_H */

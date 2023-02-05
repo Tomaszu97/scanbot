@@ -1,61 +1,38 @@
 #include <Arduino.h>
 #include <Servo.h>
 #include "config.h"
-#include "util.cpp.h"
-
-class Drive
-{
-private:
-    Servo left_servo;
-    Servo right_servo;
-    int left_encoder_counter;
-    int right_encoder_counter;
-    int speed;
-    int turn;
-
-public:
-    void init();
-    void attach();
-    void detach();
-    void set_speed(const int speed);
-    void set_turn(const int val);
-    void set_motors(int speed_left, int speed_right);
-    void update_motors();
-    int get_left_encoder_counter();
-    int get_right_encoder_counter();
-    void inc_left_encoder_counter();
-    void inc_right_encoder_counter();
-    void reset_encoder_counters();
-};
-
-Drive drive;
+#include "util.h"
+#include "display.h"
+#include "drive.h"
 
 void
 left_encoder_ISR()
 {
-    drive.inc_left_encoder_counter();
-    // RC filter only on pinA, thus not detecting direction here
-    // if (digitalRead(LEFT_ENCODER_PIN_B) == 0)
-    //     left_encoder_counter++;
-    // else
-    //     left_encoder_counter--;
+    Drive *d = Drive::get_instance();
+    d->inc_left_encoder_counter();
 }
 
 void
 right_encoder_ISR()
 {
-    drive.inc_right_encoder_counter();
-    // RC filter only on pinA, thus not detecting direction here
-    // if (digitalRead(RIGHT_ENCODER_PIN_B) == 0)
-    //     right_encoder_counter++;
-    // else
-    //     right_encoder_counter--;
+    Drive *d = Drive::get_instance();
+    d->inc_right_encoder_counter();
 }
 
+Drive *Drive::drive_;
 
-void
-Drive::init()
+Drive *
+Drive::get_instance()
 {
+    if (Drive::drive_ == nullptr)
+        Drive::drive_ = new Drive();
+    return Drive::drive_;
+}
+
+Drive::Drive()
+{
+    display = Display::get_instance();
+
     reset_encoder_counters();
     speed = 0;
     turn = 0;
@@ -67,6 +44,8 @@ Drive::init()
 
     attachInterrupt(digitalPinToInterrupt(LEFT_ENCODER_PIN_A), left_encoder_ISR, FALLING);
     attachInterrupt(digitalPinToInterrupt(RIGHT_ENCODER_PIN_A), right_encoder_ISR, FALLING);
+
+    display->print("drive init ok");
 }
 
 
