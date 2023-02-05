@@ -21,12 +21,15 @@ Command::Command()
 {
     display = Display::get_instance();
     Serial2.begin(COMMAND_SERIAL_BAUD);
+    initialized = true;
     display->print("command init ok");
 }
 
 size_t
 Command::write(uint8_t c)
 {
+    if (initialized == false) return 0;
+
     return Serial2.write(c);
 }
 
@@ -34,6 +37,7 @@ command_t
 Command::get_command()
 {
     command_t command = { .type = NO_COMMAND };
+    if (initialized == false) return command;
 
     /* check if command available */
     if (Serial2.available() == false) {
@@ -117,6 +121,13 @@ Command::parse_command_type(const char *command_type_str)
             return (command_type_t)i;
     }
     return NO_COMMAND;
+}
+
+const char *
+Command::get_command_str(command_type_t cmd)
+{
+    unsigned int idx = cmd;
+    return &command_type_strings[idx][0];
 }
 
 bool

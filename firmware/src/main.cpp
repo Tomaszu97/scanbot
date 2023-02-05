@@ -31,12 +31,6 @@ cmd_handle(command_t cmd)
             if (command->assert_argc(1 + 2, cmd) == false) break;
             drive->set_motors(atoi(cmd.argv[1]),
                               atoi(cmd.argv[2]));
-            //TODO async odometry
-            //command.print(drive.get_left_encoder_counter());
-            //command.print(CMD_PARAM_SEPARATOR_DELIMITER);
-            //command.print(drive.get_right_encoder_counter());
-            //command.println(CMD_TERMINATOR);
-            //drive->reset_encoder_counters();
             break;
 
         case KILL:
@@ -69,25 +63,6 @@ cmd_handle(command_t cmd)
             scan->stop();
             break;
 
-            //TODO async scan results
-//        case GET_SCAN:
-//            {
-//                if (assert_argc(1 + 0, cmd) == false) break;
-//
-//                uint16_t *scan_array = scan.scan_buf;
-//                bool *scan_array_updated = scan.scan_buf_updated;
-//
-//                for (int i = 0; i < SCAN_BUF_LEN; i++) {
-//                    if (scan_array_updated[i] == true) {
-//                        command.print(scan_array[i], DEC);
-//                        scan_array_updated[i] = false;
-//                    }
-//                    if (i != SCAN_BUF_LEN - 1) command.print(",");
-//                }
-//                command.println(CMD_TERMINATOR);
-//                break;
-//            }
-
         case RESET_PLATFORM:
             if (command->assert_argc(1 + 0, cmd) == false) break;
             reset_platform();
@@ -99,6 +74,9 @@ cmd_handle(command_t cmd)
             scan->servo_set(atoi(cmd.argv[1]));
             break;
 
+        /* commands meant to be a response */
+        case NOTIFY_ENCODER:
+        case NOTIFY_SCAN:
         case NO_COMMAND:
             break;
 

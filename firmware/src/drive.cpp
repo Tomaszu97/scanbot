@@ -4,6 +4,7 @@
 #include "util.h"
 #include "display.h"
 #include "drive.h"
+#include "command.h"
 
 void
 left_encoder_ISR()
@@ -32,6 +33,7 @@ Drive::get_instance()
 Drive::Drive()
 {
     display = Display::get_instance();
+    command = Command::get_instance();
 
     reset_encoder_counters();
     speed = 0;
@@ -95,6 +97,18 @@ Drive::detach()
 }
 
 void
+Drive::notify_encoder_state()
+{
+    command->print(command->get_command_str(NOTIFY_ENCODER));
+    command->print(CMD_DELIMITER);
+    command->print(get_left_encoder_counter());
+    command->print(CMD_PARAM_SEPARATOR_DELIMITER);
+    command->print(get_right_encoder_counter());
+    command->println(CMD_TERMINATOR);
+    reset_encoder_counters();
+}
+
+void
 Drive::set_motors(int speed_left,
                   int speed_right)
 {
@@ -124,6 +138,8 @@ Drive::set_motors(int speed_left,
 
         right_servo.write(new_speed_right);
     }
+
+    notify_encoder_state();
 }
 
 void

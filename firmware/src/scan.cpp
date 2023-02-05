@@ -3,6 +3,8 @@
 #include <Wire.h>
 #include "config.h"
 #include "util.h"
+#include "command.h"
+#include "display.h"
 #include "scan.h"
 
 TwoWire Wire2 = TwoWire(SDA2, SCL2);
@@ -20,8 +22,11 @@ Scan::get_instance()
 Scan::Scan()
 {
     display = Display::get_instance();
+    command = Command::get_instance();
+
     if (lidar_init() == false) display->panic("E:lidar fail");
     servo_init();
+
     display->print("scan init ok");
 }
 
@@ -185,6 +190,39 @@ Scan::lidar_trigger()
 }
 
 void
+Scan::notify_scan_state()
+{
+
+    command->print(command->get_command_str(NOTIFY_SCAN));
+    command->print(CMD_DELIMITER);
+
+    for (int i = 0; i < SCAN_BUF_LEN; i++) {
+
+        if (scan_buf_updated[i] == true) {
+            command->print(scan_buf[i], DEC);
+            scan_buf_updated[i] = false;
+        }
+
+        if (i != SCAN_BUF_LEN - 1) {
+            command->print(CMD_PARAM_SEPARATOR_DELIMITER);
+        }
+    }
+
+    command->println(CMD_TERMINATOR);
+}
+
+bool
+Scan::is_scan_full()
+{
+    for (int i = 0; i < SCAN_BUF_LEN; i++) {
+        if (scan_buf_updated[i] == false) {
+            return false;
+        }
+    }
+    return true;
+}
+
+void
 Scan::lidar_update(unsigned int curr_pos)
 {
     uint16_t distance = get_reg_u16(LIDAR_REG_DIST_LOW);
@@ -194,6 +232,9 @@ Scan::lidar_update(unsigned int curr_pos)
     }
     scan_buf[curr_pos] = distance;
     scan_buf_updated[curr_pos] = true;
+
+    if (is_scan_full() == true)
+        notify_scan_state();
 }
 
 void
@@ -211,7 +252,7 @@ Scan::work()
         lidar_update(pos);
     }
     else {
-        /* compensate for mechanical movement in another direction */
+        /* compensate */
         const unsigned int pos_w_compensation = pos + SCAN_DIRECTION_COMPENSATION;
         if (pos_w_compensation >=0 &&
             pos_w_compensation <= (SCAN_BUF_LEN - 1))

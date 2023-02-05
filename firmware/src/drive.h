@@ -5,13 +5,17 @@
 #include <Servo.h>
 #include "config.h"
 #include "util.h"
+#include "display.h"
+#include "command.h"
 
 class Drive
 {
 private:
     Drive();
+    void notify_encoder_state();
     static Drive *drive_;
     Display *display;
+    Command *command;
     Servo left_servo;
     Servo right_servo;
     int left_encoder_counter;

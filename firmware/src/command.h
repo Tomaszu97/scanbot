@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <string.h>
 #include "config.h"
+#include "display.h"
 #include "util.h"
 
 #define MAX_COMMAND_STR_LEN 32
@@ -20,7 +21,9 @@
   cmd_transform_fn( SCAN_START,      SC ) \
   cmd_transform_fn( SCAN_STOP,       SS ) \
   cmd_transform_fn( SET_TOWER,       ST ) \
-  cmd_transform_fn( RESET_PLATFORM,  RS )
+  cmd_transform_fn( RESET_PLATFORM,  RS ) \
+  cmd_transform_fn( NOTIFY_ENCODER,  NE ) \
+  cmd_transform_fn( NOTIFY_SCAN,     NS )
 
 #define COMMANDS_ENUM(cmd, abbrev) \
   cmd,
@@ -50,10 +53,12 @@ private:
     const char command_type_strings[COMMANDS_COUNT][MAX_COMMAND_STR_LEN + 1] = {
         COMMANDS(COMMANDS_STR)
     };
+    bool initialized = false;
 
 public:
     static Command *get_instance();
     command_t get_command();
+    const char *get_command_str(command_type_t cmd);
     bool assert_argc(const unsigned int argc,
                      const command_t command);
     virtual size_t write(uint8_t c);
