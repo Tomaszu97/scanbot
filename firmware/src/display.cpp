@@ -54,7 +54,7 @@ Display::beep(const unsigned int time_ms,
         digitalWrite(BUZZER_PIN, LOW);
 
         unsigned long tmout = millis() + interval;
-        while (millis() < tmout){}
+        while (millis() < tmout) {}
     }
 }
 
@@ -84,7 +84,7 @@ Display::print(const char *str,
 void
 Display::panic(const char *str)
 {
-    if (initialized == false) while(true){};
+    if (initialized == false) while(true) {};
 
     print(str);
     while (true) {

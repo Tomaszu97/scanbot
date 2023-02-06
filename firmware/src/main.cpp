@@ -16,73 +16,73 @@ void
 cmd_handle(command_t cmd)
 {
     switch (cmd.type) {
-        case PING:
-            if (command->assert_argc(1 + 0, cmd) == false) break;
-            break;
+    case PING:
+        if (command->assert_argc(1 + 0, cmd) == false) break;
+        break;
 
-        case DRIVE:
-            if (command->assert_argc(1 + 2, cmd) == false) break;
-            drive->set_speed(atoi(cmd.argv[1]));
-            drive->set_turn(atoi(cmd.argv[2]));
-            drive->update_motors();
-            break;
+    case DRIVE:
+        if (command->assert_argc(1 + 2, cmd) == false) break;
+        drive->set_speed(atoi(cmd.argv[1]));
+        drive->set_turn(atoi(cmd.argv[2]));
+        drive->update_motors();
+        break;
 
-        case DRIVE_RAW:
-            if (command->assert_argc(1 + 2, cmd) == false) break;
-            drive->set_motors(atoi(cmd.argv[1]),
-                              atoi(cmd.argv[2]));
-            break;
+    case DRIVE_RAW:
+        if (command->assert_argc(1 + 2, cmd) == false) break;
+        drive->set_motors(atoi(cmd.argv[1]),
+                          atoi(cmd.argv[2]));
+        break;
 
-        case KILL:
-            if (command->assert_argc(1 + 0, cmd) == false) break;
-            drive->detach();
-            break;
+    case KILL:
+        if (command->assert_argc(1 + 0, cmd) == false) break;
+        drive->detach();
+        break;
 
-        case PRINT:
-            if (command->assert_argc(1 + 1, cmd) == false) break;
-            display->print(cmd.argv[1]);
-            break;
+    case PRINT:
+        if (command->assert_argc(1 + 1, cmd) == false) break;
+        display->print(cmd.argv[1]);
+        break;
 
-        case CLEAR:
-            if (command->assert_argc(1 + 0, cmd) == false) break;
-            display->clear();
-            break;
+    case CLEAR:
+        if (command->assert_argc(1 + 0, cmd) == false) break;
+        display->clear();
+        break;
 
-        case BEEP:
-            if (command->assert_argc(1 + 2, cmd) == false) break;
-            display->beep(atoi(cmd.argv[1]), atoi(cmd.argv[2]));
-            break;
+    case BEEP:
+        if (command->assert_argc(1 + 2, cmd) == false) break;
+        display->beep(atoi(cmd.argv[1]), atoi(cmd.argv[2]));
+        break;
 
-        case SCAN_START:
-            if (command->assert_argc(1 + 0, cmd) == false) break;
-            scan->start();
-            break;
+    case SCAN_START:
+        if (command->assert_argc(1 + 0, cmd) == false) break;
+        scan->start();
+        break;
 
-        case SCAN_STOP:
-            if (command->assert_argc(1 + 0, cmd) == false) break;
-            scan->stop();
-            break;
+    case SCAN_STOP:
+        if (command->assert_argc(1 + 0, cmd) == false) break;
+        scan->stop();
+        break;
 
-        case RESET_PLATFORM:
-            if (command->assert_argc(1 + 0, cmd) == false) break;
-            reset_platform();
-            break;
+    case RESET_PLATFORM:
+        if (command->assert_argc(1 + 0, cmd) == false) break;
+        reset_platform();
+        break;
 
-        case SET_TOWER:
-            if (command->assert_argc(1 + 1, cmd) == false) break;
-            scan->servo_attach();
-            scan->servo_set(atoi(cmd.argv[1]));
-            break;
+    case SET_TOWER:
+        if (command->assert_argc(1 + 1, cmd) == false) break;
+        scan->servo_attach();
+        scan->servo_set(atoi(cmd.argv[1]));
+        break;
 
-        /* commands meant to be a response */
-        case NOTIFY_ENCODER:
-        case NOTIFY_SCAN:
-        case NO_COMMAND:
-            break;
+    /* commands meant to be a response */
+    case NOTIFY_ENCODER:
+    case NOTIFY_SCAN:
+    case NO_COMMAND:
+        break;
 
-        default:
-            display->print("E:unhandled cmd", true);
-            break;
+    default:
+        display->print("E:unhandled cmd", true);
+        break;
     }
 }
 
@@ -90,17 +90,17 @@ bool
 can_cmd_ping(command_t cmd)
 {
     switch (cmd.type) {
-        case PING:
-        case DRIVE:
-        case DRIVE_RAW:
-        case KILL:
-        case PRINT:
-        case CLEAR:
-        case BEEP:
-        case SCAN_START:
-        case SCAN_STOP:
-        case SET_TOWER:
-            return true;
+    case PING:
+    case DRIVE:
+    case DRIVE_RAW:
+    case KILL:
+    case PRINT:
+    case CLEAR:
+    case BEEP:
+    case SCAN_START:
+    case SCAN_STOP:
+    case SET_TOWER:
+        return true;
     }
     return false;
 }
@@ -109,8 +109,8 @@ bool
 can_cmd_wakeup(command_t cmd)
 {
     switch (cmd.type) {
-        case PING:
-            return true;
+    case PING:
+        return true;
     }
     return false;
 }
@@ -143,9 +143,9 @@ setup()
 
     if (display == nullptr) while (true);
     if (command == nullptr ||
-        scan == nullptr ||
-        drive == nullptr ||
-        watchdog == nullptr)
+            scan == nullptr ||
+            drive == nullptr ||
+            watchdog == nullptr)
         display->panic("E:singleton init");
 
     display->beep(30, 3);

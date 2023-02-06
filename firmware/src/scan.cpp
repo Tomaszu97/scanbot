@@ -227,7 +227,7 @@ Scan::lidar_update(unsigned int curr_pos)
 {
     uint16_t distance = get_reg_u16(LIDAR_REG_DIST_LOW);
     if (distance <= LIDAR_CONST_MIN_DIST ||
-        distance >= LIDAR_CONST_MAX_DIST) {
+            distance >= LIDAR_CONST_MAX_DIST) {
         distance = LIDAR_CONST_DUMMY_DIST;
     }
     scan_buf[curr_pos] = distance;
@@ -255,7 +255,7 @@ Scan::work()
         /* compensate */
         const unsigned int pos_w_compensation = pos + SCAN_DIRECTION_COMPENSATION;
         if (pos_w_compensation >=0 &&
-            pos_w_compensation <= (SCAN_BUF_LEN - 1))
+                pos_w_compensation <= (SCAN_BUF_LEN - 1))
             lidar_update(pos_w_compensation);
     }
 
