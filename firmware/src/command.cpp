@@ -45,9 +45,13 @@ Command::get_command()
         return command;
     }
 
-    /* ignore CR and LF */
+    /* ignore whitespace */
     const char newchar = Serial2.peek();
-    if (newchar == '\n' || newchar == '\r') {
+    if (newchar == '\t' ||
+        newchar == '\r' ||
+        newchar == '\n' ||
+        newchar == '\v' ||
+        newchar == '\f') {
         Serial2.read();
         return command;
     }
@@ -62,7 +66,6 @@ Command::get_command()
     }
 
     /* trim command */
-    remove_char(cmd_buf, ' ');
     remove_char(cmd_buf, '\t');
     remove_char(cmd_buf, '\r');
     remove_char(cmd_buf, '\n');
