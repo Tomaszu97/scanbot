@@ -55,7 +55,7 @@
   <exec_depend>roscpp</exec_depend>
   <exec_depend>hardware_interface</exec_depend>
   <exec_depend>controller_manager</exec_depend>
-
+  <depend>async_comm</depend>
 
   <!-- The export tag contains other, unspecified, tags -->
   <export>
