@@ -129,7 +129,7 @@ public:
             return;
         }
 
-        ROS_INFO("sending drive command: %s, len:%d", send_buffer, written);
+        ROS_DEBUG("sending drive command: %s, len:%d", send_buffer, written);
         serial->send_bytes(send_buffer, written);
     }
 
@@ -235,7 +235,7 @@ public:
         std::vector<int> encoder_distances = cmd_line_to_params_vector(cmd_line, 2);
         const int left_encoder = encoder_distances[0];
         const int right_encoder = encoder_distances[1];
-        ROS_INFO_STREAM("encoders: " << left_encoder << ", " << right_encoder);
+        ROS_DEBUG_STREAM("encoders: " << left_encoder << ", " << right_encoder);
 
         /* update position state */
         double left_rad = (double)left_encoder * (2 * PI / ENCODER_PPR);
@@ -261,14 +261,18 @@ public:
             ROS_ERROR("no CMD_DELIM found in received data");
             return;
         }
-        std::string command = cmd_line.substr(0, cmd_delim_pos);
 
+        std::string command = cmd_line.substr(0, cmd_delim_pos);
         cmd_line = cmd_line.substr(cmd_delim_pos + 1);
+
         if (command.compare(CMD_NOTIFY_SCAN) == 0) {
             handle_notify_scan(cmd_line);
         }
         else if (command.compare(CMD_NOTIFY_ENCODERS) == 0) {
             handle_notify_encoders(cmd_line);
+        }
+        else {
+            ROS_INFO_STREAM("unknown command: " << command << ",params: " << cmd_line);
         }
     }
 
