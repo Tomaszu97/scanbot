@@ -2,7 +2,7 @@
 #define DRIVE_H
 
 #include <Arduino.h>
-#include <Servo.h>
+#include "Servo/src/Servo.h"
 #include "config.h"
 #include "util.h"
 #include "display.h"

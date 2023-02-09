@@ -2,7 +2,7 @@
 #define SCAN_H
 
 #include <Arduino.h>
-#include <Servo.h>
+#include "Servo/src/Servo.h"
 #include <Wire.h>
 #include "config.h"
 #include "util.h"
@@ -21,6 +21,7 @@ private:
     void lidar_update(unsigned int curr_pos);
     void servo_init();
     unsigned int servo_next_pos(unsigned int curr_pos);
+    unsigned int servo_next_pos_overshoot(unsigned int curr_pos);
     bool throttle();
     void set_reg_u8(uint8_t reg, uint8_t val);
     void set_reg_u16(uint8_t reg_low, uint16_t val);
@@ -29,6 +30,7 @@ private:
     Servo tower_servo;
     bool working = false;
     unsigned int pos;
+    bool dir_inc = true;
     uint16_t scan_buf[SCAN_BUF_LEN];
     bool scan_buf_updated[SCAN_BUF_LEN];
     bool is_scan_full();

@@ -1,5 +1,5 @@
 #include <Arduino.h>
-#include <Servo.h>
+#include "Servo/src/Servo.h"
 #include <Wire.h>
 #include "config.h"
 #include "util.h"
@@ -105,6 +105,7 @@ Scan::stop()
 bool
 Scan::throttle()
 {
+    /* FIXME this logic is really shaky - use timer interrupts */
     static unsigned long last_millis = millis();
     const unsigned long delta_ms = millis() - last_millis;
 
@@ -119,7 +120,6 @@ Scan::throttle()
 unsigned int
 Scan::servo_next_pos(unsigned int curr_pos)
 {
-    static bool dir_inc = true;
     unsigned int next_pos;
 
     if (curr_pos >= SCAN_MAX_POS) dir_inc = false;
@@ -129,6 +129,17 @@ Scan::servo_next_pos(unsigned int curr_pos)
     else next_pos = curr_pos - 1;
 
     return next_pos;
+}
+
+unsigned int
+Scan::servo_next_pos_overshoot(unsigned int next_pos)
+{
+    unsigned int next_pos_overshoot;
+
+    if (dir_inc == true) next_pos_overshoot = next_pos + SCAN_SETPOINT_OVERSHOOT;
+    else next_pos_overshoot = next_pos - SCAN_SETPOINT_OVERSHOOT;
+
+    return next_pos_overshoot;
 }
 
 void
@@ -199,8 +210,8 @@ Scan::notify_scan_state()
 
     for (int i = 0; i < SCAN_BUF_LEN; i++) {
 
-        /* TODO return 0 and MAX two times in next_pos getter instead of omitting updated boolean */
-        command->print(scan_buf[i], DEC);
+        /* FIXME return 0 and MAX two times in next_pos getter instead of omitting updated boolean */
+        command->print(scan_buf[i] + LIDAR_CONST_AXIS_OFFSET, DEC);
         //if (scan_buf_updated[i] == true) {
         //    command->print(scan_buf[i], DEC);
         //    scan_buf_updated[i] = false;
@@ -236,7 +247,6 @@ Scan::lidar_update(unsigned int curr_pos)
     scan_buf[curr_pos] = distance;
     scan_buf_updated[curr_pos] = true;
 
-    //if (is_scan_full() == true)
     if (curr_pos == SCAN_MIN_POS ||
         curr_pos == SCAN_MAX_POS) {
         notify_scan_state();
@@ -249,8 +259,9 @@ Scan::work()
     if (working == false) return;
     if (throttle() == true) return;
 
-    unsigned int next_pos = servo_next_pos(pos);
-    servo_set(next_pos);
+    const unsigned int next_pos = servo_next_pos(pos);
+    const unsigned int next_pos_w_overshoot = servo_next_pos_overshoot(next_pos);
+    servo_set(next_pos_w_overshoot);
 
     lidar_trigger();
     delayMicroseconds(LIDAR_CONST_AFTER_TRIG_DELAY_US);
