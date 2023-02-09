@@ -33,7 +33,7 @@ Scan::Scan()
 void
 Scan::servo_init()
 {
-    pos = (SCAN_BUF_LEN/2);
+    pos = ((SCAN_MAX_POS - SCAN_MIN_POS) / 2);
     servo_set(pos);
     servo_attach();
 }
@@ -82,7 +82,7 @@ Scan::servo_detach()
 void
 Scan::servo_set(unsigned int position)
 {
-    int in[] = {0, (SCAN_BUF_LEN/2), SCAN_BUF_LEN};
+    int in[] = {0, ((SCAN_MAX_POS - SCAN_MIN_POS) / 2), SCAN_MAX_POS};
     int out[] = {0, TOWER_SERVO_MIDDLE, 180};
     int raw_pos = multi_map(position, in, out, ARRAY_SIZE(in));
     tower_servo.write(raw_pos);
@@ -108,7 +108,7 @@ Scan::throttle()
     static unsigned long last_millis = millis();
     const unsigned long delta_ms = millis() - last_millis;
 
-    const bool pos_extreme = (pos == 0) || (pos == (SCAN_BUF_LEN - 1));
+    const bool pos_extreme = (pos == SCAN_MIN_POS) || (pos == SCAN_MAX_POS);
     if (pos_extreme == true && delta_ms < SCAN_INTERSCAN_INTERVAL_MS) return true;
     if (pos_extreme == false && delta_ms < SCAN_INTERVAL_MS) return true;
 
@@ -122,10 +122,11 @@ Scan::servo_next_pos(unsigned int curr_pos)
     static bool dir_inc = true;
     unsigned int next_pos;
 
+    if (curr_pos >= SCAN_MAX_POS) dir_inc = false;
+    else if (curr_pos <= SCAN_MIN_POS) dir_inc = true;
+
     if (dir_inc == true) next_pos = curr_pos + 1;
     else next_pos = curr_pos - 1;
-    if (curr_pos == (SCAN_BUF_LEN-1)) dir_inc = false;
-    else if (curr_pos == 0) dir_inc = true;
 
     return next_pos;
 }
@@ -198,10 +199,12 @@ Scan::notify_scan_state()
 
     for (int i = 0; i < SCAN_BUF_LEN; i++) {
 
-        if (scan_buf_updated[i] == true) {
-            command->print(scan_buf[i], DEC);
-            scan_buf_updated[i] = false;
-        }
+        /* TODO return 0 and MAX two times in next_pos getter instead of omitting updated boolean */
+        command->print(scan_buf[i], DEC);
+        //if (scan_buf_updated[i] == true) {
+        //    command->print(scan_buf[i], DEC);
+        //    scan_buf_updated[i] = false;
+        //}
 
         if (i != SCAN_BUF_LEN - 1) {
             command->print(CMD_PARAM_SEPARATOR_DELIMITER);
@@ -233,8 +236,11 @@ Scan::lidar_update(unsigned int curr_pos)
     scan_buf[curr_pos] = distance;
     scan_buf_updated[curr_pos] = true;
 
-    if (is_scan_full() == true)
+    //if (is_scan_full() == true)
+    if (curr_pos == SCAN_MIN_POS ||
+        curr_pos == SCAN_MAX_POS) {
         notify_scan_state();
+    }
 }
 
 void
@@ -248,16 +254,17 @@ Scan::work()
 
     lidar_trigger();
     delayMicroseconds(LIDAR_CONST_AFTER_TRIG_DELAY_US);
-    if (next_pos > pos) {
-        lidar_update(pos);
-    }
-    else {
-        /* compensate */
-        const unsigned int pos_w_compensation = pos + SCAN_DIRECTION_COMPENSATION;
-        if (pos_w_compensation >=0 &&
-                pos_w_compensation <= (SCAN_BUF_LEN - 1))
-            lidar_update(pos_w_compensation);
-    }
+    //if (next_pos > pos) {
+    //    lidar_update(pos);
+    //}
+    //else {
+    //    /* compensate */
+    //    const unsigned int pos_w_compensation = pos + SCAN_DIRECTION_COMPENSATION;
+    //    if (pos_w_compensation >= SCAN_MIN_POS &&
+    //        pos_w_compensation <= SCAN_MAX_POS)
+    //        lidar_update(pos_w_compensation);
+    //}
+    lidar_update(pos);
 
     pos = next_pos;
 }

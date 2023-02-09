@@ -159,4 +159,7 @@ loop()
     cmd_watchdog_work(cmd);
     cmd_handle(cmd);
     scan->work();
+
+    // TODO delete this
+    scan->start();
 }
