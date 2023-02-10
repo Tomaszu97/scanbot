@@ -7,10 +7,9 @@ scanbot:
     type: diff_drive_controller/DiffDriveController
     left_wheel: scanbot_left_wheel_revolute
     right_wheel : scanbot_right_wheel_revolute
-    publish_rate: 50.0
+    publish_rate: 50
     pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
     twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-
-#  scanbot_tower_controller:
-#    type: velocity_controllers/JointVelocityController
-#    joint: scanbot_tower_revolute
+    # trimming
+    wheel_separation_multiplier: 1.75
+    wheel_radius_multiplier    : 1

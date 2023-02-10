@@ -111,7 +111,7 @@
     <origin xyz="0 0.05 0.02749" rpy="0 1.5707 1.5707"/>
     <axis xyz="0 0 1"/>
     <!-- effort is % and velocity is rad/s -->
-    <limit effort="80" velocity="25.1327412287"/>
+    <limit effort="100" velocity="3.33"/>
   </joint>
 
   <joint name="scanbot_right_wheel_revolute" type="continuous">
@@ -120,7 +120,7 @@
     <origin xyz="0 -0.05 0.0275" rpy="0 1.5707 1.5707"/>
     <axis xyz="0 0 1"/>
     <!-- effort is % and velocity is rad/s -->
-    <limit effort="80" velocity="25.1327412287"/>
+    <limit effort="100" velocity="3.33"/>
   </joint>
 
   <!-- for now immobilize and use a sensor with multiple rays -->
@@ -175,12 +175,12 @@
       <pose>0 0 0 0 0 0</pose>
       <always_on>true</always_on>
       <visualize>true</visualize>
-      <update_rate>1</update_rate>
+      <update_rate>2</update_rate>
       <ray>
         <scan>
           <horizontal>
             <!-- number of beams = samples * resolution -->
-            <samples>60</samples>
+            <samples>180</samples>
             <resolution>1</resolution>
             <min_angle>-1.57079632679</min_angle>
             <max_angle>1.57079632679</max_angle>

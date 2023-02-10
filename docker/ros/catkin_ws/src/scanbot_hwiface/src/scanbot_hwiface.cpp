@@ -12,16 +12,21 @@
 #include <algorithm>
 #include <async_comm/serial.h>
 
+#define REPORT_MOCKUP_POSITION
+#define ENCODER_PPR 20
+
 #define SCAN_MIN_DEG 0
 #define SCAN_MAX_DEG 179
 #define SCAN_BUF_LEN ( SCAN_MAX_DEG - SCAN_MIN_DEG + 1)
-#define ENCODER_PPR 20
 #define LASER_DEG_STEP 1
 #define LASER_RANGE_MIN_M 0.2
 #define LASER_RANGE_MAX_M 2.5
 #define LASER_DUMMY_VAL 0
-#define LASER_UNITS_PER_METER 100
 #define LASER_DEFAULT_INTENSITY 0
+#define LASER_UNITS_PER_METER 100
+
+#define DRIVE_UNITS_PER_METER 100
+#define DRIVE_MAX_RAD_PER_SEC 3.33
 
 #define CMD_DELIM ":"
 #define CMD_PARAM_DELIM ","
@@ -51,6 +56,7 @@ private:
     ros::NodeHandle node_handle;
     ros::Publisher scan_publisher;
     std::string laser_scan_frame_id;
+    ros::Time last_mockup_position_tstamp = ros::Time::now();
     hardware_interface::JointStateInterface state_interface;
     hardware_interface::VelocityJointInterface vel_interface;
     double vel_cmd[3];
@@ -131,6 +137,9 @@ public:
 
         ROS_DEBUG("sending drive command: %s, len:%d", send_buffer, written);
         serial->send_bytes(send_buffer, written);
+#ifdef REPORT_MOCKUP_POSITION
+        handle_notify_mockup_position();
+#endif
     }
 
     void
@@ -168,8 +177,8 @@ public:
     void
     work_steer()
     {
-        int left = vel_cmd[0]*100;
-        int right = vel_cmd[1]*100;
+        int left = get_left_vel_cmd() * DRIVE_UNITS_PER_METER;
+        int right = get_right_vel_cmd() * DRIVE_UNITS_PER_METER;
         send_drive_cmd(left, right);
     }
 
@@ -229,7 +238,25 @@ public:
         return true;
     }
 
-    bool
+    double
+    clamp_velocity(double in)
+    {
+        return std::max(- DRIVE_MAX_RAD_PER_SEC, std::min(in, DRIVE_MAX_RAD_PER_SEC));
+    }
+
+    double
+    get_left_vel_cmd()
+    {
+        return clamp_velocity(vel_cmd[0]);
+    }
+
+    double
+    get_right_vel_cmd()
+    {
+        return clamp_velocity(vel_cmd[1]);
+    }
+
+    void
     handle_notify_encoders(std::string cmd_line)
     {
         std::vector<int> encoder_distances = cmd_line_to_params_vector(cmd_line, 2);
@@ -246,11 +273,32 @@ public:
         pos[1] += right_rad;
 
         /* update velocity state */
-        vel[0] = vel_cmd[0];
-        vel[1] = vel_cmd[1];
+        vel[0] = get_left_vel_cmd();
+        vel[1] = get_right_vel_cmd();
 
         /* ignore effort state */
-        return true;
+    }
+
+    void
+    handle_notify_mockup_position()
+    {
+        /* calculate time delta between set speed updates */
+        ros::Time curr_time = ros::Time::now();
+        ros::Duration delta_time = curr_time - last_mockup_position_tstamp;
+        double delta_time_double = delta_time.sec + (delta_time.nsec * 1e-9);
+        last_mockup_position_tstamp = curr_time;
+
+        /* update position state */
+        double left_rad = delta_time_double * vel[0];
+        double right_rad = delta_time_double * vel[1];
+        pos[0] += left_rad;
+        pos[1] += right_rad;
+
+        /* update velocity state */
+        vel[0] = get_left_vel_cmd();
+        vel[1] = get_right_vel_cmd();
+
+        /* ignore effort state */
     }
 
     void
@@ -269,7 +317,9 @@ public:
             handle_notify_scan(cmd_line);
         }
         else if (command.compare(CMD_NOTIFY_ENCODERS) == 0) {
+#ifndef REPORT_MOCKUP_POSITION
             handle_notify_encoders(cmd_line);
+#endif
         }
         else {
             ROS_INFO_STREAM("unknown command: " << command << ",params: " << cmd_line);

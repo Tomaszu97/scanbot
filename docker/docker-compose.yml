@@ -136,7 +136,7 @@ services:
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
       - ./ros-files:/root/persistent-files
-    command: bash -c "rosrun teleop_twist_joy teleop_node cmd_vel:=/scanbot/scanbot_base_controller/cmd_vel _axis_linear:=1 _axis_angular:=3 _scale_linear:=0.1 _scale_angular:=1.5 _enable_button:=5 _enable_turbo_button:=4 _scale_linear_turbo:=0.5 _scale_angular_turbo:=7.5"
+    command: bash -c "rosrun teleop_twist_joy teleop_node cmd_vel:=/scanbot/scanbot_base_controller/cmd_vel _axis_linear:=1 _axis_angular:=3 _scale_linear:=0.1 _scale_angular:=1.2 _enable_button:=5 _enable_turbo_button:=4 _scale_linear_turbo:=0.5 _scale_angular_turbo:=7.5"
 
   scanbot_hwiface:
     privileged: true
