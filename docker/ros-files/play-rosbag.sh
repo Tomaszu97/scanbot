@@ -1,3 +1,5 @@
 #!/bin/bash -axe
 
-rosbag play --clock --hz=1 -r 2 "$@"
+RATE="${2:-1}"
+
+rosbag play --clock --hz=1 -r $RATE "$1"
