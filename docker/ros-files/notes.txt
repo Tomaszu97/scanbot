@@ -1,3 +1,0 @@
-rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.2 _maxUrange:=2.5 _delta:=0.06 _ogain:=3 _occ_thresh:=0.12
-
-rosrun hector_mapping hector_mapping scan:=/scanbot/scan
