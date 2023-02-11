@@ -1,0 +1,1 @@
+https://wiki.ros.org/navigation/Tutorials/Navigation%20Tuning%20Guide#Is_the_robot_navigation_ready.3F
