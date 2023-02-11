@@ -10,6 +10,5 @@ scanbot:
     publish_rate: 50
     pose_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
     twist_covariance_diagonal: [0.001, 0.001, 1000000.0, 1000000.0, 1000000.0, 1000.0]
-    # trimming
-    wheel_separation_multiplier: 1.75
+    wheel_separation_multiplier: 2.1
     wheel_radius_multiplier    : 1
