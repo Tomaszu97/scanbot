@@ -26,6 +26,7 @@
 #define LASER_UNITS_PER_METER 100
 
 #define DRIVE_UNITS_PER_METER 100
+#define DRIVE_DEADZONE_RAD_PER_SEC 2.00
 #define DRIVE_MAX_RAD_PER_SEC 3.33
 
 #define CMD_DELIM ":"
@@ -241,7 +242,18 @@ public:
     double
     clamp_velocity(double in)
     {
-        return std::max(- DRIVE_MAX_RAD_PER_SEC, std::min(in, DRIVE_MAX_RAD_PER_SEC));
+        /* clamp between ranges [-max, +max] */
+        /* zero when in deadzone [-deadzone, +deadzone] */
+
+        double out_val = in;
+        if (in <= DRIVE_DEADZONE_RAD_PER_SEC && in >= -DRIVE_DEADZONE_RAD_PER_SEC)
+            out_val = 0;
+        else if (in > DRIVE_MAX_RAD_PER_SEC)
+            out_val = std::min(in, DRIVE_MAX_RAD_PER_SEC);
+        else if (in < -DRIVE_MAX_RAD_PER_SEC)
+            out_val = std::max(in, -DRIVE_MAX_RAD_PER_SEC);
+
+        return out_val;
     }
 
     double
