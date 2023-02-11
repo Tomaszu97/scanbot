@@ -89,17 +89,41 @@ Scan::servo_set(unsigned int position)
 }
 
 void
+Scan::clear()
+{
+    for (int i = 0; i < SCAN_BUF_LEN; i++) {
+        scan_buf[i] = 0;
+        scan_buf_updated[i] = false;
+    }
+}
+
+void
 Scan::start()
 {
     servo_attach();
-    working = true;
+    state = SCAN_WORKING;
 }
 
 void
 Scan::stop()
 {
     servo_detach();
-    working = false;
+    clear();
+    state = SCAN_DISABLED;
+}
+
+void
+Scan::pause()
+{
+    servo_set(pos);
+    clear();
+    state = SCAN_PAUSED;
+}
+
+void
+Scan::unpause()
+{
+    state = SCAN_WORKING;
 }
 
 bool
@@ -256,7 +280,7 @@ Scan::lidar_update(unsigned int curr_pos)
 void
 Scan::work()
 {
-    if (working == false) return;
+    if (state != SCAN_WORKING) return;
     if (throttle() == true) return;
 
     const unsigned int next_pos = servo_next_pos(pos);
@@ -265,16 +289,6 @@ Scan::work()
 
     lidar_trigger();
     delayMicroseconds(LIDAR_CONST_AFTER_TRIG_DELAY_US);
-    //if (next_pos > pos) {
-    //    lidar_update(pos);
-    //}
-    //else {
-    //    /* compensate */
-    //    const unsigned int pos_w_compensation = pos + SCAN_DIRECTION_COMPENSATION;
-    //    if (pos_w_compensation >= SCAN_MIN_POS &&
-    //        pos_w_compensation <= SCAN_MAX_POS)
-    //        lidar_update(pos_w_compensation);
-    //}
     lidar_update(pos);
 
     pos = next_pos;

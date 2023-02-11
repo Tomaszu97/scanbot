@@ -12,6 +12,15 @@ Scan *scan;
 Drive *drive;
 Watchdog *watchdog;
 
+bool
+is_robot_turning(const int left_speed,
+                 const int right_speed)
+{
+    if (left_speed < 0 && right_speed > 0) return true;
+    if (left_speed > 0 && right_speed < 0) return true;
+    return false;
+}
+
 void
 cmd_handle(command_t cmd)
 {
@@ -28,10 +37,16 @@ cmd_handle(command_t cmd)
         break;
 
     case DRIVE_RAW:
-        if (command->assert_argc(1 + 2, cmd) == false) break;
-        drive->set_motors(atoi(cmd.argv[1]),
-                          atoi(cmd.argv[2]));
-        break;
+        {
+            if (command->assert_argc(1 + 2, cmd) == false) break;
+            const int left_speed = atoi(cmd.argv[1]);
+            const int right_speed = atoi(cmd.argv[2]);
+            if (is_robot_turning(left_speed, right_speed) == true) scan->pause();
+            else scan->unpause();
+            drive->set_motors(left_speed,
+                              right_speed);
+            break;
+        }
 
     case KILL:
         if (command->assert_argc(1 + 0, cmd) == false) break;
