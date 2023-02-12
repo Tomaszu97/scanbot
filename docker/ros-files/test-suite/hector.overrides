@@ -1,0 +1,4 @@
+#!/bin/bash -axe
+HECTOR_scan="/scanbot/scan"
+HECTOR__scan_subscriber_queue_size="200"
+HECTOR__map_resolution="0.05"
