@@ -12,7 +12,7 @@
 #include <algorithm>
 #include <async_comm/serial.h>
 
-#define REPORT_MOCKUP_POSITION
+//#define REPORT_MOCKUP_POSITION
 #define ENCODER_PPR 20
 
 #define SCAN_MIN_DEG 0
