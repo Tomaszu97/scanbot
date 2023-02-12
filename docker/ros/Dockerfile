@@ -23,6 +23,8 @@ RUN apt update && apt -y install vim
 RUN apt update && apt -y install ros-${ROS_DISTRO}-async-comm
 RUN apt update && apt -y install entr
 RUN apt update && apt -y install ros-${ROS_DISTRO}-map-server
+RUN apt update && apt -y install ranger
+RUN apt update && apt -y install feh
 
 WORKDIR /root
 COPY catkin_ws catkin_ws
