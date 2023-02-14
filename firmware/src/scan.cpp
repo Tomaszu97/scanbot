@@ -25,17 +25,29 @@ Scan::Scan()
     command = Command::get_instance();
 
     if (lidar_init() == false) display->panic("E:lidar fail");
-    servo_init();
+    tower_init();
 
     display->print("scan init ok");
 }
 
 void
-Scan::servo_init()
+Scan::tower_init()
 {
+    pinMode(TOWER_CONTROL_PIN ,OUTPUT);
+    digitalWrite(TOWER_CONTROL_PIN, HIGH);
     pos = ((SCAN_MAX_POS - SCAN_MIN_POS) / 2);
-    servo_set(pos);
-    servo_attach();
+    /* TODO zeroing out tower position
+     * both here at init and also recalibrating during runtime */
+}
+
+void
+Scan::tower_step()
+{
+    digitalWrite(TOWER_CONTROL_PIN, LOW);
+    delayMicroseconds(TOWER_CONST_STEPPER_STEP_DELAY_US);
+    digitalWrite(TOWER_CONTROL_PIN, HIGH);
+    pos++;
+    if (pos > SCAN_MAX_POS) pos = SCAN_MIN_POS;
 }
 
 bool
@@ -66,29 +78,6 @@ Scan::lidar_init()
 }
 
 void
-Scan::servo_attach()
-{
-    if (tower_servo.attached() == false) {
-        tower_servo.attach(TOWER_SERVO_PIN, TOWER_SERVO_US_MIN, TOWER_SERVO_US_MAX);
-    }
-}
-
-void
-Scan::servo_detach()
-{
-    tower_servo.detach();
-}
-
-void
-Scan::servo_set(unsigned int position)
-{
-    int in[] = {0, ((SCAN_MAX_POS - SCAN_MIN_POS) / 2), SCAN_MAX_POS};
-    int out[] = {0, TOWER_SERVO_MIDDLE, 180};
-    int raw_pos = multi_map(position, in, out, ARRAY_SIZE(in));
-    tower_servo.write(raw_pos);
-}
-
-void
 Scan::clear()
 {
     for (int i = 0; i < SCAN_BUF_LEN; i++) {
@@ -100,14 +89,12 @@ Scan::clear()
 void
 Scan::start()
 {
-    servo_attach();
     state = SCAN_WORKING;
 }
 
 void
 Scan::stop()
 {
-    servo_detach();
     clear();
     state = SCAN_DISABLED;
 }
@@ -115,7 +102,7 @@ Scan::stop()
 void
 Scan::pause()
 {
-    servo_set(pos);
+    if (state != SCAN_WORKING) return;
     clear();
     state = SCAN_PAUSED;
 }
@@ -123,6 +110,7 @@ Scan::pause()
 void
 Scan::unpause()
 {
+    if (state != SCAN_PAUSED) return;
     state = SCAN_WORKING;
 }
 
@@ -132,38 +120,9 @@ Scan::throttle()
     /* FIXME this logic is really shaky - use timer interrupts */
     static unsigned long last_millis = millis();
     const unsigned long delta_ms = millis() - last_millis;
-
-    const bool pos_extreme = (pos == SCAN_MIN_POS) || (pos == SCAN_MAX_POS);
-    if (pos_extreme == true && delta_ms < SCAN_INTERSCAN_INTERVAL_MS) return true;
-    if (pos_extreme == false && delta_ms < SCAN_INTERVAL_MS) return true;
-
+    if (delta_ms < SCAN_INTERVAL_MS) return true;
     last_millis = millis();
     return false;
-}
-
-unsigned int
-Scan::servo_next_pos(unsigned int curr_pos)
-{
-    unsigned int next_pos;
-
-    if (curr_pos >= SCAN_MAX_POS) dir_inc = false;
-    else if (curr_pos <= SCAN_MIN_POS) dir_inc = true;
-
-    if (dir_inc == true) next_pos = curr_pos + 1;
-    else next_pos = curr_pos - 1;
-
-    return next_pos;
-}
-
-unsigned int
-Scan::servo_next_pos_overshoot(unsigned int next_pos)
-{
-    unsigned int next_pos_overshoot;
-
-    if (dir_inc == true) next_pos_overshoot = next_pos + SCAN_SETPOINT_OVERSHOOT;
-    else next_pos_overshoot = next_pos - SCAN_SETPOINT_OVERSHOOT;
-
-    return next_pos_overshoot;
 }
 
 void
@@ -193,7 +152,7 @@ uint8_t
 Scan::get_reg_u8(uint8_t reg)
 {
     uint8_t ret_val;
-    const uint8_t req_byte_count = 1;
+    const unsigned int req_byte_count = 1;
     Wire2.beginTransmission(LIDAR_I2C_ADDRESS);
     Wire2.write(reg);
     Wire2.endTransmission();
@@ -207,7 +166,7 @@ uint16_t
 Scan::get_reg_u16(uint8_t reg_low)
 {
     uint16_t ret_val = 0x0000;
-    const uint8_t req_byte_count = 2;
+    const unsigned int req_byte_count = 2;
     Wire2.beginTransmission(LIDAR_I2C_ADDRESS);
     Wire2.write(reg_low);
     Wire2.endTransmission();
@@ -271,8 +230,7 @@ Scan::lidar_update(unsigned int curr_pos)
     scan_buf[curr_pos] = distance;
     scan_buf_updated[curr_pos] = true;
 
-    if (curr_pos == SCAN_MIN_POS ||
-        curr_pos == SCAN_MAX_POS) {
+    if (curr_pos == SCAN_MAX_POS) {
         notify_scan_state();
     }
 }
@@ -283,13 +241,9 @@ Scan::work()
     if (state != SCAN_WORKING) return;
     if (throttle() == true) return;
 
-    const unsigned int next_pos = servo_next_pos(pos);
-    const unsigned int next_pos_w_overshoot = servo_next_pos_overshoot(next_pos);
-    servo_set(next_pos_w_overshoot);
-
     lidar_trigger();
     delayMicroseconds(LIDAR_CONST_AFTER_TRIG_DELAY_US);
     lidar_update(pos);
 
-    pos = next_pos;
+    tower_step();
 }

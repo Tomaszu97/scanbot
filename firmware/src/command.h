@@ -20,7 +20,6 @@
   cmd_transform_fn( BEEP,            BE ) \
   cmd_transform_fn( SCAN_START,      SC ) \
   cmd_transform_fn( SCAN_STOP,       SS ) \
-  cmd_transform_fn( SET_TOWER,       ST ) \
   cmd_transform_fn( RESET_PLATFORM,  RS ) \
   cmd_transform_fn( NOTIFY_ENCODER,  NE ) \
   cmd_transform_fn( NOTIFY_SCAN,     NS )

@@ -83,12 +83,6 @@ cmd_handle(command_t cmd)
         reset_platform();
         break;
 
-    case SET_TOWER:
-        if (command->assert_argc(1 + 1, cmd) == false) break;
-        scan->servo_attach();
-        scan->servo_set(atoi(cmd.argv[1]));
-        break;
-
     /* commands meant to be a response */
     case NOTIFY_ENCODER:
     case NOTIFY_SCAN:
@@ -114,7 +108,6 @@ can_cmd_ping(command_t cmd)
     case BEEP:
     case SCAN_START:
     case SCAN_STOP:
-    case SET_TOWER:
         return true;
     }
     return false;
