@@ -2,7 +2,7 @@
 
 BAG="$1"
 BAG_REPLAY_RATE="$2"
-test "$#" == "2"
+test "$#" == "2" || exit 1
 
 : "running multitest for $BAG"
 
