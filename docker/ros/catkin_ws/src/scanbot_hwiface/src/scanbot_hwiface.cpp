@@ -15,12 +15,12 @@
 //#define REPORT_MOCKUP_POSITION
 #define ENCODER_PPR 20
 
-#define SCAN_MIN_DEG 0
-#define SCAN_MAX_DEG 179
-#define SCAN_BUF_LEN ( SCAN_MAX_DEG - SCAN_MIN_DEG + 1)
-#define LASER_DEG_STEP 1
+#define SCAN_MIN_DEG -166.5
+#define SCAN_MAX_DEG 166.5
+#define SCAN_BUF_LEN 371
+#define LASER_DEG_STEP ( ((double)SCAN_MAX_DEG - (double)SCAN_MIN_DEG) / (double)SCAN_BUF_LEN )
 #define LASER_RANGE_MIN_M 0.2
-#define LASER_RANGE_MAX_M 2.5
+#define LASER_RANGE_MAX_M 5.0
 #define LASER_DUMMY_VAL 0
 #define LASER_DEFAULT_INTENSITY 0
 #define LASER_UNITS_PER_METER 100
@@ -226,8 +226,8 @@ public:
         laser_scan.scan_time = 0;
         laser_scan.range_min = LASER_RANGE_MIN_M;
         laser_scan.range_max = LASER_RANGE_MAX_M;
-        laser_scan.angle_min = (-PI / 2) + (SCAN_MIN_DEG * DEG_TO_RAD);
-        laser_scan.angle_max = (-PI / 2) + (SCAN_MAX_DEG * DEG_TO_RAD);
+        laser_scan.angle_min = (SCAN_MIN_DEG * DEG_TO_RAD);
+        laser_scan.angle_max = (SCAN_MAX_DEG * DEG_TO_RAD);
         for (int i = 0; i < SCAN_BUF_LEN; i++) {
             const double distance = (double)laser_distances[i] / LASER_UNITS_PER_METER;
             laser_scan.ranges.push_back(distance);
