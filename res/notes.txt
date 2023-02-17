@@ -1,2 +1,8 @@
 https://wiki.ros.org/navigation/Tutorials/Navigation%20Tuning%20Guide#Is_the_robot_navigation_ready.3F
 https://github.com/Sollimann/CleanIt/blob/main/autonomy/src/slam/README.md
+https://www.micro-steppermotor.com/sale-11879303-8mm-micro-stepper-motor-2-phase-4-wire-mini-stepper-motor-with-copper-gear-for-camera-lenses-pm08.html
+https://pl.aliexpress.com/item/1005005024459162.html?spm=a2g0o.productlist.main.3.6a5a2945EpKBBh&algo_pvid=3269fdbb-2f62-4bbe-a8a8-d436247fda60&algo_exp_id=3269fdbb-2f62-4bbe-a8a8-d436247fda60-1&pdp_ext_f=%7B%22sku_id%22%3A%2212000031374321977%22%7D&pdp_npi=3%40dis%21USD%211.54%211.4%21%21%21%21%21%402100ba4716762863236446555d075c%2112000031374321977%21sea%21PL%210&curPageLogUid=np1hTNdtxRmq
+
+problems encountered:
+    when playing a recording make sure to set /use_sim_time to true
+    when recording and the replaying /scan and /tf make sure to filter out /odom from /tf, otherwise both recording and slam algo will generate translations on this frame causing stuttering image and broken visualization
