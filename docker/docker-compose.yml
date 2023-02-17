@@ -22,6 +22,17 @@ services:
       - ./ros-files:/root/persistent-files
     command: bash -c "roslaunch /root/persistent-files/core_hardware.launch"
 
+  roscore_replay:
+    privileged: true
+    hostname: roscore
+    build: ros
+    environment:
+      DISPLAY: $DISPLAY
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+      - ./ros-files:/root/persistent-files
+    command: bash -c "roslaunch /root/persistent-files/core_replay.launch"
+
   rosconsole:
     privileged: true
     hostname: rosconsole
@@ -49,7 +60,7 @@ services:
       QT_X11_NO_MITSHM: 1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-    command: bash -c 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.2 _maxUrange:=2.5 _delta:=0.06 output="screen"'
+    command: bash -c 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.2 _maxUrange:=2.5 _delta:=0.06 _minimumScore:=5 output="screen"'
 
   hector:
     privileged: true
