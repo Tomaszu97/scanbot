@@ -27,6 +27,8 @@ Scan::Scan()
     if (lidar_init() == false) display->panic("E:lidar fail");
     tower_init();
 
+    recalibrate_pos();
+
     display->print("scan init ok");
 }
 
@@ -35,7 +37,7 @@ Scan::tower_init()
 {
     pinMode(TOWER_CONTROL_PIN ,OUTPUT);
     digitalWrite(TOWER_CONTROL_PIN, HIGH);
-    pos = ((SCAN_MAX_POS - SCAN_MIN_POS) / 2);
+    pos = SCAN_MIN_POS;
     /* TODO zeroing out tower position
      * both here at init and also recalibrating during runtime */
 }
@@ -44,7 +46,7 @@ void
 Scan::tower_step()
 {
     digitalWrite(TOWER_CONTROL_PIN, LOW);
-    delayMicroseconds(TOWER_CONST_STEPPER_STEP_DELAY_US);
+    delayMicroseconds(SCAN_CONST_STEPPER_STEP_DELAY_US);
     digitalWrite(TOWER_CONTROL_PIN, HIGH);
     pos++;
     if (pos > SCAN_MAX_POS) pos = SCAN_MIN_POS;
@@ -246,4 +248,27 @@ Scan::work()
     lidar_update(pos);
 
     tower_step();
+}
+
+void
+Scan::recalibrate_pos()
+{
+    clear();
+
+    int steps = SCAN_BUF_LEN * 4;
+    while (steps--) {
+        uint16_t distance = get_reg_u16(LIDAR_REG_DIST_LOW);
+        if (distance < LIDAR_CONST_MIN_DIST) {
+            /* calibration success */
+            display->beep(5, 3);
+            pos = 0;
+            return;
+        }
+        tower_step();
+        delayMicroseconds(SCAN_INTERVAL_MS * 1000);
+    }
+
+    /* calibration failure */
+    display->beep(400, 5);
+    return;
 }

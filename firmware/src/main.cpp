@@ -51,6 +51,7 @@ cmd_handle(command_t cmd)
     case KILL:
         if (command->assert_argc(1 + 0, cmd) == false) break;
         drive->detach();
+        scan->stop();
         break;
 
     case PRINT:

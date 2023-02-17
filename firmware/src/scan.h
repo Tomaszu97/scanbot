@@ -32,6 +32,7 @@ private:
     bool is_scan_full();
     void notify_scan_state();
     void clear();
+    void recalibrate_pos();
     static Scan *scan_;
     Display *display;
     Command *command;
@@ -47,9 +48,6 @@ public:
     void pause();
     void unpause();
     void work();
-    void servo_attach();
-    void servo_detach();
-    void servo_set(unsigned int position);
 };
 
 #endif /* SCAN_H */
