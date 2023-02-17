@@ -26,6 +26,7 @@ RUN apt update && apt -y install ros-${ROS_DISTRO}-hector-slam
 RUN apt update && apt -y install ros-${ROS_DISTRO}-async-comm
 RUN apt update && apt -y install ros-${ROS_DISTRO}-map-server
 RUN apt update && apt -y install ros-${ROS_DISTRO}-slam-karto
+RUN apt update && apt -y install ros-${ROS_DISTRO}-tf-remapper-cpp
 
 WORKDIR /root
 COPY catkin_ws catkin_ws
