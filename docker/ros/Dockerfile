@@ -1,6 +1,11 @@
 FROM ros:noetic
 
 RUN apt update && apt -y install xterm
+RUN apt update && apt -y install dvtm
+RUN apt update && apt -y install vim
+RUN apt update && apt -y install entr
+RUN apt update && apt -y install ranger
+RUN apt update && apt -y install feh
 RUN apt update && apt -y install ros-${ROS_DISTRO}-tf
 RUN apt update && apt -y install ros-${ROS_DISTRO}-xacro
 RUN apt update && apt -y install ros-${ROS_DISTRO}-joint-state-publisher
@@ -18,13 +23,9 @@ RUN apt update && apt -y install ros-${ROS_DISTRO}-joy
 RUN apt update && apt -y install ros-${ROS_DISTRO}-joy-teleop
 RUN apt update && apt -y install ros-${ROS_DISTRO}-teleop-twist-joy
 RUN apt update && apt -y install ros-${ROS_DISTRO}-hector-slam
-RUN apt update && apt -y install dvtm
-RUN apt update && apt -y install vim
 RUN apt update && apt -y install ros-${ROS_DISTRO}-async-comm
-RUN apt update && apt -y install entr
 RUN apt update && apt -y install ros-${ROS_DISTRO}-map-server
-RUN apt update && apt -y install ranger
-RUN apt update && apt -y install feh
+RUN apt update && apt -y install ros-${ROS_DISTRO}-slam-karto
 
 WORKDIR /root
 COPY catkin_ws catkin_ws
