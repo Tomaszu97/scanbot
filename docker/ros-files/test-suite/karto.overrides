@@ -1,0 +1,2 @@
+#!/bin/bash -axe
+: "${karto_scan:=/scanbot/scan}"
