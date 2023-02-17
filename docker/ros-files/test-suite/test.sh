@@ -30,5 +30,3 @@ do
         sleep 1
     done
 done
-
-rm "${ALGORITHM}.testoverrides"
