@@ -1,2 +1,6 @@
 #!/bin/bash -axe
 : "${gmapping_scan:=/scanbot/scan}"
+: "${gmapping__xmin:=-20.0}"
+: "${gmapping__ymin:=-20.0}"
+: "${gmapping__xmax:=20.0}"
+: "${gmapping__ymax:=20.0}"
