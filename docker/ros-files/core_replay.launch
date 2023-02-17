@@ -1,0 +1,15 @@
+<launch>
+  <!-- use simulator time - for gazebo -->
+  <param name="/use_sim_time" value="true"/>
+
+  <!-- robot urdf description -->
+  <param name="/scanbot/robot_description"
+         command="$(find xacro)/xacro --inorder /root/persistent-files/scanbot.urdf" />
+
+  <!-- spawn robot in gazebo -->
+  <node name="spawn_scanbot"
+        pkg="gazebo_ros"
+        type="spawn_model"
+        args="-param /scanbot/robot_description -urdf -model scanbot -x 3.5 -y -3.9 -z 0.1 -R 0 -P 0 -Y 0" />
+
+</launch>
