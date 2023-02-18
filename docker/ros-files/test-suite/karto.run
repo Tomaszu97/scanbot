@@ -35,7 +35,7 @@ test -n "$karto__minimum_angle_penalty"
 test -n "$karto__minimum_distance_penalty"
 test -n "$karto__use_response_expansion"
 
-rosrun slam_karto slam_karto \
+exec rosrun slam_karto slam_karto \
     scan:="$karto_scan" \
     _odom_frame:="$karto__odom_frame" \
     _map_frame:="$karto__map_frame" \

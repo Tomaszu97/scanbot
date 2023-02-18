@@ -37,7 +37,7 @@ test -n "$gmapping__transform_publish_period"
 test -n "$gmapping__occ_thresh"
 test -n "$gmapping__maxRange"
 
-rosrun gmapping slam_gmapping \
+exec rosrun gmapping slam_gmapping \
     scan:="$gmapping_scan" \
     _throttle_scans:="$gmapping__throttle_scans" \
     _base_frame:="$gmapping__base_frame" \

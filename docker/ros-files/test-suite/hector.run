@@ -23,7 +23,7 @@ test -n "$hector__scan_subscriber_queue_size"
 test -n "$hector__pub_map_scanmatch_transform"
 test -n "$hector__tf_map_scanmatch_transform_frame_name"
 
-rosrun hector_mapping hector_mapping \
+exec rosrun hector_mapping hector_mapping \
     scan:="$hector_scan" \
     _base_frame:="$hector__base_frame" \
     _map_frame:="$hector__map_frame" \
