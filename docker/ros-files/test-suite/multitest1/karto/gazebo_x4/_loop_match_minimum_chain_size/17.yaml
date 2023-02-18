@@ -1,0 +1,7 @@
+image: test/karto/gazebo_x4/_loop_match_minimum_chain_size//17.pgm
+resolution: 0.050000
+origin: [-20.000000, -20.000000, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+
