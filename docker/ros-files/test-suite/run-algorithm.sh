@@ -6,4 +6,4 @@ test "$#" == "1"
 test -e "${ALGORITHM}.overrides" && source "${ALGORITHM}.overrides"
 test -e "${ALGORITHM}.overrides" && source "${ALGORITHM}.defaults"
 
-"./${ALGORITHM}.run"
+exec "./${ALGORITHM}.run"
