@@ -25,8 +25,7 @@ do
     ./save-map.sh "${curr_dirname}/${curr_param_value}"
 
     : "killing algorithm"
-    while kill -HUP "$algo_pid"
-    do
-        sleep 1
-    done
+    rosnode list | grep "$ALGORITHM" | xargs -n1 rosnode kill
+    while ps -p "$algo_pid" ; do sleep 1 ; done
+
 done
