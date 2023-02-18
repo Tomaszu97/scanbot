@@ -42,7 +42,7 @@ test "$#" == "2" || exit 1
 ./test.sh hector "$BAG" "$BAG_REPLAY_RATE" _update_factor_occupied                   0.1     0.2     0.9
 
 : "trying algorithm: karto"
-./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _map_update_interval                       0.1     2.0     8.1
+./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _map_update_interval                       1.0     2.0     9.0
 ./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _delta                                     0.01    0.04    0.17
 ./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _minimum_travel_distance                   0.1     0.4     1.7
 ./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _minimum_travel_heading                    0.05    0.1     0.45
