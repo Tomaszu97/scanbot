@@ -21,5 +21,5 @@ rosparam set '/tf_remapper/mappings' '[{"old": "map", "new": ""}]'
 rosrun tf_remapper_cpp tf_remap &
 
 echo "replay: playing rosbag"
-rosbag play --clock -r "$BAG_REPLAY_RATE" "${BAG}.bag" tf:=tf_old
+rosbag play -q --clock -r "$BAG_REPLAY_RATE" "${BAG}.bag" tf:=tf_old
 replay_cleanup 0
