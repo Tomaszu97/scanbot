@@ -1,4 +1,4 @@
-#!/bin/bash -ae
+#!/bin/bash -axe
 test -n "$karto_scan"
 test -n "$karto__odom_frame"
 test -n "$karto__map_frame"
@@ -32,9 +32,9 @@ test -n "$karto__fine_search_angle_offset"
 test -n "$karto__coarse_search_angle_offset"
 test -n "$karto__coarse_angle_resolution"
 test -n "$karto__minimum_angle_penalty"
-test -n "$karto__minimum_distance_penalty"
 test -n "$karto__use_response_expansion"
-set -x
+#test -n "$karto__minimum_distance_penalty"
+
 exec rosrun slam_karto slam_karto \
     scan:="$karto_scan" \
     _odom_frame:="$karto__odom_frame" \
