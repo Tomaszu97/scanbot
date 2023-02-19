@@ -7,4 +7,12 @@ problems encountered:
     when playing a recording make sure to set /use_sim_time to true
     when recording and the replaying /scan and /tf make sure to filter out /odom from /tf, otherwise both recording and slam algo will generate translations on this frame causing stuttering image and broken visualization
     hector slam : when robot finishes out of map borders algorithm finished with segfault
-
+    karto slam : setting minimum distance penalty casues segfault
+    karto slam : following attributes may have caused segfault (no proof that it was not random):
+        _correlation_search_space_resolution
+        _correlation_search_space_smear_deviation
+        _link_match_minimum_response_fine
+        _loop_search_space_resolution
+        _loop_search_space_smear_deviation
+        _minimum_angle_penalty
+        _minimum_travel_heading
