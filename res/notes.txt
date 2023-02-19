@@ -6,3 +6,5 @@ https://pl.aliexpress.com/item/1005005024459162.html?spm=a2g0o.productlist.main.
 problems encountered:
     when playing a recording make sure to set /use_sim_time to true
     when recording and the replaying /scan and /tf make sure to filter out /odom from /tf, otherwise both recording and slam algo will generate translations on this frame causing stuttering image and broken visualization
+    hector slam : when robot finishes out of map borders algorithm finished with segfault
+
