@@ -74,4 +74,3 @@ echo "multitest1: trying algorithm: karto"
 ./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _coarse_search_angle_offset                0.1     0.1     0.5
 ./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _coarse_angle_resolution                   0.1     0.1     0.5
 ./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _minimum_angle_penalty                     0.1     0.4     1.7
-./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _minimum_distance_penalty                  0.1     0.2     0.9
