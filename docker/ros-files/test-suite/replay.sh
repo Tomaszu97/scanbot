@@ -1,4 +1,4 @@
-#!/bin/bash -axe
+#!/bin/bash -ae
 
 BAG="$1"
 BAG_REPLAY_RATE="$2"
@@ -6,7 +6,7 @@ test "$#" == "2"
 
 replay_cleanup()
 {
-    : "replay: cleaning up"
+    echo "replay: cleaning up"
     pkill -P $$ -SIGINT
     exit $1
 }
@@ -14,12 +14,12 @@ replay_cleanup()
 trap "replay_cleanup 0" SIGINT SIGTERM
 trap "replay_cleanup -1" ERR SIGHUP
 
-: "replay: starting tf remapper"
+echo "replay: starting tf remapper"
 # hide frame transforms originally published by slam node
 # set this as rosparam due to bug ros/ros_comm#1498 
 rosparam set '/tf_remapper/mappings' '[{"old": "map", "new": ""}]'
 rosrun tf_remapper_cpp tf_remap &
 
-: "replay: playing rosbag"
+echo "replay: playing rosbag"
 rosbag play --clock -r "$BAG_REPLAY_RATE" "${BAG}.bag" tf:=tf_old
 replay_cleanup 0

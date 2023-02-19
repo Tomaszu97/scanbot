@@ -1,4 +1,4 @@
-#!/bin/bash -axe
+#!/bin/bash -ae
 
 ALGORITHM="$1"
 BAG="$2"
@@ -11,7 +11,7 @@ test "$#" == "7"
 
 cleanup()
 {
-    : "test: cleaning up"
+    echo "test: cleaning up"
     pkill -P $$ -SIGINT
     exit $1
 }
@@ -21,18 +21,27 @@ trap "cleanup -1" ERR SIGHUP
 
 for curr_param_value in $(seq "$TEST_PARAM_MIN" "$TEST_PARAM_STEP" "$TEST_PARAM_MAX")
 do
-    : "test: running test for param $curr_param_value"
-    : "test: starting algorithm $ALGORITHM"
+    echo "test: running - algorithm=${ALGORITHM}, param ${TEST_PARAM_NAME}=${curr_param_value}, bag=${BAG}"
+    echo "test: starting algorithm"
     env "${ALGORITHM}_${TEST_PARAM_NAME}=${curr_param_value}" ./run-algorithm.sh "${ALGORITHM}" &
+    algo_pid="$!"
 
-    : "test: replaying bag $BAG"
+    echo "test: replaying bag"
     ./replay.sh "$BAG" "$BAG_REPLAY_RATE"
 
-    : "test: saving map as image"
-    curr_dirname="test/${ALGORITHM}/${BAG}_x${BAG_REPLAY_RATE}/${TEST_PARAM_NAME}/"
-    mkdir -p "$curr_dirname"
-    ./save-map.sh "${curr_dirname}/${curr_param_value}"
+    echo "test: checking if algorithm is still running"
+    if kill -0 "$algo_pid"
+    then
+        curr_dirname="test/${ALGORITHM}/${BAG}_x${BAG_REPLAY_RATE}/${TEST_PARAM_NAME}/"
+        echo "test: saving map as image, dir=${curr_dirname}"
+        mkdir -p "$curr_dirname"
+        ./save-map.sh "${curr_dirname}/${curr_param_value}"
+    else
+        echo "test: algorithm died - skip map fetching"
+        echo "test: cleanup dead nodes from ros core"
+        yes | rosnode cleanup
+    fi
 
-    : "test: killing algorithm"
-    rosnode list | grep "$ALGORITHM" | xargs -n 1 rosnode kill
+    echo "test: killing algorithm"
+    kill -0 "$algo_pid" && kill -SIGINT "$algo_pid"
 done
