@@ -6,11 +6,13 @@ test "$#" == "2" || { echo 'check parameters' ; exit 1 ; }
 
 cleanup()
 {
-    echo "multitest1: exiting"
-    exit 0
+    echo "multitest1: cleaning up"
+    pkill -P $$ -SIGINT
+    exit $1
 }
 
-trap "cleanup" SIGINT
+trap "cleanup 0" SIGINT SIGTERM
+trap "cleanup -1" SIGHUP
 
 echo "multitest1: running multitest for $BAG"
 
