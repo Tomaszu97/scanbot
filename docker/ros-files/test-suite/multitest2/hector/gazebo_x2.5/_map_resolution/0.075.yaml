@@ -1,0 +1,7 @@
+image: test/hector/gazebo_x2.5/_map_resolution//0.075.pgm
+resolution: 0.075000
+origin: [-38.437500, -38.437500, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+
