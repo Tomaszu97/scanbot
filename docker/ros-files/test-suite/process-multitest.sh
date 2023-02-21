@@ -28,8 +28,7 @@ do
     for pgm in $pgm_files
     do
         echo "process-multitest: processing file $pgm"
-        #TODO dont do it like that
-        score="$(python3 compare.py -a "$reference_image" -b "$pgm" -o "${pgm}.score.png" -s -v -j 360 -k 0.1 -l 0.9)"
+        score="$(python3 compare.py -a "$reference_image" -b "$pgm" -o "${pgm}.score.png" -v -j 3 -k 0.02 -l 0.9)"
         echo "$score" | tail -n 1 > "${pgm}.score"
     done
 
