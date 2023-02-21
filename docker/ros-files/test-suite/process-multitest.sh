@@ -28,8 +28,8 @@ do
     for pgm in $pgm_files
     do
         echo "process-multitest: processing file $pgm"
-        score="$(python3 compare.py -a "$reference_image" -b "$pgm" -o "${pgm}.score.png" -v -j 3 -k 0.02 -l 0.9)"
-        echo "$score" | tail -n 1 > "${pgm}.score"
+        score="$(python3 compare.py -a "$reference_image" -b "$pgm" -o "${pgm}.score.png" -j 3 -k 0.02 -l 0.9)"
+        echo "$score" > "${pgm}.score"
     done
 
     echo "process-multitest: generating graph for $dir"
