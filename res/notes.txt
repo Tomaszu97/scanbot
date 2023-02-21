@@ -16,3 +16,7 @@ problems encountered:
         _loop_search_space_smear_deviation
         _minimum_angle_penalty
         _minimum_travel_heading
+
+
+to mention:
+    hector slam worked best at map resolution equal to gaussian noise setting (sigma?) in urdf sensor - slight deviations caused map to break
