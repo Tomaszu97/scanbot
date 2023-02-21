@@ -1,3 +1,4 @@
+import argparse
 import cv2
 import imutils
 import numpy as np
@@ -107,16 +108,16 @@ class OccupationGrid:
     def _put_text(self, image, text):
         ret = image.copy()
         h, w = ret.shape[:2]
-        scale = h / 1200
-        thickness = int(np.ceil(h / 1000))
+        scale = 1
+        thickness = 1
 
         x0 = int(w * 0.05)
-        y0 = int(0.75 * h)
+        y0 = int(h * 0.75)
+        ydelta = int(np.ceil(35 * scale))
         for i, line in enumerate(text.split('\n')):
-            y = int(np.ceil(i * 40 * scale))
             cv2.putText(ret,
                         line,
-                        (x0, y0 + y),
+                        (x0, y0 + (i * ydelta)),
                         cv2.FONT_HERSHEY_SIMPLEX,
                         scale,
                         TEXT_COLOR,
@@ -130,7 +131,8 @@ class OccupationGrid:
                 angle,
                 scale,
                 text,
-                wait_time = 1):
+                wait_time = 1,
+                save_file = None):
         haystack = self._haystack_image(angle).copy()
         needle = other_grid._needle_image(scale).copy()
         needle_h, needle_w = needle.shape[:2]
@@ -141,18 +143,23 @@ class OccupationGrid:
             haystack[pos_y:pos_y + needle_h, pos_x:pos_x + needle_w] * alpha + \
             needle * (1 - alpha)
 
-
-        haystack = self._put_text(haystack, text)
         resized = cv2.resize(haystack, (1024, 768))
-        cv2.imshow('preview', resized)
-        cv2.waitKey(wait_time)
+        resized = self._put_text(resized, text)
+
+        if save_file is not None:
+            cv2.imwrite(save_file, resized)
+        else:
+            cv2.imshow('preview', resized)
+            cv2.waitKey(wait_time)
 
     def match_template(self,
                        other_grid,
+                       min_scale = 0.8,
                        scale_step = 0.1,
-                       angle_step = 6,
-                       debug_preview = False):
-        assert(1 / scale_step % 1 == 0)
+                       angle_step = 1,
+                       debug_preview = False,
+                       debug_print = False):
+        assert(round((1 - min_scale) / scale_step, 6) % 1 == 0)
         assert(360 / angle_step % 1 == 0)
         image = self
         template = other_grid
@@ -171,7 +178,7 @@ class OccupationGrid:
         for angle in np.linspace(0, (360 - angle_step), int(360 / angle_step)):
             haystack = image._haystack_image(angle)
 
-            for scale in np.linspace(scale_step, 1, int(1 / scale_step)):
+            for scale in np.linspace(min_scale, 1, int(round(1 - min_scale, 6) / scale_step)):
                 updated_scale = image_to_template_cropped_ratio * scale
                 needle = template._needle_image(updated_scale)
 
@@ -197,7 +204,7 @@ class OccupationGrid:
                                   angle,
                                   updated_scale,
                                   text)
-                else:
+                if debug_print:
                     print(f'---\n{text}')
 
         return (max_val, max_loc, max_angle, max_scale, max_updated_scale)
@@ -220,42 +227,97 @@ def compare(a, b):
     return (max_val, max_loc, max_angle, max_scale, max_updated_scale)
 
 
-a = OccupationGrid('0.01.pgm')
-b = OccupationGrid('0.13.pgm')
-debug = True
-visual_summary = True
+def main(args):
+    a = OccupationGrid(args['firstimage'])
+    b = OccupationGrid(args['secondimage'])
+    save_file = args['outputimage']
+    print_debug = args['verbose']
+    visual_debug = args['step']
+    visual_summary = args['bestmatch']
+    angle_step = args['anglestep']
+    scale_step = args['scalestep']
+    min_scale = args['minscale']
 
-print('first pass')
-max_val, max_loc, max_angle, max_scale, max_updated_scale = \
-    a.match_template(b, debug_preview = debug)
+    if print_debug:
+        print('first pass')
 
-print('second pass')
-max_val_2, max_loc_2, max_angle_2, max_scale_2, max_updated_scale_2 = \
-    b.match_template(a, debug_preview = debug)
+    max_val, max_loc, max_angle, max_scale, max_updated_scale = \
+        a.match_template(b,
+                         angle_step = angle_step,
+                         min_scale = min_scale,
+                         scale_step = scale_step,
+                         debug_preview = visual_debug,
+                         debug_print = print_debug)
 
-if max_val > max_val_2:
-    print(f'SCORE: {round(max_val, 3)}')
-    if visual_summary:
-        a.preview(b,
-                  max_loc,
-                  max_angle,
-                  max_updated_scale,
-                  f'maximum angle:      {round(max_angle, 3)}\n'
-                  f'maximum scale:      {round(max_updated_scale, 3)}\n'
-                  f'maximum location:   ({max_loc[0]}, {max_loc[1]})\n'
-                  f'maximum score:      {round(max_val, 3)}',
-                  wait_time = 0)
-else:
-    print(f'SCORE: {round(max_val_2, 3)}')
-    if visual_summary:
-        b.preview(a,
-                  max_loc_2,
-                  max_angle_2,
-                  max_updated_scale_2,
-                  f'maximum angle:      {round(max_angle_2, 3)}\n'
-                  f'maximum scale:      {round(max_updated_scale_2, 3)}\n'
-                  f'maximum location:   ({max_loc_2[0]}, {max_loc_2[1]})\n'
-                  f'maximum score:      {round(max_val_2, 3)}',
-                  wait_time = 0)
+    if print_debug:
+        print('second pass')
 
-#TODO make this script non-interactive
+    max_val_2, max_loc_2, max_angle_2, max_scale_2, max_updated_scale_2 = \
+        b.match_template(a,
+                         angle_step = angle_step,
+                         min_scale = min_scale,
+                         scale_step = scale_step,
+                         debug_preview = visual_debug,
+                         debug_print = print_debug)
+
+    if max_val > max_val_2:
+        print(f'{round(max_val, 3)}')
+        if visual_summary:
+            a.preview(b,
+                      max_loc,
+                      max_angle,
+                      max_updated_scale,
+                      f'maximum angle:      {round(max_angle, 3)}\n'
+                      f'maximum scale:      {round(max_updated_scale, 3)}\n'
+                      f'maximum location:   ({max_loc[0]}, {max_loc[1]})\n'
+                      f'maximum score:      {round(max_val, 3)}',
+                      wait_time = 0)
+        if save_file is not None:
+            a.preview(b,
+                      max_loc,
+                      max_angle,
+                      max_updated_scale,
+                      f'maximum angle:      {round(max_angle, 3)}\n'
+                      f'maximum scale:      {round(max_updated_scale, 3)}\n'
+                      f'maximum location:   ({max_loc[0]}, {max_loc[1]})\n'
+                      f'maximum score:      {round(max_val, 3)}',
+                      wait_time = 0,
+                      save_file = save_file)
+    else:
+        print(f'{round(max_val_2, 3)}')
+        if visual_summary:
+            b.preview(a,
+                      max_loc_2,
+                      max_angle_2,
+                      max_updated_scale_2,
+                      f'maximum angle:      {round(max_angle_2, 3)}\n'
+                      f'maximum scale:      {round(max_updated_scale_2, 3)}\n'
+                      f'maximum location:   ({max_loc_2[0]}, {max_loc_2[1]})\n'
+                      f'maximum score:      {round(max_val_2, 3)}',
+                      wait_time = 0)
+        if save_file is not None:
+            b.preview(a,
+                      max_loc_2,
+                      max_angle_2,
+                      max_updated_scale_2,
+                      f'maximum angle:      {round(max_angle_2, 3)}\n'
+                      f'maximum scale:      {round(max_updated_scale_2, 3)}\n'
+                      f'maximum location:   ({max_loc_2[0]}, {max_loc_2[1]})\n'
+                      f'maximum score:      {round(max_val_2, 3)}',
+                      wait_time = 0,
+                      save_file = save_file)
+
+
+if __name__ == '__main__':
+    parser = argparse.ArgumentParser(description = 'Occupation grid compare script [TZJ 2023]')
+    parser.add_argument('-a', '--firstimage', help = 'One of compared occupation grids in pgm format', required = True)
+    parser.add_argument('-b', '--secondimage', help = 'Another compared occupation grids in pgm format', required = True)
+    parser.add_argument('-o', '--outputimage', help = 'Output image with summary and overlaid first and second image', required = False, default = None, type = str)
+    parser.add_argument('-v', '--verbose', help = 'Print steps in the terminal', required = False, action = 'store_true')
+    parser.add_argument('-s', '--step', help = 'Show comparison picture at every step (angle and scale)', required = False, action = 'store_true')
+    parser.add_argument('-m', '--bestmatch', help = 'Show comparison picture for the best match at the end', required = False, action = 'store_true')
+    parser.add_argument('-j', '--anglestep', help = 'Amount of degrees between steps', required = False, default = 6, type = float)
+    parser.add_argument('-k', '--scalestep', help = 'A fraction representing scale difference between steps', required = False, default = 0.02, type = float)
+    parser.add_argument('-l', '--minscale', help = 'Minimum scale to use', required = False, default = 0.9, type = float)
+    args = vars(parser.parse_args())
+    main(args)
