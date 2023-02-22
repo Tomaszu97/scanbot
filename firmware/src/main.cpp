@@ -13,11 +13,13 @@ Drive *drive;
 Watchdog *watchdog;
 
 bool
-is_robot_turning(const int left_speed,
+is_robot_moving(const int left_speed,
                  const int right_speed)
 {
-    if (left_speed < 0 && right_speed > 0) return true;
-    if (left_speed > 0 && right_speed < 0) return true;
+    if (left_speed > DRIVE_SERVO_IN_DEADZONE ||
+        left_speed < -DRIVE_SERVO_IN_DEADZONE ||
+        right_speed > DRIVE_SERVO_IN_DEADZONE ||
+        right_speed < -DRIVE_SERVO_IN_DEADZONE) return true;
     return false;
 }
 
@@ -41,7 +43,7 @@ cmd_handle(command_t cmd)
             if (command->assert_argc(1 + 2, cmd) == false) break;
             const int left_speed = atoi(cmd.argv[1]);
             const int right_speed = atoi(cmd.argv[2]);
-            if (is_robot_turning(left_speed, right_speed) == true) scan->pause();
+            if (is_robot_moving(left_speed, right_speed) == true) scan->pause();
             else scan->unpause();
             drive->set_motors(left_speed,
                               right_speed);
