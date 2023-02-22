@@ -152,9 +152,9 @@ setup()
 
     if (display == nullptr) while (true);
     if (command == nullptr ||
-            scan == nullptr ||
-            drive == nullptr ||
-            watchdog == nullptr)
+        scan == nullptr ||
+        drive == nullptr ||
+        watchdog == nullptr)
         display->panic("E:singleton init");
 
     display->beep(30, 3);

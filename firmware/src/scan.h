@@ -32,14 +32,13 @@ private:
     bool is_scan_full();
     void notify_scan_state();
     void clear();
-    void recalibrate_pos();
     static Scan *scan_;
     Display *display;
     Command *command;
     enum scan_state state = SCAN_DISABLED;
     unsigned int pos;
-    uint16_t scan_buf[SCAN_BUF_LEN];
-    bool scan_buf_updated[SCAN_BUF_LEN];
+    uint16_t scan_buf[SCAN_STEPS_PER_ROTATION];
+    bool scan_buf_updated[SCAN_STEPS_PER_ROTATION];
 
 public:
     static Scan *get_instance();
