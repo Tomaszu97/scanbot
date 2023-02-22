@@ -60,7 +60,7 @@ services:
       QT_X11_NO_MITSHM: 1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-    command: bash -c 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.2 _maxUrange:=2.5 _delta:=0.06 _minimumScore:=5 output="screen"'
+    command: bash -c 'rosrun gmapping slam_gmapping scan:=/scanbot/scan'
 
   hector:
     privileged: true
@@ -74,21 +74,21 @@ services:
       QT_X11_NO_MITSHM: 1
     volumes:
       - /tmp/.X11-unix:/tmp/.X11-unix
-    command: bash -c ''
+    command: bash -c 'rosrun hector_mapping hector_mapping scan:=/scanbot/scan'
 
-    #  cartographer:
-    #    privileged: true
-    #    hostname: gmapping
-    #    build: ros
-    #    environment:
-    #      ROS_MASTER_URI: "http://roscore:11311"
-    #      DISPLAY: ${DISPLAY}
-    #      NVIDIA_VISIBLE_DEVICES: all
-    #      NVIDIA_DRIVER_CAPABILITIES: all
-    #      QT_X11_NO_MITSHM: 1
-    #    volumes:
-    #      - /tmp/.X11-unix:/tmp/.X11-unix
-    #    command: bash -c 'rosrun gmapping slam_gmapping scan:=/scanbot/scan _map_update_interval:=0.2 _maxUrange:=2.5 _delta:=0.06 _ogain:=3 _occ_thresh:=0.12 output="screen"'
+  karto:
+    privileged: true
+    hostname: karto
+    build: ros
+    environment:
+      ROS_MASTER_URI: "http://roscore:11311"
+      DISPLAY: ${DISPLAY}
+      NVIDIA_VISIBLE_DEVICES: all
+      NVIDIA_DRIVER_CAPABILITIES: all
+      QT_X11_NO_MITSHM: 1
+    volumes:
+      - /tmp/.X11-unix:/tmp/.X11-unix
+    command: bash -c 'rosrun slam_karto slam_karto scan:=/scanbot/scan'
 
   rviz:
     privileged: true
