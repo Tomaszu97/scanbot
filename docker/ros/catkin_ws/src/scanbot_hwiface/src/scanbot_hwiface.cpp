@@ -18,7 +18,7 @@
 #define SCAN_MIN_DEG -166.5
 #define SCAN_MAX_DEG 166.5
 #define SCAN_BUF_LEN 371
-#define LASER_DEG_STEP ( ((double)SCAN_MAX_DEG - (double)SCAN_MIN_DEG) / (double)SCAN_BUF_LEN )
+#define LASER_DEG_STEP ( ((double)SCAN_MAX_DEG - (double)SCAN_MIN_DEG) / ((double)SCAN_BUF_LEN - 1) )
 #define LASER_RANGE_MIN_M 0.2
 #define LASER_RANGE_MAX_M 5.0
 #define LASER_DUMMY_VAL 0
