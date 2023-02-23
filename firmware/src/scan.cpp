@@ -33,16 +33,16 @@ void
 Scan::tower_init()
 {
     pinMode(TOWER_CONTROL_PIN ,OUTPUT);
-    digitalWrite(TOWER_CONTROL_PIN, HIGH);
+    digitalWrite(TOWER_CONTROL_PIN, LOW);
     pos = 0;
 }
 
 void
 Scan::tower_step()
 {
-    digitalWrite(TOWER_CONTROL_PIN, LOW);
-    delayMicroseconds(SCAN_CONST_STEPPER_STEP_DELAY_US);
     digitalWrite(TOWER_CONTROL_PIN, HIGH);
+    delayMicroseconds(SCAN_CONST_STEPPER_STEP_DELAY_US);
+    digitalWrite(TOWER_CONTROL_PIN, LOW);
     pos++;
     if (pos > SCAN_MAX_POS) pos = 0;
 }
