@@ -19,4 +19,6 @@ problems encountered:
 
 
 to mention:
+    poor odometry due to rotation and translation slippage
+    odometry is noisy, did a software workaround to mitigate
     hector slam worked best at map resolution equal to gaussian noise setting (sigma?) in urdf sensor - slight deviations caused map to break
