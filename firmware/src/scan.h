@@ -23,6 +23,8 @@ private:
     void lidar_trigger();
     void lidar_update(unsigned int curr_pos);
     void tower_init();
+    void tower_enable();
+    void tower_disable();
     void tower_step();
     bool throttle();
     void set_reg_u8(uint8_t reg, uint8_t val);

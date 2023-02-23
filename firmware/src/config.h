@@ -3,6 +3,7 @@
 
 /* constant parameters */
 #define TOWER_CONTROL_PIN PB6
+#define TOWER_ENABLE_PIN PB12
 #define LEFT_SERVO_PIN PB7
 #define RIGHT_SERVO_PIN PB8
 #define BUZZER_PIN PB13

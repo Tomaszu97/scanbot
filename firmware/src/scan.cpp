@@ -33,8 +33,24 @@ void
 Scan::tower_init()
 {
     pinMode(TOWER_CONTROL_PIN ,OUTPUT);
+    pinMode(TOWER_ENABLE_PIN ,OUTPUT);
     digitalWrite(TOWER_CONTROL_PIN, LOW);
+    digitalWrite(TOWER_ENABLE_PIN, LOW);
     pos = 0;
+}
+
+void
+Scan::tower_enable()
+{
+    digitalWrite(TOWER_ENABLE_PIN, LOW);
+    delayMicroseconds(SCAN_CONST_STEPPER_STEP_DELAY_US);
+}
+
+void
+Scan::tower_disable()
+{
+    digitalWrite(TOWER_ENABLE_PIN, HIGH);
+    delayMicroseconds(SCAN_CONST_STEPPER_STEP_DELAY_US);
 }
 
 void
@@ -101,6 +117,7 @@ void
 Scan::pause()
 {
     if (state != SCAN_WORKING) return;
+    tower_disable();
     clear();
     state = SCAN_PAUSED;
 }
@@ -109,6 +126,7 @@ void
 Scan::unpause()
 {
     if (state != SCAN_PAUSED) return;
+    tower_enable();
     state = SCAN_WORKING;
 }
 
