@@ -66,13 +66,21 @@ Drive::get_right_encoder_counter()
 void
 Drive::inc_left_encoder_counter()
 {
-    left_encoder_counter++;
+    static unsigned long last_t = micros();
+    const unsigned long current_t = micros();
+    const bool is_too_fast = ((current_t - last_t) < DRIVE_ENCODER_DEBOUNCE_US);
+    if (is_too_fast == false) left_encoder_counter++;
+    last_t = current_t;
 }
 
 void
 Drive::inc_right_encoder_counter()
 {
-    right_encoder_counter++;
+    static unsigned long last_t = micros();
+    const unsigned long current_t = micros();
+    const bool is_too_fast = ((current_t - last_t) < DRIVE_ENCODER_DEBOUNCE_US);
+    if (is_too_fast == false) right_encoder_counter++;
+    last_t = current_t;
 }
 
 void
