@@ -72,7 +72,7 @@
 #define CMD_DELIMITER ":"
 #define CMD_PARAM_SEPARATOR_DELIMITER ","
 #define CMD_TERMINATOR '#'
-#define PING_TIMEOUT_MS 15000
+#define PING_TIMEOUT_MS 5000
 //#define DEBUG
 
 #endif /* CONFIG_H */

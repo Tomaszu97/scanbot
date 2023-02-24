@@ -36,7 +36,6 @@ Scan::tower_init()
     pinMode(TOWER_ENABLE_PIN ,OUTPUT);
     digitalWrite(TOWER_CONTROL_PIN, LOW);
     digitalWrite(TOWER_ENABLE_PIN, LOW);
-    pos = 0;
 }
 
 void
@@ -96,7 +95,6 @@ Scan::clear()
 {
     for (int i = 0; i < SCAN_STEPS_PER_ROTATION; i++) {
         scan_buf[i] = 0;
-        scan_buf_updated[i] = false;
     }
 }
 
@@ -127,6 +125,7 @@ Scan::unpause()
 {
     if (state != SCAN_PAUSED) return;
     tower_enable();
+    first_scan_pos = pos;
     state = SCAN_WORKING;
 }
 
@@ -194,55 +193,99 @@ Scan::get_reg_u16(uint8_t reg_low)
     return ret_val;
 }
 
+static unsigned int
+min_mod_difference(unsigned int a,
+               unsigned int b,
+               unsigned int mod)
+{
+    if (a >= b)
+        return min(a - b, (b + mod) - a);
+    /* else if (a < b) */
+        return min(b - a, (a + mod) - b);
+}
+
+void
+Scan::adjust_pos()
+{
+    const unsigned int action_low_thr = 3;
+    const unsigned int thr = 4;
+    unsigned int cnt = 0;
+    for (int p = 0;
+         p < (SCAN_STEPS_PER_ROTATION + thr);
+         p++) {
+        unsigned int i = p % SCAN_STEPS_PER_ROTATION;
+        uint16_t distance = scan_buf[i];
+
+        if (distance <= LIDAR_CONST_MIN_DIST) cnt++;
+        else cnt = 0;
+
+        const bool pole_detected = (cnt >= thr);
+        if (pole_detected == true) {
+
+            const bool adjustment_significant = (min_mod_difference(i, zero_pos, SCAN_STEPS_PER_ROTATION) >= action_low_thr);
+            if (adjustment_significant == true)
+                zero_pos = i;
+
+            break;
+        }
+    }
+}
+
+void
+Scan::process_scan()
+{
+    /* overwrite out of bounds scans with dummy value */
+    for (int i = 0; i < SCAN_STEPS_PER_ROTATION; i++) {
+        uint16_t *distance = &scan_buf[i];
+        if (*distance <= LIDAR_CONST_MIN_DIST ||
+            *distance >= LIDAR_CONST_MAX_DIST) {
+            *distance = LIDAR_CONST_DUMMY_DIST;
+        }
+    }
+}
+
 void
 Scan::notify_scan_state()
 {
-
     command->print(command->get_command_str(NOTIFY_SCAN));
     command->print(CMD_DELIMITER);
 
-    for (int i = (SCAN_REAR_DEADZONE + 1);
-         i <= (SCAN_MAX_POS - SCAN_REAR_DEADZONE);
-         i++) {
+    for (int p = (SCAN_REAR_DEADZONE + 1);
+         p <= (SCAN_MAX_POS - SCAN_REAR_DEADZONE);
+         p++) {
 
-        if (scan_buf[i] == LIDAR_CONST_DUMMY_DIST)
-            command->print(scan_buf[i], DEC);
+        int buf_idx = (zero_pos + p) % SCAN_STEPS_PER_ROTATION;
+
+        if (scan_buf[buf_idx] == LIDAR_CONST_DUMMY_DIST)
+            command->print(scan_buf[buf_idx], DEC);
         else
-            command->print(scan_buf[i] + LIDAR_CONST_AXIS_OFFSET, DEC);
+            command->print(scan_buf[buf_idx] + LIDAR_CONST_AXIS_OFFSET, DEC);
 
-        if (i != (SCAN_MAX_POS - SCAN_REAR_DEADZONE)) {
+        if (p != (SCAN_MAX_POS - SCAN_REAR_DEADZONE))
             command->print(CMD_PARAM_SEPARATOR_DELIMITER);
-        }
     }
 
     command->println(CMD_TERMINATOR);
-}
-
-bool
-Scan::is_scan_full()
-{
-    for (int i = 0; i < SCAN_STEPS_PER_ROTATION; i++) {
-        if (scan_buf_updated[i] == false) {
-            return false;
-        }
-    }
-    return true;
 }
 
 void
 Scan::lidar_update(unsigned int curr_pos)
 {
     uint16_t distance = get_reg_u16(LIDAR_REG_DIST_LOW);
-    if (distance <= LIDAR_CONST_MIN_DIST ||
-            distance >= LIDAR_CONST_MAX_DIST) {
-        distance = LIDAR_CONST_DUMMY_DIST;
-    }
     scan_buf[curr_pos] = distance;
-    scan_buf_updated[curr_pos] = true;
+}
 
-    if (curr_pos == SCAN_MAX_POS) {
-        notify_scan_state();
+bool
+Scan::is_scan_full()
+{
+    int distance = pos - first_scan_pos;
+    if ( distance < 0 ) distance = SCAN_STEPS_PER_ROTATION + distance;
+
+    if ( distance == (SCAN_STEPS_PER_ROTATION - 1) ) {
+        first_scan_pos = (pos + 1) % SCAN_STEPS_PER_ROTATION;
+        return true;
     }
+    return false;
 }
 
 void
@@ -252,5 +295,12 @@ Scan::work()
     if (throttle() == true) return;
 
     lidar_update(pos);
+
+    if (is_scan_full() == true) {
+        adjust_pos();
+        process_scan();
+        notify_scan_state();
+    }
+
     tower_step();
 }

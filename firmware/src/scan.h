@@ -34,13 +34,16 @@ private:
     bool is_scan_full();
     void notify_scan_state();
     void clear();
+    void adjust_pos();
+    void process_scan();
     static Scan *scan_;
     Display *display;
     Command *command;
     enum scan_state state = SCAN_DISABLED;
-    unsigned int pos;
+    unsigned int pos = 0; /* buffer cursor */
+    unsigned int zero_pos = 0; /* zero degree position detected from scan */
+    int first_scan_pos = 0; /* position where full rotation scan started */
     uint16_t scan_buf[SCAN_STEPS_PER_ROTATION];
-    bool scan_buf_updated[SCAN_STEPS_PER_ROTATION];
 
 public:
     static Scan *get_instance();
