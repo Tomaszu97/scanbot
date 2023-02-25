@@ -1,0 +1,7 @@
+image: test/karto/gazebo_x2/_fine_search_angle_offset//0.00350.pgm
+resolution: 0.050000
+origin: [-8.303186, -1.906979, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+

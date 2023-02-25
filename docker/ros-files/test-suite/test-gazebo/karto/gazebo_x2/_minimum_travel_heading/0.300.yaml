@@ -1,0 +1,7 @@
+image: test/karto/gazebo_x2/_minimum_travel_heading//0.300.pgm
+resolution: 0.050000
+origin: [-8.337623, -1.933008, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+
