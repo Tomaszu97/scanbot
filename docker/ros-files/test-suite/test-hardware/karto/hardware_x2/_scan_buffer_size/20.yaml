@@ -1,0 +1,7 @@
+image: test/karto/hardware_x2/_scan_buffer_size//20.pgm
+resolution: 0.050000
+origin: [-7.608638, -3.806784, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+

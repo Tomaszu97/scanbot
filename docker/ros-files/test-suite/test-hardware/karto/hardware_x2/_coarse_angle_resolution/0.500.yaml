@@ -1,0 +1,7 @@
+image: test/karto/hardware_x2/_coarse_angle_resolution//0.500.pgm
+resolution: 0.050000
+origin: [-3.720377, -7.578600, 0.000000]
+negate: 0
+occupied_thresh: 0.65
+free_thresh: 0.196
+
