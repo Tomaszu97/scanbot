@@ -26,8 +26,9 @@ plot_data()
     test -n "$plot_to_filename" && echo "set output \"$plot_to_filename\""                         >> "$plot_file"
     echo "set xlabel \"$xlabel\" noenhanced"                                                       >> "$plot_file"
     echo "set ylabel \"$ylabel\" noenhanced"                                                       >> "$plot_file"
-    echo "set key box opaque outside horizontal top center" >> "$plot_file"
-    echo "set border back" >> "$plot_file"
+    echo "set yrange [0:1]"                                                                        >> "$plot_file"
+    echo "set key box opaque outside horizontal top center"                                        >> "$plot_file"
+    echo "set border back"                                                                         >> "$plot_file"
     echo "f(x) = m*x + b"                                                                          >> "$plot_file"
     echo "fit f(x) '$data_file' via m,b"                                                           >> "$plot_file"
     echo "plot \
@@ -39,7 +40,7 @@ plot_data()
         f(x) \
         lt rgb \"#000000\" \
         lw 2 \
-        title 'linear regression'" >> "$plot_file"
+        title 'linear regression'"                                                                 >> "$plot_file"
     test -z "$plot_to_filename" && echo "pause mouse"                                              >> "$plot_file"
 
     gnuplot "$plot_file"
