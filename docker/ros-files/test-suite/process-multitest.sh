@@ -36,7 +36,6 @@ do
     param_values="$(ls -1 "$dir"/*.pgm | xargs -n1 basename | sort -n | sed 's/\.pgm$//')"
     scores="$(ls -1 "$dir"/*.pgm.score | sort -n | xargs -n 1 cat)"
     plot_values="$( paste -d "\t" <(echo "$param_values") <(echo "$scores") )"
-    plot_title="$param_name vs score" \
     plot_legend="$param_name" \
     plot_xlabel="$param_name" \
     plot_ylabel="score" \
