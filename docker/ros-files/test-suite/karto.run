@@ -23,7 +23,7 @@ test -n "$karto__loop_match_minimum_response_fine"
 test -n "$karto__correlation_search_space_dimension"
 test -n "$karto__correlation_search_space_resolution"
 test -n "$karto__correlation_search_space_smear_deviation"
-test -n "$karto__correlation_loop_search_space_dimension"
+test -n "$karto__loop_search_space_dimension"
 test -n "$karto__loop_search_space_resolution"
 test -n "$karto__loop_search_space_smear_deviation"
 test -n "$karto__distance_variance_penalty"
@@ -60,7 +60,7 @@ exec rosrun slam_karto slam_karto \
     _correlation_search_space_dimension:="$karto__correlation_search_space_dimension" \
     _correlation_search_space_resolution:="$karto__correlation_search_space_resolution" \
     _correlation_search_space_smear_deviation:="$karto__correlation_search_space_smear_deviation" \
-    _correlation_loop_search_space_dimension:="$karto__correlation_loop_search_space_dimension" \
+    _loop_search_space_dimension:="$karto__loop_search_space_dimension" \
     _loop_search_space_resolution:="$karto__loop_search_space_resolution" \
     _loop_search_space_smear_deviation:="$karto__loop_search_space_smear_deviation" \
     _distance_variance_penalty:="$karto__distance_variance_penalty" \
