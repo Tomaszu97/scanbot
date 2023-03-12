@@ -23,7 +23,6 @@ test -n "$karto__loop_match_minimum_response_fine"
 test -n "$karto__correlation_search_space_dimension"
 test -n "$karto__correlation_search_space_resolution"
 test -n "$karto__correlation_search_space_smear_deviation"
-test -n "$karto__loop_search_space_dimension"
 test -n "$karto__loop_search_space_resolution"
 test -n "$karto__loop_search_space_smear_deviation"
 test -n "$karto__distance_variance_penalty"
@@ -33,6 +32,7 @@ test -n "$karto__coarse_search_angle_offset"
 test -n "$karto__coarse_angle_resolution"
 test -n "$karto__minimum_angle_penalty"
 test -n "$karto__use_response_expansion"
+#test -n "$karto__loop_search_space_dimension"
 #test -n "$karto__minimum_distance_penalty"
 
 exec rosrun slam_karto slam_karto \
@@ -60,7 +60,6 @@ exec rosrun slam_karto slam_karto \
     _correlation_search_space_dimension:="$karto__correlation_search_space_dimension" \
     _correlation_search_space_resolution:="$karto__correlation_search_space_resolution" \
     _correlation_search_space_smear_deviation:="$karto__correlation_search_space_smear_deviation" \
-    _loop_search_space_dimension:="$karto__loop_search_space_dimension" \
     _loop_search_space_resolution:="$karto__loop_search_space_resolution" \
     _loop_search_space_smear_deviation:="$karto__loop_search_space_smear_deviation" \
     _distance_variance_penalty:="$karto__distance_variance_penalty" \
@@ -70,4 +69,5 @@ exec rosrun slam_karto slam_karto \
     _coarse_angle_resolution:="$karto__coarse_angle_resolution" \
     _minimum_angle_penalty:="$karto__minimum_angle_penalty" \
     _use_response_expansion:="$karto__use_response_expansion" \
+#   _loop_search_space_dimension:="$karto__loop_search_space_dimension" \ # setting this parameter caused segfault in slam_karto
 #    _minimum_distance_penalty:="$karto__minimum_distance_penalty" \ # setting this parameter caused segfault in slam_karto

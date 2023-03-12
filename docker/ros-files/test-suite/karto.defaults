@@ -26,7 +26,6 @@
 : "${karto__correlation_search_space_dimension:=0.3}"
 : "${karto__correlation_search_space_resolution:=0.01}"
 : "${karto__correlation_search_space_smear_deviation:=0.03}"
-: "${karto__loop_search_space_dimension:=8.0}"
 : "${karto__loop_search_space_resolution:=0.05}"
 : "${karto__loop_search_space_smear_deviation:=0.03}"
 : "${karto__distance_variance_penalty:=0.5477225575}"
@@ -36,3 +35,4 @@
 : "${karto__coarse_angle_resolution:=0.034906585}"
 : "${karto__minimum_angle_penalty:=0.9}"
 #: "${karto__minimum_distance_penalty:=0.5}"
+#: "${karto__loop_search_space_dimension:=8.0}"

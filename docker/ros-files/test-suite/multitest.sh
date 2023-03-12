@@ -67,7 +67,6 @@ echo "multitest1: trying algorithm: karto"
 #./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _correlation_search_space_dimension        0.1     0.1       1.7
 #./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _correlation_search_space_resolution       0.005   0.00125   0.025
 #./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _correlation_search_space_smear_deviation  0.01    0.005     0.09
-./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _loop_search_space_dimension               1.0     1.0       17.0
 #./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _loop_search_space_resolution              0.01    0.01      0.17
 #./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _loop_search_space_smear_deviation         0.01    0.0025    0.05
 #./test.sh karto "$BAG" "$BAG_REPLAY_RATE" _distance_variance_penalty                 0.4     0.0125    0.6
