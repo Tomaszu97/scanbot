@@ -1,4 +1,4 @@
-#!/bin/bash -ax
+#!/bin/bash -a
 
 set -e
 multitest_dir="$1"
@@ -35,7 +35,8 @@ do
     echo "process-multitest: generating graph for $dir"
     param_values="$(ls -1 "$dir"/*.pgm | xargs -n1 basename | sort -n | sed 's/\.pgm$//')"
     scores="$(ls -1 "$dir"/*.pgm.score | sort -n | xargs -n 1 cat)"
-    plot_values="$( paste -d "\t" <(echo "$param_values") <(echo "$scores") )"
+    plot_values="$( paste -d "\t" <(echo "$param_values") <(echo "$scores" | sed 's/^$/NULL/') )"
+    plot_values="$(echo "$plot_values" | grep -vF 'NULL')"
     plot_legend="$param_name" \
     plot_xlabel="$param_name" \
     plot_ylabel="score" \
