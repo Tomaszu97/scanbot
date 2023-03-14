@@ -1,4 +1,4 @@
-#!/bin/bash -axe
+#!/bin/bash -ae
 
 test -n "$plot_legend"
 test -n "$plot_xlabel"
@@ -33,7 +33,7 @@ plot_data()
     echo "f(x) = m*x + b"                                                                          >> "$plot_file"
     echo "fit f(x) '$data_file' via m,b"                                                           >> "$plot_file"
     echo "plot \
-        '$data_file'\
+        '$data_file' \
         w points \
         lt rgb \"#${random_hex_color}\" \
         lw 2 \
@@ -45,8 +45,8 @@ plot_data()
     test -z "$plot_to_filename" && echo "pause mouse"                                              >> "$plot_file"
 
     gnuplot "$plot_file"
-    rm "$plot_file"
-    rm "$data_file"
+    rm -f "$plot_file"
+    rm -f "$data_file"
 }
 
 plot_data "$plot_legend" "$plot_xlabel" "$plot_ylabel" "$plot_values"
