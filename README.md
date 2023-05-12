@@ -1,11 +1,11 @@
 # ScanBot
 A ROS based room scanning robot.  
-My master's thesis.  
-
-## First trials
-Using gazebo classic to emulate the real world environment and my robot. Added gaussian noise so that LIDAR readings are not perfect.  
+My master's thesis.    
 ![top-down view of the robot](./res/scanbot-gazebo-1.png)  
 ![perspective view](./res/scanbot-gazebo-2.png)  
+
+For more information check out [this article](https://tomaszu.com/posts/scanbot/scanbot/).
+
 
 ```
 resource sources:
